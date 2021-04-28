@@ -212,6 +212,8 @@ void ElimLeftRecur()
     }
 }
 
+void CombineSingleLeftCommon(int);
+
 void CombineLeftCommon()
 {
     std::vector<int> symbolIds;
@@ -238,11 +240,12 @@ void CombineSingleLeftCommon(int symbolId)
             Symbol newSymbol;
             newSymbol.id = newSymbolId;
             newSymbol.type = NON_TERMI;
-            int maxCommonLen;
+            int maxCommonLen = -1;
             Expression preExpressionRight;
             for (auto subExpression : subExpressionsIt->second)
             {
-                if (preExpressionRight.size() == 0)
+                std::cout<<"DEBUG0 "<<subExpression.size()<<std::endl;
+                if (maxCommonLen == -1)
                 {
                     maxCommonLen = subExpression.size();
                 }
@@ -262,6 +265,7 @@ void CombineSingleLeftCommon(int symbolId)
                 }
                 preExpressionRight = subExpression;
             }
+            std::cout<<"DEBUG "<< newSymbolName <<" "<<preExpressionRight.size()<<std::endl;
             for (auto subExpression : subExpressionsIt->second)
             {
                 Expression newSubExpression;
@@ -286,8 +290,10 @@ void CombineSingleLeftCommon(int symbolId)
             Symbols.insert(std::pair<int, Symbol>(newSymbolId, newSymbol));
 
             Expression reducedExpression;
-            for (int i = 0; i < maxCommonLen; i++)
-                reducedExpression.push_back(preExpressionRight[i]);
+            if(preExpressionRight.size()>0){
+                for (int i = 0; i < maxCommonLen; i++)
+                    reducedExpression.push_back(preExpressionRight[i]);
+            }
             reducedExpression.push_back(newSymbolId);
             subExpressionsIt->second.clear();
             subExpressionsIt->second.push_back(reducedExpression);
@@ -304,7 +310,8 @@ int main()
     GenSymbols("test.txt");
     Show();
     std::cout << "------------------------------------" << std::endl;
-    ElimLeftRecur();
+    CombineLeftCommon();
+    //ElimLeftRecur();
     Show();
     return 0;
 }
