@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 
 const int EPS = 0;
 
@@ -27,6 +28,12 @@ int SymbolID;
 std::map<std::string, int> SymbolNameMap;
 std::map<int, std::string> InvSymbolNameMap;
 std::map<int, Symbol> Symbols;
+
+inline void InsertSymbolId(int id, std::string name)
+{
+    SymbolNameMap.insert(std::pair<std::string, int>(name, id));
+    InvSymbolNameMap.insert(std::pair<int, std::string>(id, name));
+}
 
 void GenSymbols(const std::string &pth)
 {
@@ -164,8 +171,7 @@ void ElimLeftRecur()
 
             int newSymbolId = ++SymbolID;
             std::string newSymbolName = InvSymbolNameMap.find(curId)->second + "_" + std::to_string(1);
-            SymbolNameMap.insert(std::pair<std::string, int>(newSymbolName, newSymbolId));
-            InvSymbolNameMap.insert(std::pair<int, std::string>(newSymbolId, newSymbolName));
+            InsertSymbolId(newSymbolId, newSymbolName);
             Symbol newSymbol;
             newSymbol.id = newSymbolId;
             newSymbol.type = NON_TERMI;
@@ -202,6 +208,91 @@ void ElimLeftRecur()
                     goodExpressionIt->push_back(newSymbolId);
                 }
             }
+        }
+    }
+}
+
+void CombineLeftCommon()
+{
+    std::vector<int> symbolIds;
+    for (auto symbol : Symbols)
+    {
+        symbolIds.push_back(symbol.first);
+    }
+    for (int id : symbolIds)
+    {
+        CombineSingleLeftCommon(id);
+    }
+}
+
+void CombineSingleLeftCommon(int symbolId)
+{
+    Symbol &symbol = Symbols.find(symbolId)->second;
+    for (auto subExpressionsIt = symbol.subExpressions.begin(); subExpressionsIt != symbol.subExpressions.end(); subExpressionsIt++)
+    {
+        if (subExpressionsIt->second.size() > 1)
+        {
+            int newSymbolId = ++SymbolID;
+            std::string newSymbolName = InvSymbolNameMap.find(symbolId)->second + std::to_string(newSymbolId);
+            InsertSymbolId(newSymbolId, newSymbolName);
+            Symbol newSymbol;
+            newSymbol.id = newSymbolId;
+            newSymbol.type = NON_TERMI;
+            int maxCommonLen;
+            Expression preExpressionRight;
+            for (auto subExpression : subExpressionsIt->second)
+            {
+                if (preExpressionRight.size() == 0)
+                {
+                    maxCommonLen = subExpression.size();
+                }
+                else
+                {
+                    int i;
+                    for (i = 0; i < std::min(maxCommonLen, int(subExpression.size())); i++)
+                    {
+                        if (subExpression[i] != preExpressionRight[i])
+                        {
+                            break;
+                        }
+                    }
+                    maxCommonLen = i;
+                    if (maxCommonLen == 0)
+                        break;
+                }
+                preExpressionRight = subExpression;
+            }
+            for (auto subExpression : subExpressionsIt->second)
+            {
+                Expression newSubExpression;
+                int st = 0;
+                if (subExpression.size() > 0)
+                {
+                    st = subExpression[maxCommonLen];
+                    for (int i = maxCommonLen + 1; i < subExpression.size(); i++)
+                    {
+                        newSubExpression.push_back(subExpression[i]);
+                    }
+                }
+                auto it = newSymbol.subExpressions.find(st);
+                if (it == newSymbol.subExpressions.end())
+                {
+                    std::vector<Expression> newSubExpressions;
+                    newSymbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(st, newSubExpressions));
+                    it = newSymbol.subExpressions.find(st);
+                }
+                it->second.push_back(newSubExpression);
+            }
+            Symbols.insert(std::pair<int, Symbol>(newSymbolId, newSymbol));
+
+            Expression reducedExpression;
+            for (int i = 0; i < maxCommonLen; i++)
+                reducedExpression.push_back(preExpressionRight[i]);
+            reducedExpression.push_back(newSymbolId);
+            subExpressionsIt->second.clear();
+            subExpressionsIt->second.push_back(reducedExpression);
+
+            CombineSingleLeftCommon(newSymbolId);
         }
     }
 }
