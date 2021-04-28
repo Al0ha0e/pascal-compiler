@@ -1,4 +1,4 @@
-S A a
-S b
-A S c
+A B
+A B c
+A B c D
 A d
