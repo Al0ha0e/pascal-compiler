@@ -1,4 +1,11 @@
-A B
-A B c
-A B c D
-A d
+A a B
+A B a1
+B b C
+B C b1
+C c A
+C A c1
+C a D
+D E f
+D f E
+D d D
+E a b

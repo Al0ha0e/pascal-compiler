@@ -8,23 +8,6 @@
 #include <algorithm>
 #include "tools.h"
 
-//const int EPS = 0;
-
-//enum SymbolType
-//{
-//    NON_TERMI,
-//    TERMI
-//};
-
-//typedef std::vector<int> Expression;
-
-//struct Symbol
-//{
-//    int id;
-//    SymbolType type;
-//    std::map<int, std::vector<Expression>> subExpressions;
-//};
-
 int SymbolID;
 std::map<std::string, int> SymbolNameMap;
 std::map<int, std::string> InvSymbolNameMap;
@@ -220,7 +203,7 @@ void CombineLeftCommon()
     std::vector<int> symbolIds;
     for (auto symbol : Symbols)
     {
-        if(symbol.second.type == TERMI)
+        if (symbol.second.type == TERMI)
             continue;
         symbolIds.push_back(symbol.first);
     }
@@ -247,7 +230,7 @@ void CombineSingleLeftCommon(int symbolId)
             Expression preExpressionRight;
             for (auto subExpression : subExpressionsIt->second)
             {
-                std::cout<<"DEBUG0 "<<subExpression.size()<<std::endl;
+                std::cout << "DEBUG0 " << subExpression.size() << std::endl;
                 if (maxCommonLen == -1)
                 {
                     maxCommonLen = subExpression.size();
@@ -268,7 +251,7 @@ void CombineSingleLeftCommon(int symbolId)
                 }
                 preExpressionRight = subExpression;
             }
-            std::cout<<"DEBUG "<< newSymbolName <<" "<<preExpressionRight.size()<<std::endl;
+            std::cout << "DEBUG " << newSymbolName << " " << preExpressionRight.size() << std::endl;
             for (auto subExpression : subExpressionsIt->second)
             {
                 Expression newSubExpression;
@@ -293,7 +276,8 @@ void CombineSingleLeftCommon(int symbolId)
             Symbols.insert(std::pair<int, Symbol>(newSymbolId, newSymbol));
 
             Expression reducedExpression;
-            if(preExpressionRight.size()>0){
+            if (preExpressionRight.size() > 0)
+            {
                 for (int i = 0; i < maxCommonLen; i++)
                     reducedExpression.push_back(preExpressionRight[i]);
             }
@@ -305,16 +289,3 @@ void CombineSingleLeftCommon(int symbolId)
         }
     }
 }
-/*
-int main()
-{
-    SymbolNameMap.insert(std::pair<std::string, int>("EPS", 0));
-    InvSymbolNameMap.insert(std::pair<int, std::string>(0, "EPS"));
-    GenSymbols("test.txt");
-    Show();
-    std::cout << "------------------------------------" << std::endl;
-    CombineLeftCommon();
-    //ElimLeftRecur();
-    Show();
-    return 0;
-}*/
