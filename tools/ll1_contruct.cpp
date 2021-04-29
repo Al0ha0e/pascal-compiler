@@ -31,7 +31,7 @@ void GenFirst()
 
 void GenSingleFirst(int id)
 {
-    std::cout << "NOW " << InvSymbolNameMap.find(id)->second << std::endl;
+    //std::cout << "NOW " << InvSymbolNameMap.find(id)->second << std::endl;
     Symbol &symbol = Symbols.find(id)->second;
     std::set<int> firstSet;
     for (auto subExpressions : symbol.subExpressions)
@@ -206,4 +206,8 @@ void GenFollow(int startId)
         if (symbolIt.second.type == NON_TERMI && dfn.find(symbolIt.first) == dfn.end())
             GenFollow2(symbolIt.first);
     }
+}
+
+void GenLL1()
+{
 }

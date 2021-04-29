@@ -6,8 +6,9 @@ int main()
     AddConstantSymbols();
     GenSymbols("test.txt");
     ElimLeftRecur();
+    Show();
     CombineLeftCommon();
-    // Show();
+    Show();
     std::cout << "before show" << std::endl;
     GenFirst();
     std::cout << "-----------------------" << std::endl;

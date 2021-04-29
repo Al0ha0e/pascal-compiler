@@ -46,6 +46,8 @@ void GenFirst();
 
 void GenFollow(int);
 
+void GenLL1();
+
 extern std::map<std::string, int> SymbolNameMap;
 extern std::map<int, std::string> InvSymbolNameMap;
 extern std::map<int, Symbol> Symbols;

@@ -156,21 +156,36 @@ void ElimLeftRecur()
             int newSymbolId = ++SymbolID;
             std::string newSymbolName = InvSymbolNameMap.find(curId)->second + "_" + std::to_string(1);
             InsertSymbolId(newSymbolId, newSymbolName);
-            Symbol newSymbol;
-            newSymbol.id = newSymbolId;
-            newSymbol.type = NON_TERMI;
+            Symbol newSymbol(newSymbolId, NON_TERMI);
             Expression epsExpression;
-            epsExpression.clear();
             std::vector<Expression> epsExpressions;
-            epsExpressions.clear();
             epsExpressions.push_back(epsExpression);
             newSymbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(EPS, epsExpressions));
+            bool selfRecur = false;
             for (auto badExpression : badExpressions)
             {
+                if (!badExpression.size())
+                {
+                    selfRecur = true;
+                    continue;
+                }
                 int st = badExpression[0];
                 badExpression.erase(badExpression.begin());
+
+                auto it = symbol.subExpressions.find(st);
+                if (it == symbol.subExpressions.end())
+                {
+                    std::vector<Expression> expressions;
+                    expressions.push_back(badExpression);
+                    symbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(st, expressions));
+                }
+                else
+                {
+                    it->second.push_back(badExpression);
+                }
+
                 badExpression.push_back(newSymbolId);
-                auto it = newSymbol.subExpressions.find(st);
+                it = newSymbol.subExpressions.find(st);
                 if (it == newSymbol.subExpressions.end())
                 {
                     std::vector<Expression> expressions;
@@ -191,6 +206,12 @@ void ElimLeftRecur()
                 {
                     goodExpressionIt->push_back(newSymbolId);
                 }
+            }
+            if (selfRecur)
+            {
+                std::vector<Expression> expressions;
+                expressions.push_back(Expression());
+                symbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(newSymbolId, expressions));
             }
         }
     }
