@@ -6,23 +6,24 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include "tools.h"
 
-const int EPS = 0;
+//const int EPS = 0;
 
-enum SymbolType
-{
-    NON_TERMI,
-    TERMI
-};
+//enum SymbolType
+//{
+//    NON_TERMI,
+//    TERMI
+//};
 
-typedef std::vector<int> Expression;
+//typedef std::vector<int> Expression;
 
-struct Symbol
-{
-    int id;
-    SymbolType type;
-    std::map<int, std::vector<Expression>> subExpressions;
-};
+//struct Symbol
+//{
+//    int id;
+//    SymbolType type;
+//    std::map<int, std::vector<Expression>> subExpressions;
+//};
 
 int SymbolID;
 std::map<std::string, int> SymbolNameMap;
@@ -219,6 +220,8 @@ void CombineLeftCommon()
     std::vector<int> symbolIds;
     for (auto symbol : Symbols)
     {
+        if(symbol.second.type == TERMI)
+            continue;
         symbolIds.push_back(symbol.first);
     }
     for (int id : symbolIds)
@@ -302,7 +305,7 @@ void CombineSingleLeftCommon(int symbolId)
         }
     }
 }
-
+/*
 int main()
 {
     SymbolNameMap.insert(std::pair<std::string, int>("EPS", 0));
@@ -314,4 +317,4 @@ int main()
     //ElimLeftRecur();
     Show();
     return 0;
-}
+}*/
