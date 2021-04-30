@@ -99,93 +99,74 @@ void Show()
     }
 }
 
-void ElimLeftRecur()
+void PassLeft(std::vector<int> &symbolIds, Symbol &symbol, int en)
 {
-    std::vector<int> symbolIds;
-    for (auto symbol : Symbols)
+    for (int j = 0; j < en; j++)
     {
-        symbolIds.push_back(symbol.first);
-    }
-    for (int i = 0; i < symbolIds.size(); i++)
-    {
-        int curId = symbolIds[i];
-        Symbol &symbol = Symbols.find(curId)->second;
-        for (int j = 0; j < i; j++)
+        int id = symbolIds[j];
+        if (Symbols.find(id)->second.type == TERMI)
+            continue;
+        auto it = symbol.subExpressions.find(id);
+        if (it != symbol.subExpressions.end())
         {
-            int id = symbolIds[j];
-            if (Symbols.find(id)->second.type == TERMI)
-                continue;
-            auto it = symbol.subExpressions.find(id);
-            if (it != symbol.subExpressions.end())
+            auto stExpressions = Symbols.find(id)->second.subExpressions;
+            auto subExpressions = it->second;
+            symbol.subExpressions.erase(id);
+            for (auto stExpression : stExpressions)
             {
-                auto stExpressions = Symbols.find(id)->second.subExpressions;
-                auto subExpressions = it->second;
-                symbol.subExpressions.erase(id);
-                for (auto stExpression : stExpressions)
+                int st = stExpression.first;
+                auto newIt = symbol.subExpressions.find(st);
+                if (newIt == symbol.subExpressions.end())
                 {
-                    int st = stExpression.first;
-                    auto newIt = symbol.subExpressions.find(st);
-                    if (newIt == symbol.subExpressions.end())
+                    std::vector<Expression> newSubExpression;
+                    newSubExpression.clear();
+                    symbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(st, newSubExpression));
+                    newIt = symbol.subExpressions.find(st);
+                }
+                for (auto expression : stExpression.second)
+                {
+                    for (auto subExpression : subExpressions)
                     {
-                        std::vector<Expression> newSubExpression;
-                        newSubExpression.clear();
-                        symbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(st, newSubExpression));
-                        newIt = symbol.subExpressions.find(st);
-                    }
-                    for (auto expression : stExpression.second)
-                    {
-                        for (auto subExpression : subExpressions)
+                        auto expressionCopy = expression;
+                        for (auto subSymbol : subExpression)
                         {
-                            auto expressionCopy = expression;
-                            for (auto subSymbol : subExpression)
-                            {
-                                expressionCopy.push_back(subSymbol);
-                            }
-                            newIt->second.push_back(expressionCopy);
+                            expressionCopy.push_back(subSymbol);
                         }
+                        newIt->second.push_back(expressionCopy);
                     }
                 }
             }
         }
+    }
+}
+
+void ElimSingleLeftRecur(std::vector<int> &symbolIds)
+{
+    for (int i = 0; i < symbolIds.size(); i++)
+    {
+        int curId = symbolIds[i];
+        Symbol &symbol = Symbols.find(curId)->second;
+
+        PassLeft(symbolIds, symbol, i);
+
         auto badExpressionsIt = symbol.subExpressions.find(curId);
         if (badExpressionsIt != symbol.subExpressions.end())
         {
             auto badExpressions = badExpressionsIt->second;
-            symbol.subExpressions.erase(curId);
-
             int newSymbolId = ++SymbolID;
             std::string newSymbolName = InvSymbolNameMap.find(curId)->second + "_" + std::to_string(1);
             InsertSymbolId(newSymbolId, newSymbolName);
             Symbol newSymbol(newSymbolId, NON_TERMI);
-            Expression epsExpression;
-            std::vector<Expression> epsExpressions;
-            epsExpressions.push_back(epsExpression);
-            newSymbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(EPS, epsExpressions));
-            bool selfRecur = false;
+            symbol.subExpressions.erase(curId);
+
             for (auto badExpression : badExpressions)
             {
                 if (!badExpression.size())
-                {
-                    selfRecur = true;
                     continue;
-                }
                 int st = badExpression[0];
                 badExpression.erase(badExpression.begin());
-
-                auto it = symbol.subExpressions.find(st);
-                if (it == symbol.subExpressions.end())
-                {
-                    std::vector<Expression> expressions;
-                    expressions.push_back(badExpression);
-                    symbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(st, expressions));
-                }
-                else
-                {
-                    it->second.push_back(badExpression);
-                }
-
                 badExpression.push_back(newSymbolId);
-                it = newSymbol.subExpressions.find(st);
+                auto it = newSymbol.subExpressions.find(st);
                 if (it == newSymbol.subExpressions.end())
                 {
                     std::vector<Expression> expressions;
@@ -197,24 +178,43 @@ void ElimLeftRecur()
                     it->second.push_back(badExpression);
                 }
             }
-            Symbols.insert(std::pair<int, Symbol>(newSymbolId, newSymbol));
 
-            for (auto goodExpressionsIt = symbol.subExpressions.begin(); goodExpressionsIt != symbol.subExpressions.end(); goodExpressionsIt++)
-            {
-                std::vector<Expression> &goodExpressions = goodExpressionsIt->second;
-                for (auto goodExpressionIt = goodExpressions.begin(); goodExpressionIt != goodExpressions.end(); goodExpressionIt++)
-                {
-                    goodExpressionIt->push_back(newSymbolId);
-                }
-            }
-            if (selfRecur)
+            if (symbol.subExpressions.size() == 0)
             {
                 std::vector<Expression> expressions;
                 expressions.push_back(Expression());
                 symbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(newSymbolId, expressions));
             }
+            else
+            {
+                Expression epsExpression;
+                std::vector<Expression> epsExpressions;
+                epsExpressions.push_back(epsExpression);
+                newSymbol.subExpressions.insert(std::pair<int, std::vector<Expression>>(EPS, epsExpressions));
+
+                for (auto goodExpressionsIt = symbol.subExpressions.begin(); goodExpressionsIt != symbol.subExpressions.end(); goodExpressionsIt++)
+                {
+                    std::vector<Expression> &goodExpressions = goodExpressionsIt->second;
+                    for (auto goodExpressionIt = goodExpressions.begin(); goodExpressionIt != goodExpressions.end(); goodExpressionIt++)
+                    {
+                        goodExpressionIt->push_back(newSymbolId);
+                    }
+                }
+            }
+            Symbols.insert(std::pair<int, Symbol>(newSymbolId, newSymbol));
         }
     }
+}
+
+//TODO
+void ElimLeftRecur()
+{
+    std::vector<int> symbolIds;
+    for (auto it : Symbols)
+    {
+        symbolIds.push_back(it.first);
+    }
+    ElimSingleLeftRecur(symbolIds);
 }
 
 void CombineSingleLeftCommon(int);
