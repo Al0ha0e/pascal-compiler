@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <stack>
 #include "tools.h"
 
 int SymbolID;
@@ -148,13 +149,12 @@ void ElimSingleLeftRecur(std::vector<int> &symbolIds)
         Symbol &symbol = Symbols.find(curId)->second;
 
         PassLeft(symbolIds, symbol, i);
-
         auto badExpressionsIt = symbol.subExpressions.find(curId);
         if (badExpressionsIt != symbol.subExpressions.end())
         {
             auto badExpressions = badExpressionsIt->second;
             int newSymbolId = ++SymbolID;
-            std::string newSymbolName = InvSymbolNameMap.find(curId)->second + "_" + std::to_string(1);
+            std::string newSymbolName = InvSymbolNameMap.find(curId)->second + "_" + std::to_string(newSymbolId);
             InsertSymbolId(newSymbolId, newSymbolName);
             Symbol newSymbol(newSymbolId, NON_TERMI);
             symbol.subExpressions.erase(curId);
@@ -206,15 +206,95 @@ void ElimSingleLeftRecur(std::vector<int> &symbolIds)
     }
 }
 
+std::map<int, std::set<int>> LeftDependency;
+
+static int depth;
+static std::map<int, int> dfn;
+static std::map<int, int> low;
+static std::set<int> instk;
+static std::stack<int> stk;
+
+void ElimLeftRecur1(int id)
+{
+    dfn.insert(std::pair<int, int>(id, ++depth));
+    low.insert(std::pair<int, int>(id, depth));
+    instk.insert(id);
+    stk.push(id);
+    auto it = LeftDependency.find(id);
+    if (it != LeftDependency.end())
+    {
+        for (int nxt : it->second)
+        {
+            int &curlow = low.find(id)->second;
+            if (dfn.find(nxt) == dfn.end())
+            {
+                ElimLeftRecur1(nxt);
+                curlow = std::min(curlow, low.find(nxt)->second);
+            }
+            else if (instk.find(nxt) != instk.end())
+            {
+                curlow = std::min(curlow, dfn.find(nxt)->second);
+            }
+        }
+    }
+    if (dfn.find(id)->second == low.find(id)->second)
+    {
+        std::vector<int> components;
+        while (1)
+        {
+            int component = stk.top();
+            stk.pop();
+            components.push_back(component);
+            instk.erase(instk.find(component));
+            if (component == id)
+                break;
+        }
+        ElimSingleLeftRecur(components);
+    }
+}
+
 //TODO
 void ElimLeftRecur()
 {
     std::vector<int> symbolIds;
     for (auto it : Symbols)
     {
+        if (it.second.type == TERMI)
+            continue;
         symbolIds.push_back(it.first);
+        LeftDependency.insert(std::pair<int, std::set<int>>(it.first, std::set<int>()));
     }
-    ElimSingleLeftRecur(symbolIds);
+    for (int id : symbolIds)
+    {
+        Symbol &symbol = Symbols.find(id)->second;
+        for (auto subExpressionIt : symbol.subExpressions)
+        {
+            int firstId = subExpressionIt.first;
+            if (firstId == id)
+            {
+                std::vector<int> badIds;
+                badIds.push_back(id);
+                ElimSingleLeftRecur(badIds);
+                break;
+            }
+        }
+    }
+    for (int id : symbolIds)
+    {
+        Symbol &symbol = Symbols.find(id)->second;
+        for (auto subExpressionIt : symbol.subExpressions)
+        {
+            int firstId = subExpressionIt.first;
+            if (Symbols.find(firstId)->second.type == NON_TERMI)
+            {
+                auto depIt = LeftDependency.find(id);
+                depIt->second.insert(firstId);
+            }
+        }
+    }
+    for (int id : symbolIds)
+        if (dfn.find(id) == dfn.end())
+            ElimLeftRecur1(id);
 }
 
 void CombineSingleLeftCommon(int);

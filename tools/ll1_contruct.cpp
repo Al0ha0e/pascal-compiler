@@ -134,11 +134,11 @@ void GenFollow1()
     }
 }
 
-int depth;
-std::map<int, int> dfn;
-std::map<int, int> low;
-std::set<int> instk;
-std::stack<int> stk;
+static int depth;
+static std::map<int, int> dfn;
+static std::map<int, int> low;
+static std::set<int> instk;
+static std::stack<int> stk;
 
 void GenFollow2(int id)
 {
