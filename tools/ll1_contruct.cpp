@@ -106,7 +106,7 @@ void GenFollow1()
                     std::set<int> &subFollowSet = FollowSet.find(subSymbolId)->second;
                     for (int follow : tempFollow)
                         subFollowSet.insert(follow);
-                    if (toEnd)
+                    if (toEnd && symbolIt.first != subSymbolId)
                     {
                         auto dependencyIt = FollowDependency.find(subSymbolId);
                         if (dependencyIt == FollowDependency.end())
@@ -135,6 +135,7 @@ void GenFollow1()
 }
 
 static int depth;
+static std::set<int> visit;
 static std::map<int, int> dfn;
 static std::map<int, int> low;
 static std::set<int> instk;
@@ -142,6 +143,7 @@ static std::stack<int> stk;
 
 void GenFollow2(int id)
 {
+    visit.insert(id);
     dfn.insert(std::pair<int, int>(id, ++depth));
     low.insert(std::pair<int, int>(id, depth));
     instk.insert(id);
@@ -150,6 +152,12 @@ void GenFollow2(int id)
     std::set<int> &curFollowSet = FollowSet.find(id)->second;
     if (it != FollowDependency.end())
     {
+        // std::cout << "NOW " << InvSymbolNameMap.find(id)->second << std::endl;
+        // for (int nxt : it->second)
+        // {
+        //     std::cout << InvSymbolNameMap.find(nxt)->second << " ";
+        // }
+        // std::cout << std::endl;
         for (int nxt : it->second)
         {
             int &curlow = low.find(id)->second;
@@ -165,27 +173,30 @@ void GenFollow2(int id)
             for (int follow : FollowSet.find(nxt)->second)
                 curFollowSet.insert(follow);
         }
-        if (dfn.find(id)->second == low.find(id)->second)
+    }
+    if (dfn.find(id)->second == low.find(id)->second)
+    {
+        std::set<int> tmpFollow;
+        std::vector<int> components;
+        //std::cout << "<<<<<<<<<<<<<<<<<<COMPONENTS>>>>>>>>>>>>>>>>" << std::endl;
+        while (1)
         {
-            std::set<int> tmpFollow;
-            std::vector<int> components;
-            while (1)
-            {
-                int component = stk.top();
-                stk.pop();
-                components.push_back(component);
-                instk.erase(instk.find(component));
-                for (int follow : FollowSet.find(component)->second)
-                    tmpFollow.insert(follow);
-                if (component == id)
-                    break;
-            }
-            for (int component : components)
-            {
-                std::set<int> &componentFollowSet = FollowSet.find(component)->second;
-                for (int follow : tmpFollow)
-                    componentFollowSet.insert(follow);
-            }
+            int component = stk.top();
+            //std::cout << InvSymbolNameMap.find(component)->second << " " << std::endl;
+            stk.pop();
+            components.push_back(component);
+            instk.erase(instk.find(component));
+            for (int follow : FollowSet.find(component)->second)
+                tmpFollow.insert(follow);
+            if (component == id)
+                break;
+        }
+        //std::cout << "<<<<<<<<<<<<<<<<END COMPONENTS>>>>>>>>>>>>>" << std::endl;
+        for (int component : components)
+        {
+            std::set<int> &componentFollowSet = FollowSet.find(component)->second;
+            for (int follow : tmpFollow)
+                componentFollowSet.insert(follow);
         }
     }
 }
@@ -200,11 +211,40 @@ void GenFollow(int startId)
     }
     FollowSet.find(startId)->second.insert(LINE_END);
     GenFollow1();
-    std::cout << "OK1" << std::endl;
+    // std::cout << "OK1" << std::endl;
+    // std::cout << "-----------------AFTER OK1-----------------" << std ::endl;
+    // for (auto fs : FollowSet)
+    // {
+    //     std::cout << InvSymbolNameMap.find(fs.first)->second << "---" << std::endl;
+    //     for (int i : fs.second)
+    //     {
+    //         std::cout << InvSymbolNameMap.find(i)->second << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+    // std::cout << "-----------------DEP-----------------" << std ::endl;
+    // for (auto dep : FollowDependency)
+    // {
+    //     std::cout << InvSymbolNameMap.find(dep.first)->second << "---" << std::endl;
+    //     for (int i : dep.second)
+    //     {
+    //         std::cout << InvSymbolNameMap.find(i)->second << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+    // std::cout << "----------------AFTER OK END---------------" << std::endl;
     for (auto symbolIt : Symbols)
     {
-        if (symbolIt.second.type == NON_TERMI && dfn.find(symbolIt.first) == dfn.end())
+        if (symbolIt.second.type == NON_TERMI && visit.find(symbolIt.first) == visit.end())
+        {
+            depth = 0;
+            dfn.clear();
+            low.clear();
+            instk.clear();
+            while (!stk.empty())
+                stk.pop();
             GenFollow2(symbolIt.first);
+        }
     }
 }
 
@@ -268,6 +308,7 @@ void GenLL1()
         std::map<int, int> ll1Map;
         Symbol &symbol = Symbols.find(nonTermiId)->second;
         std::set<int> &followSet = FollowSet.find(nonTermiId)->second;
+        std::cout << "CONSTRUCT FOR " << InvSymbolNameMap.find(nonTermiId)->second << "------------" << std::endl;
         for (auto subExpressionsIt : symbol.subExpressions)
         {
             Expression subExpression = subExpressionsIt.second[0];
@@ -287,10 +328,10 @@ void GenLL1()
                         {
                             std::cout << "LL1 ERROR FOLLOW " << InvSymbolNameMap.find(nonTermiId)->second << " " << InvSymbolNameMap.find(follow)->second << std::endl;
                             int st = ll1Map.find(follow)->second;
-                            std::cout << "EXIST " << InvSymbolNameMap.find(st)->second;
+                            std::cout << "EXIST " << InvSymbolNameMap.find(st)->second << " ";
                             Expression expression = symbol.subExpressions.find(st)->second[0];
                             for (int subSymbolId : expression)
-                                std::cout << InvSymbolNameMap.find(subSymbolId)->second;
+                                std::cout << InvSymbolNameMap.find(subSymbolId)->second << " ";
                             std::cout << std::endl;
                             return;
                         }
@@ -304,10 +345,10 @@ void GenLL1()
                     {
                         std::cout << "LL1 ERROR FIRST " << InvSymbolNameMap.find(nonTermiId)->second << " " << InvSymbolNameMap.find(first)->second << std::endl;
                         int st = ll1Map.find(first)->second;
-                        std::cout << "EXIST " << InvSymbolNameMap.find(st)->second;
+                        std::cout << "EXIST " << InvSymbolNameMap.find(st)->second << " ";
                         Expression expression = symbol.subExpressions.find(st)->second[0];
                         for (int subSymbolId : expression)
-                            std::cout << InvSymbolNameMap.find(subSymbolId)->second;
+                            std::cout << InvSymbolNameMap.find(subSymbolId)->second << " ";
                         std::cout << std::endl;
                         return;
                     }

@@ -36,7 +36,7 @@ int main()
     }
     std::cout << "---------FOLLOW END--------------" << std::endl;
     GenLL1();
-    std::cout << "---------LL1--------------" << std::endl;
+    // std::cout << "---------LL1--------------" << std::endl;
     // ShowLL1Table();
     // std::cout << "OK ALL" << std::endl;
     return 0;

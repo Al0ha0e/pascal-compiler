@@ -1,0 +1,64 @@
+compound_statement---
+program_body subprogram_body statement 
+const_value---
+const_declaration const_declaration_82
+type---
+var_declaration var_declaration_83
+basic_type---
+type subprogram_head value_parameter
+subprogram_body---
+subprogram
+formal_parameter---
+subprogram_head
+parameter---
+parameter_list parameter_list_85
+var_parameter---
+parameter
+value_parameter---
+parameter var_parameter
+statement---
+statement_list else_part statement_list_86
+variable---
+variable_list factor variable_list_87
+expression---
+statement expression_list expression_list_88
+procedure_call---
+statement
+else_part---
+statement
+id_varpart---
+variable
+simple_expression---
+expression
+term---
+simple_expression simple_expression_89
+factor---
+term term_90
+idlist_80---
+idlist
+subprogram_declarations_81---
+subprogram_declarations
+const_declaration_82---
+const_declaration
+var_declaration_83---
+var_declaration
+period_84---
+period
+parameter_list_85---
+parameter_list
+statement_list_86---
+statement_list
+variable_list_87---
+variable_list
+expression_list_88---
+expression_list
+simple_expression_89---
+simple_expression
+term_90---
+term
+program_head_91---
+program_head
+expression_92---
+expression
+procedure_call_93---
+procedure_call

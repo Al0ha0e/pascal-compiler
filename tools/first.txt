@@ -1,4 +1,3 @@
----------FIRST--------------
 EPS---
 EPS
 programstruct---
@@ -8,7 +7,7 @@ program_id
 ;---
 ;
 program_body---
-EPS const var procedure function begin
+const var procedure function begin
 .---
 .
 program_id---
@@ -20,7 +19,7 @@ id
 )---
 )
 const_declarations---
-EPS const
+EPS const 
 var_declarations---
 EPS var
 subprogram_declarations---
@@ -33,14 +32,12 @@ id---
 id
 const---
 const
----
-
 const_declaration---
 id
 =---
 =
 const_value---
-+ num - '
++ num - ' 
 +---
 +
 num---
@@ -58,7 +55,7 @@ id
 :---
 :
 type---
-array integer real boolean char
+array integer real boolean char 
 basic_type---
 integer real boolean char
 array---
@@ -84,11 +81,11 @@ digits
 ..---
 ..
 subprogram---
-procedure function
-subprogram_head---
 procedure function 
+subprogram_head---
+procedure function
 subprogram_body---
-EPS const var begin
+const var begin
 procedure---
 procedure
 formal_parameter---
@@ -104,9 +101,9 @@ var
 value_parameter---
 id
 begin---
-begin 
+begin
 statement_list---
-EPS ; id begin if for read write
+EPS ; id begin if for read write 
 end---
 end
 statement---
@@ -114,7 +111,7 @@ EPS id begin if for read write
 variable---
 id
 assignop---
-assignop 
+assignop
 expression---
 ( id num not uminus
 procedure_call---
@@ -135,6 +132,8 @@ read---
 read
 variable_list---
 id
+---
+
 write---
 write
 expression_list---
@@ -148,7 +147,7 @@ simple_expression---
 relop---
 relop
 addop---
-addop
+addop 
 term---
 ( id num not uminus
 mulop---

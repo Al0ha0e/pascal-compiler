@@ -1,0 +1,184 @@
+EPS 1<------
+programstruct 0<------
+program_head ; program_body . |
+program_head 0<------
+program_id program_head_91 |
+; 1<------
+program_body 0<------
+const_declarations var_declarations subprogram_declarations compound_statement |    
+. 1<------
+program_id 1<------
+( 1<------
+idlist 0<------
+id idlist_80 |
+) 1<------
+const_declarations 0<------
+EPS |
+const const_declaration ; |
+var_declarations 0<------
+EPS |
+var var_declaration ; |
+subprogram_declarations 0<------
+EPS subprogram_declarations_81 |
+compound_statement 0<------
+begin statement_list end |
+, 1<------
+id 1<------
+const 1<------
+const_declaration 0<------
+id = const_value const_declaration_82 |   
+= 1<------
+const_value 0<------
++ num |
+num |
+- num |
+' letter ' |
++ 1<------
+num 1<------
+- 1<------
+' 1<------
+letter 1<------
+var 1<------
+var_declaration 0<------
+idlist : type var_declaration_83 |        
+: 1<------
+type 0<------
+basic_type |
+array [ period ] of basic_type |
+basic_type 0<------
+integer |
+real |
+boolean |
+char |
+array 1<------
+[ 1<------
+period 0<------
+digits .. digits period_84 |
+] 1<------
+of 1<------
+integer 1<------
+real 1<------
+boolean 1<------
+char 1<------
+digits 1<------
+.. 1<------
+subprogram 0<------
+subprogram_head ; subprogram_body |       
+subprogram_head 0<------
+procedure id formal_parameter |
+function id formal_parameter : basic_type 
+|
+subprogram_body 0<------
+const_declarations var_declarations compound_statement |
+procedure 1<------
+formal_parameter 0<------
+EPS |
+( parameter_list ) |
+function 1<------
+parameter_list 0<------
+parameter parameter_list_85 |
+parameter 0<------
+var_parameter |
+value_parameter |
+var_parameter 0<------
+var value_parameter |
+value_parameter 0<------
+idlist : basic_type |
+begin 1<------
+statement_list 0<------
+statement statement_list_86 |
+end 1<------
+statement 0<------
+EPS |
+compound_statement |
+variable assignop expression |
+procedure_call |
+if expression then statement else_part |  
+for id assignop expression to expression do statement |
+read ( variable_list  ) |
+write ( expression_list ) |
+variable 0<------
+id id_varpart |
+assignop 1<------
+expression 0<------
+simple_expression expression_92 |
+procedure_call 0<------
+id procedure_call_93 |
+if 1<------
+then 1<------
+else_part 0<------
+EPS |
+else statement |
+for 1<------
+to 1<------
+do 1<------
+read 1<------
+variable_list 0<------
+variable variable_list_87 |
+ 1<------
+write 1<------
+expression_list 0<------
+expression expression_list_88 |
+id_varpart 0<------
+EPS |
+[ expression_list ] |
+else 1<------
+simple_expression 0<------
+term simple_expression_89 |
+relop 1<------
+addop 1<------
+term 0<------
+factor term_90 |
+mulop 1<------
+factor 0<------
+( expression ) |
+id  ( expression_list ) |
+num |
+variable |
+not factor |
+uminus  factor |
+not 1<------
+uminus 1<------
+idlist_80 0<------
+EPS |
+, id idlist_80 |
+subprogram_declarations_81 0<------       
+EPS |
+subprogram ; subprogram_declarations_81 | 
+const_declaration_82 0<------
+EPS |
+; id = const_value const_declaration_82 | 
+var_declaration_83 0<------
+EPS |
+; idlist : type var_declaration_83 |      
+period_84 0<------
+EPS |
+, digits .. digits period_84 |
+parameter_list_85 0<------
+EPS |
+; parameter parameter_list_85 |
+statement_list_86 0<------
+EPS |
+; statement statement_list_86 |
+variable_list_87 0<------
+EPS |
+, variable variable_list_87 |
+expression_list_88 0<------
+EPS |
+, expression expression_list_88 |
+simple_expression_89 0<------
+EPS |
+addop term simple_expression_89 |
+term_90 0<------
+EPS |
+mulop factor term_90 |
+program_head_91 0<------
+EPS |
+( idlist ) |
+expression_92 0<------
+EPS |
+relop simple_expression  |
+procedure_call_93 0<------
+EPS |
+( expression_list ) |
+$ 1<------
