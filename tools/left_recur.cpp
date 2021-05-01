@@ -14,12 +14,6 @@ std::map<std::string, int> SymbolNameMap;
 std::map<int, std::string> InvSymbolNameMap;
 std::map<int, Symbol> Symbols;
 
-inline void InsertSymbolId(int id, std::string name)
-{
-    SymbolNameMap.insert(std::pair<std::string, int>(name, id));
-    InvSymbolNameMap.insert(std::pair<int, std::string>(id, name));
-}
-
 void GenSymbols(const std::string &pth)
 {
     std::ifstream f(pth);
@@ -322,7 +316,7 @@ void CombineSingleLeftCommon(int symbolId)
         if (subExpressionsIt->second.size() > 1)
         {
             int newSymbolId = ++SymbolID;
-            std::string newSymbolName = InvSymbolNameMap.find(symbolId)->second + std::to_string(newSymbolId);
+            std::string newSymbolName = InvSymbolNameMap.find(symbolId)->second + "_" + std::to_string(newSymbolId);
             InsertSymbolId(newSymbolId, newSymbolName);
             Symbol newSymbol;
             newSymbol.id = newSymbolId;
@@ -331,7 +325,6 @@ void CombineSingleLeftCommon(int symbolId)
             Expression preExpressionRight;
             for (auto subExpression : subExpressionsIt->second)
             {
-                std::cout << "DEBUG0 " << subExpression.size() << std::endl;
                 if (maxCommonLen == -1)
                 {
                     maxCommonLen = subExpression.size();
@@ -352,7 +345,6 @@ void CombineSingleLeftCommon(int symbolId)
                 }
                 preExpressionRight = subExpression;
             }
-            std::cout << "DEBUG " << newSymbolName << " " << preExpressionRight.size() << std::endl;
             for (auto subExpression : subExpressionsIt->second)
             {
                 Expression newSubExpression;

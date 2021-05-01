@@ -1,0 +1,17 @@
+- identifier
+- punctuator
+  - ( ) , ; . : [ ] ..
+- assignop
+  - :=
+- relop
+  - >,=,<,<=,>=,<>
+- addop
+  - +,-,or
+- mulop
+  - *,/,div,mod,and
+- unop
+  - not
+- keyword
+  - program,const,var,procedure,function,begin,end,array,of,integer,real,boolean,char,if,then,else,for,to,do,read,write
+- number constant
+- char constant

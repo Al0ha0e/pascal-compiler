@@ -32,8 +32,6 @@ struct Symbol
     }
 };
 
-inline void InsertSymbolId(int, std::string);
-
 void GenSymbols(const std::string &pth);
 
 void ElimLeftRecur();
@@ -48,11 +46,20 @@ void GenFollow(int);
 
 void GenLL1();
 
+void ShowLL1Table();
+
 extern std::map<std::string, int> SymbolNameMap;
 extern std::map<int, std::string> InvSymbolNameMap;
 extern std::map<int, Symbol> Symbols;
 extern std::map<int, std::set<int>> FirstSet;
 extern std::map<int, std::set<int>> FollowSet;
+extern std::map<int, std::map<int, int>> LL1Table;
+
+inline void InsertSymbolId(int id, std::string name)
+{
+    SymbolNameMap.insert(std::pair<std::string, int>(name, id));
+    InvSymbolNameMap.insert(std::pair<int, std::string>(id, name));
+}
 
 inline void AddConstantSymbols()
 {

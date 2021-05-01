@@ -1,0 +1,191 @@
+---------FIRST--------------
+EPS---
+EPS
+programstruct---
+program_id
+program_head---
+program_id
+;---
+;
+program_body---
+EPS const var procedure function begin
+.---
+.
+program_id---
+program_id
+(---
+(
+idlist---
+id
+)---
+)
+const_declarations---
+EPS const
+var_declarations---
+EPS var
+subprogram_declarations---
+EPS procedure function
+compound_statement---
+begin
+,---
+,
+id---
+id
+const---
+const
+---
+
+const_declaration---
+id
+=---
+=
+const_value---
++ num - '
++---
++
+num---
+num
+----
+-
+'---
+'
+letter---
+letter
+var---
+var
+var_declaration---
+id
+:---
+:
+type---
+array integer real boolean char
+basic_type---
+integer real boolean char
+array---
+array
+[---
+[
+period---
+digits
+]---
+]
+of---
+of
+integer---
+integer
+real---
+real
+boolean---
+boolean
+char---
+char
+digits---
+digits
+..---
+..
+subprogram---
+procedure function
+subprogram_head---
+procedure function 
+subprogram_body---
+EPS const var begin
+procedure---
+procedure
+formal_parameter---
+EPS (
+function---
+function
+parameter_list---
+id var
+parameter---
+id var
+var_parameter---
+var
+value_parameter---
+id
+begin---
+begin 
+statement_list---
+EPS ; id begin if for read write
+end---
+end
+statement---
+EPS id begin if for read write
+variable---
+id
+assignop---
+assignop 
+expression---
+( id num not uminus
+procedure_call---
+id
+if---
+if
+then---
+then
+else_part---
+EPS else
+for---
+for
+to---
+to
+do---
+do
+read---
+read
+variable_list---
+id
+write---
+write
+expression_list---
+( id num not uminus
+id_varpart---
+EPS [
+else---
+else
+simple_expression---
+( id num not uminus
+relop---
+relop
+addop---
+addop
+term---
+( id num not uminus
+mulop---
+mulop
+factor---
+( id num not uminus
+not---
+not
+uminus---
+uminus
+idlist_80---
+EPS ,
+subprogram_declarations_81---
+EPS procedure function
+const_declaration_82---
+EPS ;
+var_declaration_83---
+EPS ;
+period_84---
+EPS ,
+parameter_list_85---
+EPS ;
+statement_list_86---
+EPS ;
+variable_list_87---
+EPS ,
+expression_list_88---
+EPS ,
+simple_expression_89---
+EPS addop
+term_90---
+EPS mulop
+program_head_91---
+EPS (
+expression_92---
+EPS relop
+procedure_call_93---
+EPS (
+$---
+$

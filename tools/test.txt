@@ -1,13 +1,10 @@
 programstruct program_head ; program_body .
 program_head program_id ( idlist )
 program_head program_id 
-program_body const_declarations
-program_body var_declarations
-program_body subprogram_declarations
-program_body compound_statement
+program_body const_declarations var_declarations subprogram_declarations compound_statement
 idlist idlist , id
 idlist id
-const_declarations const  const_declaration ;
+const_declarations const const_declaration ;
 const_declarations EPS
 const_declaration const_declaration ; id = const_value
 const_declaration id = const_value 
@@ -20,7 +17,7 @@ var_declarations EPS
 var_declaration var_declaration ; idlist : type
 var_declaration idlist : type
 type basic_type
-type array [  period  ]  of  basic_type
+type array [ period ] of basic_type
 basic_type integer
 basic_type real
 basic_type boolean
@@ -40,9 +37,7 @@ parameter var_parameter
 parameter value_parameter
 var_parameter var value_parameter
 value_parameter idlist : basic_type
-subprogram_body const_declarations
-subprogram_body var_declarations
-subprogram_body compound_statement
+subprogram_body const_declarations var_declarations compound_statement
 compound_statement begin statement_list end
 statement_list statement_list ; statement
 statement_list statement

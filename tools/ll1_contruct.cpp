@@ -208,6 +208,134 @@ void GenFollow(int startId)
     }
 }
 
+std::set<int> GetFirst(Expression &expression)
+{
+    std::set<int> ret;
+    bool allEPS = true;
+    for (int id : expression)
+    {
+        Symbol &symbol = Symbols.find(id)->second;
+        std::set<int> &subFirst = FirstSet.find(id)->second;
+        bool noEPS = true;
+        for (int first : subFirst)
+        {
+            if (first == EPS)
+            {
+                noEPS = false;
+            }
+            else
+            {
+                ret.insert(first);
+            }
+        }
+        if (noEPS)
+        {
+            allEPS = false;
+            break;
+        }
+    }
+    if (allEPS)
+    {
+        ret.insert(EPS);
+    }
+    return ret;
+}
+
+std::map<int, std::map<int, int>> LL1Table;
+
 void GenLL1()
 {
+    std::vector<int> termiIds;
+    std::vector<int> nonTermiIds;
+
+    for (auto symbolIt : Symbols)
+    {
+        if (symbolIt.first == EPS)
+            continue;
+        Symbol &symbol = symbolIt.second;
+        if (symbol.type == TERMI)
+        {
+            termiIds.push_back(symbolIt.first);
+        }
+        else
+        {
+            nonTermiIds.push_back(symbolIt.first);
+        }
+    }
+
+    for (int nonTermiId : nonTermiIds)
+    {
+        std::map<int, int> ll1Map;
+        Symbol &symbol = Symbols.find(nonTermiId)->second;
+        std::set<int> &followSet = FollowSet.find(nonTermiId)->second;
+        for (auto subExpressionsIt : symbol.subExpressions)
+        {
+            Expression subExpression = subExpressionsIt.second[0];
+            subExpression.insert(subExpression.begin(), subExpressionsIt.first);
+            std::set<int> firstSet = GetFirst(subExpression);
+            std::cout << "FOR SUB EXPRESSION ";
+            for (int sb : subExpression)
+                std::cout << InvSymbolNameMap.find(sb)->second << " ";
+            std::cout << std::endl;
+            for (int first : firstSet)
+            {
+                if (first == EPS)
+                {
+                    for (int follow : followSet)
+                    {
+                        if (ll1Map.find(follow) != ll1Map.end())
+                        {
+                            std::cout << "LL1 ERROR FOLLOW " << InvSymbolNameMap.find(nonTermiId)->second << " " << InvSymbolNameMap.find(follow)->second << std::endl;
+                            int st = ll1Map.find(follow)->second;
+                            std::cout << "EXIST " << InvSymbolNameMap.find(st)->second;
+                            Expression expression = symbol.subExpressions.find(st)->second[0];
+                            for (int subSymbolId : expression)
+                                std::cout << InvSymbolNameMap.find(subSymbolId)->second;
+                            std::cout << std::endl;
+                            return;
+                        }
+                        std::cout << "LL1 INSERT FOLLOW " << InvSymbolNameMap.find(nonTermiId)->second << " " << InvSymbolNameMap.find(follow)->second << std::endl;
+                        ll1Map.insert(std::pair<int, int>(follow, subExpressionsIt.first));
+                    }
+                }
+                else
+                {
+                    if (ll1Map.find(first) != ll1Map.end())
+                    {
+                        std::cout << "LL1 ERROR FIRST " << InvSymbolNameMap.find(nonTermiId)->second << " " << InvSymbolNameMap.find(first)->second << std::endl;
+                        int st = ll1Map.find(first)->second;
+                        std::cout << "EXIST " << InvSymbolNameMap.find(st)->second;
+                        Expression expression = symbol.subExpressions.find(st)->second[0];
+                        for (int subSymbolId : expression)
+                            std::cout << InvSymbolNameMap.find(subSymbolId)->second;
+                        std::cout << std::endl;
+                        return;
+                    }
+                    std::cout << "LL1 INSERT FIRST " << InvSymbolNameMap.find(nonTermiId)->second << " " << InvSymbolNameMap.find(first)->second << std::endl;
+                    ll1Map.insert(std::pair<int, int>(first, subExpressionsIt.first));
+                }
+            }
+        }
+        LL1Table.insert(std::pair<int, std::map<int, int>>(nonTermiId, ll1Map));
+    }
+}
+
+void ShowLL1Table()
+{
+    for (auto symbolIt : Symbols)
+    {
+        if (symbolIt.second.type == TERMI)
+            continue;
+        int symbolId = symbolIt.first;
+        Symbol &symbol = symbolIt.second;
+        std::cout << InvSymbolNameMap.find(symbolId)->second << "----------" << std::endl;
+        for (auto sb : LL1Table.find(symbolId)->second)
+        {
+            std::cout << InvSymbolNameMap.find(sb.first)->second << " :: " << InvSymbolNameMap.find(sb.second)->second;
+            Expression expression = symbol.subExpressions.find(sb.second)->second[0];
+            for (int subSymbolId : expression)
+                std::cout << InvSymbolNameMap.find(subSymbolId)->second;
+            std::cout << std::endl;
+        }
+    }
 }
