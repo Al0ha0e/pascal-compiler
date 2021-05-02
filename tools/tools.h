@@ -52,6 +52,9 @@ namespace Tools
 
     void ShowLL1Table();
 
+    void SaveLL1Table(std::string);
+    void LoadLL1Table(std::string);
+
     extern std::map<std::string, int> SymbolNameMap;
     extern std::map<int, std::string> InvSymbolNameMap;
     extern std::map<int, Symbol> Symbols;

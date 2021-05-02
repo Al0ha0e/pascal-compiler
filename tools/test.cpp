@@ -38,8 +38,11 @@ int main()
     }
     std::cout << "---------FOLLOW END--------------" << std::endl;
     GenLL1();
+    std::cout << "---------STORE&LOAD--------------" << std::endl;
+    SaveLL1Table("ll1_table.txt");
+    LoadLL1Table("ll1_table.txt");
     std::cout << "---------LL1--------------" << std::endl;
-    // ShowLL1Table();
+    ShowLL1Table();
     // std::cout << "OK ALL" << std::endl;
     return 0;
 }

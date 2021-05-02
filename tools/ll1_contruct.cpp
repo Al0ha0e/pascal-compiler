@@ -1,9 +1,12 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <vector>
 #include <stack>
 #include <algorithm>
+#include <cstdlib>
 #include "tools.h"
 
 namespace Tools
@@ -393,5 +396,61 @@ namespace Tools
                 }
             }
         }
+    }
+
+    void SaveLL1Table(std::string path)
+    {
+        std::string s;
+        for (auto symbolIt : Symbols)
+        {
+            if (symbolIt.second.type == TERMI)
+                continue;
+            int symbolId = symbolIt.first;
+            s += std::to_string(symbolId) + "\n";
+            for (auto items : LL1Table.find(symbolId)->second)
+            {
+                if (!items.second.size())
+                    continue;
+                std::string itemStr = std::to_string(items.first);
+                for (auto item : items.second)
+                    itemStr += " " + std::to_string(item);
+                s += itemStr + "\n";
+            }
+        }
+        std::ofstream ofile(path);
+        ofile << s;
+        ofile.close();
+    }
+
+    void LoadLL1Table(std::string path)
+    {
+        std::ifstream f(path);
+        std::string line = "";
+        int curSymbol;
+        while (std::getline(f, line))
+        {
+            std::istringstream itemStream(line);
+            std::vector<std::string> items;
+            std::string temp;
+            while (std::getline(itemStream, temp, ' '))
+            {
+                if (temp.length())
+                    items.push_back(temp);
+            }
+            if (items.size() == 1)
+            {
+                curSymbol = std::stoi(items[0]);
+                LL1Table.insert(std::pair<int, std::map<int, LL1Item>>(curSymbol, std::map<int, LL1Item>()));
+            }
+            else if (items.size())
+            {
+                int sb = std::stoi(items[0]);
+                LL1Item item;
+                for (int i = 1; i < items.size(); i++)
+                    item.push_back(std::stoi(items[1]));
+                LL1Table.find(curSymbol)->second.insert(std::pair<int, LL1Item>(sb, item));
+            }
+        }
+        f.close();
     }
 }
