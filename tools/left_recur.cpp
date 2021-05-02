@@ -32,6 +32,8 @@ namespace Tools
             expression.clear();
             while (std::getline(lstream, symbolName, ' '))
             {
+                if (!symbolName.length())
+                    continue;
                 auto it = SymbolNameMap.find(symbolName);
                 int id;
                 if (it == SymbolNameMap.end())

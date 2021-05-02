@@ -18,6 +18,8 @@ const_declaration---
 ;
 const_value---
 ;
+num---
+; ) , + - ] end then to do else relop or mulop
 var_declaration---
 ;
 type---
@@ -27,7 +29,7 @@ basic_type---
 period---
 ]
 subprogram---
-; 
+;
 subprogram_head---
 ;
 subprogram_body---
@@ -47,48 +49,48 @@ end
 statement---
 ; end else
 variable---
-; ) , ] end assignop then to do  else relop addop mulop
+; ) , + - ] end assignop then to do else relop or mulop
 expression---
-; ) , ] end then to do else 
+; ) , ] end then to do else
 else_part---
 ; end else
 variable_list---
-
+)
 expression_list---
 ) ]
 id_varpart---
-; ) , ] end assignop then to do  else relop addop mulop
+; ) , + - ] end assignop then to do else relop or mulop 
 simple_expression---
-; ) , ] end then to do  else relop
+; ) , ] end then to do else relop
 term---
-; ) , ] end then to do  else relop addop
+; ) , + - ] end then to do else relop or
 factor---
-; ) , ] end then to do  else relop addop mulop 
-idlist_80---
+; ) , + - ] end then to do else relop or mulop 
+idlist_77---
 ) :
-subprogram_declarations_81---
+subprogram_declarations_78---
 begin
-const_declaration_82---
+const_declaration_79---
 ;
-var_declaration_83---
+var_declaration_80---
 ;
-period_84---
+period_81---
 ]
-parameter_list_85---
+parameter_list_82---
 )
-statement_list_86---
+statement_list_83---
 end
-variable_list_87---
-
-expression_list_88---
+variable_list_84---
+)
+expression_list_85---
 ) ]
-simple_expression_89---
-; ) , ] end then to do  else relop
-term_90---
-; ) , ] end then to do  else relop addop
-program_head_91---
+simple_expression_86---
+; ) , ] end then to do else relop
+term_87---
+; ) , + - ] end then to do else relop or 
+program_head_88---
 ;
-variable_92---
-; ) , ] end assignop then to do  else relop addop mulop 
-expression_93---
+statement_89---
+; end else
+expression_90---
 ; ) , ] end then to do else

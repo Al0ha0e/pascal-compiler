@@ -1,17 +1,17 @@
 EPS---
 EPS
 programstruct---
-program_id
+id
 program_head---
-program_id
+id
 ;---
 ;
 program_body---
 const var procedure function begin
 .---
 .
-program_id---
-program_id
+id---
+id
 (---
 (
 idlist---
@@ -23,25 +23,23 @@ EPS const
 var_declarations---
 EPS var
 subprogram_declarations---
-EPS procedure function 
+EPS procedure function
 compound_statement---
 begin
 ,---
 ,
-id---
-id
 const---
 const
 const_declaration---
-id
+id 
 =---
 =
 const_value---
-+ num - '
++ - ' digits float
 +---
 +
 num---
-num
+digits float
 ----
 -
 '---
@@ -51,7 +49,7 @@ letter
 var---
 var
 var_declaration---
-id 
+id
 :---
 :
 type---
@@ -75,9 +73,9 @@ real
 boolean---
 boolean
 char---
-char
+char 
 digits---
-digits 
+digits
 ..---
 ..
 subprogram---
@@ -93,7 +91,7 @@ EPS (
 function---
 function
 parameter_list---
-id var
+id var 
 parameter---
 id var
 var_parameter---
@@ -103,19 +101,17 @@ id
 begin---
 begin
 statement_list---
-EPS ; id begin procedure_call if for read write
+EPS ; id begin if for read write
 end---
 end
 statement---
-EPS id begin procedure_call if for read write
+EPS id begin if for read write
 variable---
 id
 assignop---
 assignop
 expression---
-( id num not uminus
-procedure_call---
-procedure_call
+id ( - digits not float
 if---
 if
 then---
@@ -125,66 +121,64 @@ EPS else
 for---
 for
 to---
-to
+to 
 do---
 do
 read---
 read
 variable_list---
 id
----
-
 write---
 write
 expression_list---
-( id num not uminus
+id ( - digits not float
 id_varpart---
-EPS [
+EPS ( [
 else---
 else
 simple_expression---
-( id num not uminus
+id ( - digits not float
 relop---
 relop
-addop---
-addop
 term---
-( id num not uminus
+id ( - digits not float
+or---
+or
 mulop---
 mulop
 factor---
-( id num not uminus
+id ( - digits not float
 not---
 not
-uminus---
-uminus
-idlist_80---
+float---
+float 
+idlist_77---
 EPS ,
-subprogram_declarations_81---
+subprogram_declarations_78---
 EPS procedure function
-const_declaration_82---
+const_declaration_79---
 EPS ;
-var_declaration_83---
+var_declaration_80---
 EPS ;
-period_84---
+period_81---
 EPS ,
-parameter_list_85---
+parameter_list_82---
 EPS ;
-statement_list_86---
+statement_list_83---
 EPS ;
-variable_list_87---
+variable_list_84---
 EPS ,
-expression_list_88---
+expression_list_85---
 EPS ,
-simple_expression_89---
-EPS addop
-term_90---
+simple_expression_86---
+EPS + - or
+term_87---
 EPS mulop
-program_head_91---
+program_head_88---
 EPS (
-variable_92---
-EPS ( [
-expression_93---
+statement_89---
+EPS assignop
+expression_90---
 EPS relop
 $---
 $

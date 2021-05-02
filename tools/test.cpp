@@ -6,9 +6,9 @@ using namespace Tools;
 int main()
 {
     AddConstantSymbols();
-    GenSymbols("test.txt");
+    GenSymbols("grammar.txt");
     ElimLeftRecur();
-    // Show();
+    Show();
     CombineLeftCommon();
     std::cout << "---------------------------" << std::endl;
     Show();

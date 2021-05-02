@@ -1,20 +1,29 @@
 ref: [https://www.freepascal.org/docs-html/ref/ref.html#refch13.html](https://www.freepascal.org/docs-html/ref/ref.html#refch13.html)
 ##### Token类型
-- identifier
-- punctuator
-  - ( ) , ; . : [ ] ..
+- id
+- ( 
+- ) 
+- , 
+- ; 
+- . 
+- : 
+- [ 
+- ]
+- ' 
+- ..
 - assignop
   - :=
+- =
 - relop
-  - >,=,<,<=,>=,<>
-- addop
-  - +,-,or
+  - >,<,<=,>=,<>
+- +
+- -
+- or
 - mulop
   - *,/,div,mod,and
 - unop
   - not
-- keyword
-  - program,const,var,procedure,function,begin,end,array,of,integer,real,boolean,char,if,then,else,for,to,do,read,write
+- program,const,var,procedure,function,begin,end,array,of,integer,real,boolean,char,if,then,else,for,to,do,read,write
 - number constant
 - char constant
 

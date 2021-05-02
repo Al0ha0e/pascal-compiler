@@ -14,6 +14,7 @@ namespace Tools
     const int LINE_END = INT_MAX;
 
     typedef std::vector<int> Expression;
+    typedef std::vector<int> LL1Item;
 
     enum SymbolType
     {
@@ -56,7 +57,7 @@ namespace Tools
     extern std::map<int, Symbol> Symbols;
     extern std::map<int, std::set<int>> FirstSet;
     extern std::map<int, std::set<int>> FollowSet;
-    extern std::map<int, std::map<int, int>> LL1Table;
+    extern std::map<int, std::map<int, LL1Item>> LL1Table;
 
     inline void InsertSymbolId(int id, std::string name)
     {

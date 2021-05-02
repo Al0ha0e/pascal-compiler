@@ -1,6 +1,6 @@
 programstruct program_head ; program_body .
-program_head program_id ( idlist )
-program_head program_id 
+program_head id ( idlist )
+program_head id 
 program_body const_declarations var_declarations subprogram_declarations compound_statement
 idlist idlist , id
 idlist id
@@ -59,9 +59,12 @@ else_part else statement
 else_part EPS
 expression_list expression_list , expression
 expression_list expression
-expression simple_expression relop simple_expression  
+expression simple_expression relop simple_expression
+expression simple_expression = simple_expression  
 expression simple_expression
-simple_expression simple_expression addop term
+simple_expression simple_expression + term
+simple_expression simple_expression - term
+simple_expression simple_expression or term
 simple_expression term
 term term mulop factor
 term factor
@@ -69,4 +72,6 @@ factor num
 factor variable
 factor ( expression )
 factor not factor
-factor uminus  factor
+factor - factor
+num digits
+num float
