@@ -42,7 +42,7 @@ compound_statement begin statement_list end
 statement_list statement_list ; statement
 statement_list statement
 statement variable assignop expression
-statement procedure_call
+statement variable
 statement compound_statement
 statement if expression then statement else_part
 statement for id assignop expression to expression do statement
@@ -53,9 +53,8 @@ variable_list variable_list , variable
 variable_list variable
 variable id id_varpart
 id_varpart [ expression_list ]
-id_varpart EPS
-procedure_call id 
-procedure_call id ( expression_list )
+id_varpart ( expression_list )
+id_varpart EPS 
 else_part else statement
 else_part EPS
 expression_list expression_list , expression

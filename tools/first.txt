@@ -19,11 +19,11 @@ id
 )---
 )
 const_declarations---
-EPS const 
+EPS const
 var_declarations---
 EPS var
 subprogram_declarations---
-EPS procedure function
+EPS procedure function 
 compound_statement---
 begin
 ,---
@@ -37,7 +37,7 @@ id
 =---
 =
 const_value---
-+ num - ' 
++ num - '
 +---
 +
 num---
@@ -51,11 +51,11 @@ letter
 var---
 var
 var_declaration---
-id
+id 
 :---
 :
 type---
-array integer real boolean char 
+array integer real boolean char
 basic_type---
 integer real boolean char
 array---
@@ -77,11 +77,11 @@ boolean
 char---
 char
 digits---
-digits
+digits 
 ..---
 ..
 subprogram---
-procedure function 
+procedure function
 subprogram_head---
 procedure function
 subprogram_body---
@@ -103,11 +103,11 @@ id
 begin---
 begin
 statement_list---
-EPS ; id begin if for read write 
+EPS ; id begin procedure_call if for read write
 end---
 end
 statement---
-EPS id begin if for read write
+EPS id begin procedure_call if for read write
 variable---
 id
 assignop---
@@ -115,7 +115,7 @@ assignop
 expression---
 ( id num not uminus
 procedure_call---
-id
+procedure_call
 if---
 if
 then---
@@ -147,7 +147,7 @@ simple_expression---
 relop---
 relop
 addop---
-addop 
+addop
 term---
 ( id num not uminus
 mulop---
@@ -182,9 +182,9 @@ term_90---
 EPS mulop
 program_head_91---
 EPS (
-expression_92---
+variable_92---
+EPS ( [
+expression_93---
 EPS relop
-procedure_call_93---
-EPS (
 $---
 $

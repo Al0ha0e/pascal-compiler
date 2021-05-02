@@ -27,7 +27,7 @@ basic_type---
 period---
 ]
 subprogram---
-;
+; 
 subprogram_head---
 ;
 subprogram_body---
@@ -49,9 +49,7 @@ statement---
 variable---
 ; ) , ] end assignop then to do  else relop addop mulop
 expression---
-; ) , ] end then to do else
-procedure_call---
-; end else
+; ) , ] end then to do else 
 else_part---
 ; end else
 variable_list---
@@ -65,7 +63,7 @@ simple_expression---
 term---
 ; ) , ] end then to do  else relop addop
 factor---
-; ) , ] end then to do  else relop addop mulop
+; ) , ] end then to do  else relop addop mulop 
 idlist_80---
 ) :
 subprogram_declarations_81---
@@ -90,7 +88,7 @@ term_90---
 ; ) , ] end then to do  else relop addop
 program_head_91---
 ;
-expression_92---
+variable_92---
+; ) , ] end assignop then to do  else relop addop mulop 
+expression_93---
 ; ) , ] end then to do else
-procedure_call_93---
-; end else

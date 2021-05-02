@@ -1,6 +1,8 @@
 #include "tools.h"
 #include <iostream>
 
+using namespace Tools;
+
 int main()
 {
     AddConstantSymbols();
@@ -11,7 +13,7 @@ int main()
     std::cout << "---------------------------" << std::endl;
     Show();
     std::cout << "---------------------------" << std::endl;
-    // std::cout << "before show" << std::endl;
+    std::cout << "before show" << std::endl;
     GenFirst();
     std::cout << "---------FIRST--------------" << std::endl;
     for (auto fs : FirstSet)
@@ -36,7 +38,7 @@ int main()
     }
     std::cout << "---------FOLLOW END--------------" << std::endl;
     GenLL1();
-    // std::cout << "---------LL1--------------" << std::endl;
+    std::cout << "---------LL1--------------" << std::endl;
     // ShowLL1Table();
     // std::cout << "OK ALL" << std::endl;
     return 0;
