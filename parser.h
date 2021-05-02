@@ -12,7 +12,18 @@ namespace CompilerFront
     {
     public:
         Parser();
-        Parser(std::string path) : path(path), lexer(path) {}
+        Parser(std::string path, std::string symbolPath, std::string tablePath, std::string st) : path(path), lexer(path)
+        {
+            Tools::AddConstantSymbols();
+            Tools::GenSymbols(symbolPath);
+            Tools::ElimLeftRecur();
+            Tools::CombineLeftCommon();
+            Tools::LoadLL1Table(tablePath);
+            std::cout << "INIT " << st << std::endl;
+            symbolStack.push(Tools::SymbolNameMap.find(st)->second);
+        }
+
+        void Parse();
 
     private:
         std::string path;

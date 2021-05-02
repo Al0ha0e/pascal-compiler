@@ -1,5 +1,4 @@
 program example(input, output);
-    var x, y: integer;
     function gcd(a, b: integer): integer;
         begin 
             if b=0 then gcd:=a
@@ -9,5 +8,3 @@ program example(input, output);
         read(x, y);
         write(gcd(x, y))
     end.
-
-1.213323.sd.ads.242....ds..ad324.323vdv

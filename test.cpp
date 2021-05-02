@@ -1,15 +1,15 @@
 #include "lexer.h"
+#include "parser.h"
 #include <iostream>
 using namespace CompilerFront;
 
 int main()
 {
-    Lexer lexer("test.txt");
-    Token curToken = lexer.GetToken();
-    while (curToken.type != "$")
-    {
-        std::cout << curToken.type << " " << curToken.content << std::endl;
-        curToken = lexer.GetToken();
-    }
+
+    Parser parser("./test.txt", "./tools/grammar.txt", "./tools/ll1_table.txt", "programstruct");
+    std::cout << "---------------------------" << std::endl;
+    Tools::ShowLL1Table();
+    std::cout << "PARSE ST" << std::endl;
+    parser.Parse();
     return 0;
 }

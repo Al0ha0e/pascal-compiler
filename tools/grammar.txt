@@ -1,6 +1,6 @@
 programstruct program_head ; program_body .
-program_head id ( idlist )
-program_head id 
+program_head program id ( idlist )
+program_head program id 
 program_body const_declarations var_declarations subprogram_declarations compound_statement
 idlist idlist , id
 idlist id
