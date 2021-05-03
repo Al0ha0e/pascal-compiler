@@ -32,6 +32,14 @@ int main(int argc, char *argv[])
         Tools::GenFollow(Tools::SymbolNameMap.find(st)->second);
         Tools::GenLL1();
         Tools::SaveLL1Table(dst);
+        std::cout << "----------------NON-------------------" << std::endl;
+        for (auto symbolIt : Symbols)
+        {
+            if (symbolIt.second.type == NON_TERMI)
+            {
+                std::cout << InvSymbolNameMap.find(symbolIt.first)->second << std::endl;
+            }
+        }
     }
 
     return 0;

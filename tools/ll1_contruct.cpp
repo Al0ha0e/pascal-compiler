@@ -453,4 +453,8 @@ namespace Tools
         }
         f.close();
     }
+
+    void GenSyntaxTemplate()
+    {
+    }
 }
