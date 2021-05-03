@@ -1,8 +1,7 @@
 program example(input, output);
     function gcd(a, b: integer): integer;
         begin 
-            if b=0 then gcd:=a
-            else gcd:=gcd(b, a mod b)
+            a := 0;
         end;
     begin
         read(x, y);

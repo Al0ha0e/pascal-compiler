@@ -36,7 +36,9 @@ namespace Tools
         }
     };
 
-    void GenSymbols(const std::string &pth);
+    void LoadSymbols(const std::string &pth);
+
+    void StoreSymbols(const std::string &);
 
     void ElimLeftRecur();
 

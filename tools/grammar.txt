@@ -1,15 +1,15 @@
 programstruct program_head ; program_body .
 program_head program id ( idlist )
-program_head program id 
+program_head program id
 program_body const_declarations var_declarations subprogram_declarations compound_statement
 idlist idlist , id
 idlist id
 const_declarations const const_declaration ;
 const_declarations EPS
 const_declaration const_declaration ; id = const_value
-const_declaration id = const_value 
+const_declaration id = const_value
 const_value + num
-const_value - num 
+const_value - num
 const_value num
 const_value ' letter '
 var_declarations var var_declaration ;
@@ -28,7 +28,7 @@ subprogram_declarations subprogram_declarations subprogram ;
 subprogram_declarations EPS
 subprogram subprogram_head ; subprogram_body
 subprogram_head procedure id formal_parameter
-subprogram_head function id formal_parameter : basic_type 
+subprogram_head function id formal_parameter : basic_type
 formal_parameter ( parameter_list )
 formal_parameter EPS
 parameter_list parameter_list ; parameter
@@ -54,13 +54,13 @@ variable_list variable
 variable id id_varpart
 id_varpart [ expression_list ]
 id_varpart ( expression_list )
-id_varpart EPS 
+id_varpart EPS
 else_part else statement
 else_part EPS
 expression_list expression_list , expression
 expression_list expression
 expression simple_expression relop simple_expression
-expression simple_expression = simple_expression  
+expression simple_expression = simple_expression
 expression simple_expression
 simple_expression simple_expression + term
 simple_expression simple_expression - term

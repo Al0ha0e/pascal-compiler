@@ -15,11 +15,9 @@ namespace CompilerFront
         Parser(std::string path, std::string symbolPath, std::string tablePath, std::string st) : path(path), lexer(path)
         {
             Tools::AddConstantSymbols();
-            Tools::GenSymbols(symbolPath);
-            Tools::ElimLeftRecur();
-            Tools::CombineLeftCommon();
+            Tools::LoadSymbols(symbolPath);
             Tools::LoadLL1Table(tablePath);
-            std::cout << "INIT " << st << std::endl;
+            std::cout << "----------------------------INIT " << st << std::endl;
             symbolStack.push(Tools::SymbolNameMap.find(st)->second);
         }
 
@@ -29,6 +27,7 @@ namespace CompilerFront
         std::string path;
         Lexer lexer;
         std::stack<int> symbolStack;
+        Token curToken;
     };
 }
 

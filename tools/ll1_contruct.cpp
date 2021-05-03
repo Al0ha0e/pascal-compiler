@@ -391,7 +391,7 @@ namespace Tools
                     std::cout << InvSymbolNameMap.find(items.first)->second << " :: " << InvSymbolNameMap.find(item)->second;
                     Expression expression = symbol.subExpressions.find(item)->second[0];
                     for (int subSymbolId : expression)
-                        std::cout << InvSymbolNameMap.find(subSymbolId)->second;
+                        std::cout << " " << InvSymbolNameMap.find(subSymbolId)->second;
                     std::cout << std::endl;
                 }
             }

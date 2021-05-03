@@ -6,7 +6,7 @@ using namespace Tools;
 int main()
 {
     AddConstantSymbols();
-    GenSymbols("grammar.txt");
+    LoadSymbols("grammar.txt");
     ElimLeftRecur();
     Show();
     CombineLeftCommon();

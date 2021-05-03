@@ -17,7 +17,7 @@ namespace Tools
     std::map<int, std::string> InvSymbolNameMap;
     std::map<int, Symbol> Symbols;
 
-    void GenSymbols(const std::string &pth)
+    void LoadSymbols(const std::string &pth)
     {
         std::ifstream f(pth);
         std::string line = "";
@@ -76,6 +76,30 @@ namespace Tools
                 it->second.push_back(expression);
             }
         }
+        f.close();
+    }
+
+    void StoreSymbols(const std::string &path)
+    {
+        std::string retString;
+        for (auto symbolIt : Symbols)
+        {
+            Symbol &symbol = symbolIt.second;
+            std::string left = InvSymbolNameMap.find(symbolIt.first)->second;
+            for (auto subExpressionIt : symbol.subExpressions)
+            {
+
+                for (auto subExpression : subExpressionIt.second)
+                {
+                    retString += left + " " + InvSymbolNameMap.find(subExpressionIt.first)->second;
+                    for (int subSymbol : subExpression)
+                        retString += " " + InvSymbolNameMap.find(subSymbol)->second;
+                    retString += "\n";
+                }
+            }
+        }
+        std::ofstream f(path);
+        f << retString;
         f.close();
     }
 
@@ -323,9 +347,7 @@ namespace Tools
                 int newSymbolId = ++SymbolID;
                 std::string newSymbolName = InvSymbolNameMap.find(symbolId)->second + "_" + std::to_string(newSymbolId);
                 InsertSymbolId(newSymbolId, newSymbolName);
-                Symbol newSymbol;
-                newSymbol.id = newSymbolId;
-                newSymbol.type = NON_TERMI;
+                Symbol newSymbol(newSymbolId, NON_TERMI);
                 int maxCommonLen = -1;
                 Expression preExpressionRight;
                 for (auto subExpression : subExpressionsIt->second)
@@ -353,8 +375,8 @@ namespace Tools
                 for (auto subExpression : subExpressionsIt->second)
                 {
                     Expression newSubExpression;
-                    int st = 0;
-                    if (subExpression.size() > 0)
+                    int st = EPS;
+                    if (subExpression.size() > maxCommonLen)
                     {
                         st = subExpression[maxCommonLen];
                         for (int i = maxCommonLen + 1; i < subExpression.size(); i++)
@@ -362,6 +384,7 @@ namespace Tools
                             newSubExpression.push_back(subExpression[i]);
                         }
                     }
+
                     auto it = newSymbol.subExpressions.find(st);
                     if (it == newSymbol.subExpressions.end())
                     {
