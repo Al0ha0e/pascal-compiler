@@ -26,12 +26,14 @@ int main(int argc, char *argv[])
         std::string src(argv[2]);
         std::string dst(argv[3]);
         std::string st(argv[4]);
+        std::string temp(argv[5]);
         Tools::AddConstantSymbols();
         Tools::LoadSymbols(src);
         Tools::GenFirst();
         Tools::GenFollow(Tools::SymbolNameMap.find(st)->second);
         Tools::GenLL1();
         Tools::SaveLL1Table(dst);
+        Tools::GenSyntaxTemplate(temp);
         std::cout << "----------------NON-------------------" << std::endl;
         for (auto symbolIt : Symbols)
         {

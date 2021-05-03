@@ -454,7 +454,35 @@ namespace Tools
         f.close();
     }
 
-    void GenSyntaxTemplate()
+    void GenSyntaxTemplate(std::string path)
     {
+        std::string templateStr = "std::unique_ptr<PascalAST::ASTNode> GenAstNode(std::string expressionLeft, \
+        std::string expressionFirst,std::vector<PascalAST::ASTNode> subNodes){\n";
+        for (auto symbolIt : Symbols)
+        {
+            if (symbolIt.second.type == TERMI)
+                continue;
+            templateStr += "if(expressionLeft==\"";
+            templateStr += InvSymbolNameMap.find(symbolIt.first)->second;
+            templateStr += "\"){\n";
+            for (auto subExpressionIt : symbolIt.second.subExpressions)
+            {
+                templateStr += "if(expressionFirst==\"";
+                templateStr += InvSymbolNameMap.find(subExpressionIt.first)->second;
+                templateStr += "\"){\n";
+                templateStr += "//";
+                templateStr += InvSymbolNameMap.find(symbolIt.first)->second + "-->" + InvSymbolNameMap.find(subExpressionIt.first)->second;
+                for (int subSymbol : subExpressionIt.second[0])
+                {
+                    templateStr += " " + InvSymbolNameMap.find(subSymbol)->second;
+                }
+                templateStr += "\n}\n";
+            }
+            templateStr += "}\n";
+        }
+        templateStr += "}\n";
+        std::ofstream ofile(path);
+        ofile << templateStr;
+        ofile.close();
     }
 }
