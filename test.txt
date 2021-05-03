@@ -1,7 +1,11 @@
 program example(input, output);
+    const x=10; y=100;
+    var x, y: integer;
+    
     function gcd(a, b: integer): integer;
         begin 
-            a := 0;
+            if b=0 then gcd:=a
+            else gcd:=gcd(b, a mod b)
         end;
     begin
         read(x, y);

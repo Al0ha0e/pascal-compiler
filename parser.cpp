@@ -6,6 +6,8 @@ namespace CompilerFront
     {
         std::map<int, std::map<int, Tools::LL1Item>> &ll1Table = Tools::LL1Table;
         curToken = lexer.GetToken();
+        nxtToken = lexer.GetToken();
+        int ifCnt = 0;
         while (!symbolStack.empty())
         {
             std::cout << "CURTOKEN " << curToken.type << " " << curToken.content << std::endl;
@@ -18,9 +20,21 @@ namespace CompilerFront
 
             if (topSymbol.type == Tools::TERMI)
             {
-                std::cout << "SB1" << std::endl;
-                symbolStack.pop();
-                curToken = lexer.GetToken();
+                if (topSymbol.id == oriSymbolId)
+                {
+                    std::cout << "SB1" << std::endl;
+                    if (curToken.type == "if")
+                        ifCnt++;
+                    symbolStack.pop();
+                    curToken = nxtToken;
+                    nxtToken = lexer.GetToken();
+                }
+                else
+                {
+                    //TODO Error Handling
+                    std::cout << "ERROR" << std::endl;
+                    return;
+                }
             }
             else
             {
@@ -35,25 +49,83 @@ namespace CompilerFront
                 symbolStack.pop();
 
                 Tools::LL1Item &item = itemIt->second;
+                Tools::Expression expression;
                 if (item.size() > 1)
                 {
-                    std::cout << "AMBIGU" << std::endl;
-                    return;
-                    //TODO ambiguity
+                    if (Tools::InvSymbolNameMap.find(topSymbolId)->second == "const_declaration_80")
+                    {
+                        for (int sbitem : item)
+                        {
+                            if (nxtToken.type == "id" && sbitem != Tools::EPS)
+                            {
+                                expression = topSymbol.subExpressions.find(sbitem)->second[0];
+                                expression.insert(expression.begin(), sbitem);
+                                break;
+                            }
+                            else if (nxtToken.type != "id" && sbitem == Tools::EPS)
+                            {
+                                //TODO ERROR HANDLINg
+                                expression = topSymbol.subExpressions.find(sbitem)->second[0];
+                                expression.insert(expression.begin(), sbitem);
+                                break;
+                            }
+                        }
+                    }
+                    else if (Tools::InvSymbolNameMap.find(topSymbolId)->second == "var_declaration_81")
+                    {
+                        for (int sbitem : item)
+                        {
+                            if (nxtToken.type == "id" && sbitem != Tools::EPS)
+                            {
+                                expression = topSymbol.subExpressions.find(sbitem)->second[0];
+                                expression.insert(expression.begin(), sbitem);
+                                break;
+                            }
+                            else if (nxtToken.type != "id" && sbitem == Tools::EPS)
+                            {
+                                //TODO ERROR HANDLINg
+                                expression = topSymbol.subExpressions.find(sbitem)->second[0];
+                                expression.insert(expression.begin(), sbitem);
+                                break;
+                            }
+                        }
+                    }
+                    else if (Tools::InvSymbolNameMap.find(topSymbolId)->second == "else_part")
+                    {
+                        std::cout << "AMB3";
+                        for (int sbitem : item)
+                        {
+                            if (ifCnt == 0 && sbitem == Tools::EPS)
+                            {
+                                expression = topSymbol.subExpressions.find(sbitem)->second[0];
+                                expression.insert(expression.begin(), sbitem);
+                                break;
+                            }
+                            else if (ifCnt > 0 && sbitem != Tools::EPS)
+                            {
+                                //TODO ERROR HANDLINg
+                                expression = topSymbol.subExpressions.find(sbitem)->second[0];
+                                expression.insert(expression.begin(), sbitem);
+                                ifCnt--;
+                                break;
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    Tools::Expression expression = topSymbol.subExpressions.find(item[0])->second[0];
-                    for (int i = expression.size() - 1; i >= 0; --i)
-                        if (expression[i] != Tools::EPS)
-                            symbolStack.push(expression[i]);
-                    if (item[0] != Tools::EPS)
-                        symbolStack.push(item[0]);
-                    std::cout << Tools::InvSymbolNameMap.find(topSymbolId)->second << "->" << Tools::InvSymbolNameMap.find(item[0])->second;
-                    for (int sb : expression)
-                        std::cout << " " << Tools::InvSymbolNameMap.find(sb)->second;
-                    std::cout << std::endl;
+                    if (Tools::InvSymbolNameMap.find(topSymbolId)->second == "else_part")
+                        ifCnt--;
+                    expression = topSymbol.subExpressions.find(item[0])->second[0];
+                    expression.insert(expression.begin(), item[0]);
                 }
+                for (int i = expression.size() - 1; i >= 0; --i)
+                    if (expression[i] != Tools::EPS)
+                        symbolStack.push(expression[i]);
+                std::cout << Tools::InvSymbolNameMap.find(topSymbolId)->second << "->";
+                for (int sb : expression)
+                    std::cout << " " << Tools::InvSymbolNameMap.find(sb)->second;
+                std::cout << std::endl;
             }
         }
     }

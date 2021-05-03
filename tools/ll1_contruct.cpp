@@ -406,14 +406,14 @@ namespace Tools
             if (symbolIt.second.type == TERMI)
                 continue;
             int symbolId = symbolIt.first;
-            s += std::to_string(symbolId) + "\n";
+            s += InvSymbolNameMap.find(symbolId)->second + "\n";
             for (auto items : LL1Table.find(symbolId)->second)
             {
                 if (!items.second.size())
                     continue;
-                std::string itemStr = std::to_string(items.first);
+                std::string itemStr = InvSymbolNameMap.find(items.first)->second;
                 for (auto item : items.second)
-                    itemStr += " " + std::to_string(item);
+                    itemStr += " " + InvSymbolNameMap.find(item)->second;
                 s += itemStr + "\n";
             }
         }
@@ -439,15 +439,15 @@ namespace Tools
             }
             if (items.size() == 1)
             {
-                curSymbol = std::stoi(items[0]);
+                curSymbol = SymbolNameMap.find(items[0])->second;
                 LL1Table.insert(std::pair<int, std::map<int, LL1Item>>(curSymbol, std::map<int, LL1Item>()));
             }
             else if (items.size())
             {
-                int sb = std::stoi(items[0]);
+                int sb = SymbolNameMap.find(items[0])->second;
                 LL1Item item;
                 for (int i = 1; i < items.size(); i++)
-                    item.push_back(std::stoi(items[1]));
+                    item.push_back(SymbolNameMap.find(items[i])->second);
                 LL1Table.find(curSymbol)->second.insert(std::pair<int, LL1Item>(sb, item));
             }
         }

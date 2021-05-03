@@ -28,6 +28,7 @@ namespace CompilerFront
         Lexer lexer;
         std::stack<int> symbolStack;
         Token curToken;
+        Token nxtToken;
     };
 }
 
