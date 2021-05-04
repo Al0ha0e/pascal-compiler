@@ -494,18 +494,35 @@ namespace PascalAST
             if (expressionFirst == "if")
             {
                 //statement-->if expression then statement else_part
+                ASTNode *ifElseStatement = new IfElseStatement(
+                    Unpack<Expression>(subNodes[1]),
+                    Unpack<Statement>(subNodes[3]),
+                    Unpack<Statement>(subNodes[4]));
+                return std::unique_ptr<ASTNode>(ifElseStatement);
             }
             if (expressionFirst == "for")
             {
                 //statement-->for id assignop expression to expression do statement
+                ASTNode *forLoopStatement = new ForLoopStatement(
+                    Unpack<OriASTNode>(subNodes[1])->content,
+                    Unpack<Expression>(subNodes[3]),
+                    Unpack<Expression>(subNodes[5]),
+                    Unpack<Statement>(subNodes[7]));
+                return std::unique_ptr<ASTNode>(forLoopStatement);
             }
             if (expressionFirst == "read")
             {
                 //statement-->read ( variable_list )
+                ASTNode *readStatement = new ReadStatement(
+                    Unpack<VariableList>(subNodes[2]));
+                return std::unique_ptr<ASTNode>(readStatement);
             }
             if (expressionFirst == "write")
             {
                 //statement-->write ( expression_list )
+                ASTNode *writeStatement = new WriteStatement(
+                    Unpack<ExpressionList>(subNodes[2]));
+                return std::unique_ptr<ASTNode>(writeStatement);
             }
         }
         if (expressionLeft == "statement_list_84")
@@ -513,10 +530,15 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //statement_list_84-->EPS
+                ASTNode *statementList = new StatementList();
+                return std::unique_ptr<ASTNode>(statementList);
             }
             if (expressionFirst == ";")
             {
                 //statement_list_84-->; statement statement_list_84
+                auto statementList(Unpack<StatementList>(subNodes[2]));
+                statementList->statements.push_back(Unpack<Statement>(subNodes[1]));
+                return Pack(statementList);
             }
         }
         if (expressionLeft == "variable")
@@ -524,6 +546,10 @@ namespace PascalAST
             if (expressionFirst == "id")
             {
                 //variable-->id id_varpart
+                ASTNode *variable = new Variable(
+                    Unpack<OriASTNode>(subNodes[0])->content,
+                    Unpack<VarPart>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(variable);
             }
         }
         if (expressionLeft == "statement_90")
@@ -531,10 +557,15 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //statement_90-->EPS
+                return std::unique_ptr<ASTNode>();
             }
             if (expressionFirst == "assignop")
             {
                 //statement_90-->assignop expression
+                ASTNode *variableAssignStatement = new VariableAssignStatement(
+                    std::unique_ptr<Variable>(),
+                    Unpack<Expression>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(variableAssignStatement);
             }
         }
         if (expressionLeft == "expression")
@@ -542,6 +573,10 @@ namespace PascalAST
             if (expressionFirst == "simple_expression")
             {
                 //expression-->simple_expression expression_91
+                ASTNode *expression = new Expression(
+                    Unpack<SimpleExpression>(subNodes[0]),
+                    Unpack<RelPart>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(expression);
             }
         }
         if (expressionLeft == "else_part")
@@ -549,10 +584,12 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //else_part-->EPS
+                return std::unique_ptr<ASTNode>();
             }
             if (expressionFirst == "else")
             {
                 //else_part-->else statement
+                return std::move(subNodes[1]);
             }
         }
         if (expressionLeft == "variable_list")
@@ -560,6 +597,9 @@ namespace PascalAST
             if (expressionFirst == "variable")
             {
                 //variable_list-->variable variable_list_85
+                auto variableList(Unpack<VariableList>(subNodes[1]));
+                variableList->variables.push_back(Unpack<Variable>(subNodes[0]));
+                return Pack(variableList);
             }
         }
         if (expressionLeft == "expression_list")
@@ -567,6 +607,9 @@ namespace PascalAST
             if (expressionFirst == "expression")
             {
                 //expression_list-->expression expression_list_86
+                auto expressionList(Unpack<ExpressionList>(subNodes[1]));
+                expressionList->expressions.push_back(Unpack<Expression>(subNodes[0]));
+                return Pack(expressionList);
             }
         }
         if (expressionLeft == "id_varpart")
@@ -574,14 +617,23 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //id_varpart-->EPS
+                return std::unique_ptr<ASTNode>();
             }
             if (expressionFirst == "[")
             {
                 //id_varpart-->[ expression_list ]
+                ASTNode *varpart = new VarPart(
+                    false,
+                    Unpack<ExpressionList>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(varpart);
             }
             if (expressionFirst == "(")
             {
                 //id_varpart-->( expression_list )
+                ASTNode *varpart = new VarPart(
+                    true,
+                    Unpack<ExpressionList>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(varpart);
             }
         }
         if (expressionLeft == "simple_expression")
@@ -589,6 +641,10 @@ namespace PascalAST
             if (expressionFirst == "term")
             {
                 //simple_expression-->term simple_expression_87
+                ASTNode *simpleExpression = new SimpleExpression(
+                    Unpack<Term>(subNodes[0]),
+                    Unpack<AddOpPart>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(simpleExpression);
             }
         }
         if (expressionLeft == "expression_91")
@@ -596,14 +652,24 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //expression_91-->EPS
+                return std::unique_ptr<ASTNode>();
             }
             if (expressionFirst == "=")
             {
                 //expression_91-->= simple_expression
+                ASTNode *relPart = new RelPart(
+                    Unpack<OriASTNode>(subNodes[0])->content,
+                    Unpack<SimpleExpression>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(relPart);
             }
             if (expressionFirst == "relop")
             {
                 //expression_91-->relop simple_expression
+                //TODO: Detail
+                ASTNode *relPart = new RelPart(
+                    Unpack<OriASTNode>(subNodes[0])->content,
+                    Unpack<SimpleExpression>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(relPart);
             }
         }
         if (expressionLeft == "variable_list_85")
@@ -611,10 +677,15 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //variable_list_85-->EPS
+                ASTNode *variableList = new VariableList();
+                return std::unique_ptr<ASTNode>(variableList);
             }
             if (expressionFirst == ",")
             {
                 //variable_list_85-->, variable variable_list_85
+                auto variableList(Unpack<VariableList>(subNodes[2]));
+                variableList->variables.push_back(Unpack<Variable>(subNodes[1]));
+                return Pack(variableList);
             }
         }
         if (expressionLeft == "expression_list_86")
@@ -622,10 +693,15 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //expression_list_86-->EPS
+                ASTNode *expressionList = new ExpressionList();
+                return std::unique_ptr<ASTNode>(expressionList);
             }
             if (expressionFirst == ",")
             {
                 //expression_list_86-->, expression expression_list_86
+                auto expressionList(Unpack<ExpressionList>(subNodes[2]));
+                expressionList->expressions.push_back(Unpack<Expression>(subNodes[1]));
+                return Pack(expressionList);
             }
         }
         if (expressionLeft == "term")
@@ -633,6 +709,10 @@ namespace PascalAST
             if (expressionFirst == "factor")
             {
                 //term-->factor term_88
+                ASTNode *term = new Term(
+                    Unpack<Factor>(subNodes[0]),
+                    Unpack<MulOpPart>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(term);
             }
         }
         if (expressionLeft == "simple_expression_87")
@@ -640,18 +720,34 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //simple_expression_87-->EPS
+                return std::unique_ptr<ASTNode>();
             }
             if (expressionFirst == "+")
             {
                 //simple_expression_87-->+ term simple_expression_87
+                ASTNode *addOpPart = new AddOpPart(
+                    Unpack<OriASTNode>(subNodes[0])->content,
+                    Unpack<Term>(subNodes[1]),
+                    Unpack<AddOpPart>(subNodes[2]));
+                return std::unique_ptr<ASTNode>(addOpPart);
             }
             if (expressionFirst == "-")
             {
                 //simple_expression_87-->- term simple_expression_87
+                ASTNode *addOpPart = new AddOpPart(
+                    Unpack<OriASTNode>(subNodes[0])->content,
+                    Unpack<Term>(subNodes[1]),
+                    Unpack<AddOpPart>(subNodes[2]));
+                return std::unique_ptr<ASTNode>(addOpPart);
             }
             if (expressionFirst == "or")
             {
                 //simple_expression_87-->or term simple_expression_87
+                ASTNode *addOpPart = new AddOpPart(
+                    Unpack<OriASTNode>(subNodes[0])->content,
+                    Unpack<Term>(subNodes[1]),
+                    Unpack<AddOpPart>(subNodes[2]));
+                return std::unique_ptr<ASTNode>(addOpPart);
             }
         }
         if (expressionLeft == "factor")
@@ -659,22 +755,39 @@ namespace PascalAST
             if (expressionFirst == "num")
             {
                 //factor-->num
+                NumFactor *numFactor = new NumFactor();
+                numFactor->val = Unpack<OriASTNode>(subNodes[0])->content;
+                return std::unique_ptr<ASTNode>((ASTNode *)numFactor);
             }
             if (expressionFirst == "-")
             {
                 //factor-->- factor
+                //TODO
+                ASTNode *invFactor = new InvFactor(
+                    Unpack<Factor>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(invFactor);
             }
             if (expressionFirst == "(")
             {
                 //factor-->( expression )
+                ASTNode *expressionFactor = new ExpressionFactor(
+                    Unpack<Expression>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(expressionFactor);
             }
             if (expressionFirst == "variable")
             {
                 //factor-->variable
+                ASTNode *variableFactor = new VariableFactor(
+                    Unpack<Variable>(subNodes[0]));
+                return std::unique_ptr<ASTNode>(variableFactor);
             }
             if (expressionFirst == "not")
             {
                 //factor-->not factor
+                //TODO
+                ASTNode *notFactor = new NotFactor(
+                    Unpack<Factor>(subNodes[1]));
+                return std::unique_ptr<ASTNode>(notFactor);
             }
         }
         if (expressionLeft == "term_88")
@@ -687,6 +800,12 @@ namespace PascalAST
             if (expressionFirst == "mulop")
             {
                 //term_88-->mulop factor term_88
+                //TODO
+                ASTNode *mulOpPart = new MulOpPart(
+                    Unpack<OriASTNode>(subNodes[0])->content,
+                    Unpack<Factor>(subNodes[1]),
+                    Unpack<MulOpPart>(subNodes[2]));
+                return std::unique_ptr<ASTNode>(mulOpPart);
             }
         }
     }

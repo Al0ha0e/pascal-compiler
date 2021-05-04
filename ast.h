@@ -295,6 +295,8 @@ namespace PascalAST
     struct ReadStatement : public Statement
     {
         std::unique_ptr<VariableList> variableList;
+        ReadStatement() {}
+        ReadStatement(std::unique_ptr<VariableList> &variableList) : variableList(std::move(variableList)) {}
     };
 
     struct WriteStatement : public Statement
