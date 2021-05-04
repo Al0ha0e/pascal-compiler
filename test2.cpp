@@ -5,6 +5,10 @@ using namespace std;
 
 vector<unique_ptr<int>> a;
 
+unique_ptr<int> GSB()
+{
+}
+
 void GET(unique_ptr<int> &sb)
 {
     unique_ptr<int> sb2(std::move(sb));

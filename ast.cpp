@@ -5,20 +5,6 @@
 
 namespace PascalAST
 {
-    template <typename T>
-    inline std::unique_ptr<T> Unpack(std::unique_ptr<ASTNode> &node)
-    {
-        T *retPtr = (T *)node.release();
-        return std::unique_ptr<T>(retPtr);
-    }
-
-    template <typename T>
-    inline std::unique_ptr<ASTNode> Pack(std::unique_ptr<T> &node)
-    {
-        ASTNode *retPtr = (ASTNode *)node.release();
-        return std::unique_ptr<ASTNode>(retPtr);
-    }
-
     std::unique_ptr<ASTNode> GenOriAstNode(CompilerFront::Token &token)
     {
         std::string tokenType = token.type;
@@ -39,7 +25,7 @@ namespace PascalAST
         }
         if (tokenType == "mulop")
         {
-            ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
+            ASTNode *oriASTNode = new OriASTNode(token.type, token.content);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
         if (tokenType == "id")
@@ -47,9 +33,11 @@ namespace PascalAST
             ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
+        ASTNode *oriASTNode = new OriASTNode(token.type, token.type);
+        return std::unique_ptr<ASTNode>(oriASTNode);
     }
 
-    std::unique_ptr<ASTNode> GenAstNode(std::string &expressionLeft, std::string &expressionFirst, std::vector<std::unique_ptr<ASTNode>> &subNodes)
+    std::unique_ptr<ASTNode> GenAstNode(std::string expressionLeft, std::string expressionFirst, std::vector<std::unique_ptr<ASTNode>> &subNodes)
     {
         if (expressionLeft == "programstruct")
         {
@@ -532,10 +520,10 @@ namespace PascalAST
                     {
                         //TODO: Error
                     }
-                    ASTNode *procedureCallStatement = new ProcedureCallStatement(variable);
+                    ASTNode *procedureCallStatement = new ProcedureCallStatement(std::move(variable));
                     return std::unique_ptr<ASTNode>(procedureCallStatement);
                 }
-                ASTNode *variableAssignStatement = new VariableAssignStatement(variable, expression);
+                ASTNode *variableAssignStatement = new VariableAssignStatement(std::move(variable), std::move(expression));
                 return std::unique_ptr<ASTNode>(variableAssignStatement);
             }
             if (expressionFirst == "if")

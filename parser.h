@@ -39,14 +39,14 @@ namespace CompilerFront
             symbolStack.push(Tools::SymbolNameMap.find(st)->second);
         }
 
-        void Parse();
+        std::unique_ptr<PascalAST::ASTNode> Parse();
 
     private:
         std::string path;
         Lexer lexer;
         std::stack<int> symbolStack;
         std::stack<ReduceInfo> reduceStack;
-        std::stack<std::unique_ptr<PascalAST::ASTNode>> astStack;
+        std::vector<std::unique_ptr<PascalAST::ASTNode>> astStack;
         Token curToken;
         Token nxtToken;
     };
