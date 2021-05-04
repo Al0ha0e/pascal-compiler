@@ -4,7 +4,7 @@
 namespace CompilerFront
 {
 
-    std::set<char> singlePunct = {'(', ')', ',', ';', '[', ']',
+    std::set<char> SinglePunct = {'(', ')', ',', ';', '[', ']',
                                   '\'', '=', '+', '-', '*', '/'};
 
     std::set<std::string> Keywords = {"not", "program", "const", "var", "procedure",
@@ -34,7 +34,8 @@ namespace CompilerFront
             curChar = content[pos];
         }
         //TODO ABNORMAL CHARACTER
-        if (singlePunct.find(curChar) != singlePunct.end())
+        //TODO COMMENT
+        if (SinglePunct.find(curChar) != SinglePunct.end())
         {
             pos++;
             return Token(std::string(1, curChar), std::string(1, curChar), line, column++);
@@ -68,10 +69,10 @@ namespace CompilerFront
         if (curChar == '>')
         {
             if (++pos >= contentLength || content[pos] != '=')
-                return Token(".", ".", line, column++);
+                return Token("relop", ">", line, column++);
             pos++;
             column += 2;
-            return Token(">=", ">=", line, column - 2);
+            return Token("relop", ">=", line, column - 2);
         }
         std::string retStr;
         int digitStg = 0;

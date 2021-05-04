@@ -1,5 +1,8 @@
 #include "ast.h"
 
+#include <string>
+#include <iostream>
+
 namespace PascalAST
 {
     template <typename T>
@@ -16,7 +19,37 @@ namespace PascalAST
         return std::unique_ptr<ASTNode>(retPtr);
     }
 
-    std::unique_ptr<ASTNode> GenAstNode(std::string expressionLeft, std::string expressionFirst, std::vector<std::unique_ptr<ASTNode>> subNodes)
+    std::unique_ptr<ASTNode> GenOriAstNode(CompilerFront::Token &token)
+    {
+        std::string tokenType = token.type;
+        if (tokenType == "relop")
+        {
+            ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
+            return std::unique_ptr<ASTNode>(oriASTNode);
+        }
+        if (tokenType == "digits")
+        {
+            ASTNode *oriASTNode = new OriASTNode(token.content, std::string("int"));
+            return std::unique_ptr<ASTNode>(oriASTNode);
+        }
+        if (tokenType == "float")
+        {
+            ASTNode *oriASTNode = new OriASTNode(token.content, std::string("float"));
+            return std::unique_ptr<ASTNode>(oriASTNode);
+        }
+        if (tokenType == "mulop")
+        {
+            ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
+            return std::unique_ptr<ASTNode>(oriASTNode);
+        }
+        if (tokenType == "id")
+        {
+            ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
+            return std::unique_ptr<ASTNode>(oriASTNode);
+        }
+    }
+
+    std::unique_ptr<ASTNode> GenAstNode(std::string &expressionLeft, std::string &expressionFirst, std::vector<std::unique_ptr<ASTNode>> &subNodes)
     {
         if (expressionLeft == "programstruct")
         {
@@ -59,7 +92,7 @@ namespace PascalAST
             if (expressionFirst == "(")
             {
                 //program_head_89-->( idlist )
-                return std::move(subNodes[0]);
+                return std::move(subNodes[1]);
             }
         }
         if (expressionLeft == "const_declarations")
@@ -67,7 +100,8 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //const_declarations-->EPS
-                return std::unique_ptr<ASTNode>();
+                ASTNode *constantDeclarations = new ConstantDeclarations();
+                return std::unique_ptr<ASTNode>(constantDeclarations);
             }
             if (expressionFirst == "const")
             {
@@ -80,7 +114,8 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //var_declarations-->EPS
-                return std::unique_ptr<ASTNode>();
+                ASTNode *variableDeclarations = new VariableDeclarations();
+                return std::unique_ptr<ASTNode>(variableDeclarations);
             }
             if (expressionFirst == "var")
             {
@@ -137,11 +172,12 @@ namespace PascalAST
             {
                 //const_declaration-->id = const_value const_declaration_80
                 BasicType *bType = new BasicType();
-                //TODO bType->basicType =
+                auto constValue(Unpack<OriASTNode>(subNodes[2]));
+                bType->basicType = constValue->info;
                 ConstantDeclaration *const_declaration = new ConstantDeclaration(
                     Unpack<OriASTNode>(subNodes[0])->content,
                     std::unique_ptr<BasicType>(bType),
-                    Unpack<OriASTNode>(subNodes[2])->content);
+                    constValue->content);
                 auto constantDeclarations(Unpack<ConstantDeclarations>(subNodes[3]));
                 constantDeclarations->constantDeclarations.push_back(std::unique_ptr<ConstantDeclaration>(const_declaration));
                 return Pack(constantDeclarations);
@@ -165,7 +201,7 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //subprogram_declarations_79-->EPS
-                ASTNode *subProgramDeclarations = new SubProgramDeclarations;
+                ASTNode *subProgramDeclarations = new SubProgramDeclarations();
                 return std::unique_ptr<ASTNode>(subProgramDeclarations);
             }
             if (expressionFirst == "subprogram")
@@ -191,10 +227,7 @@ namespace PascalAST
             if (expressionFirst == "+")
             {
                 //const_value-->+ num
-                OriASTNode *oriAstNode = new OriASTNode();
-                std::string preContent = Unpack<OriASTNode>(subNodes[1])->content;
-                //TODO oriAstNode->content =
-                return std::unique_ptr<ASTNode>(oriAstNode);
+                return std::move(subNodes[1]);
             }
             if (expressionFirst == "num")
             {
@@ -205,8 +238,11 @@ namespace PascalAST
             {
                 //const_value-->- num
                 OriASTNode *oriAstNode = new OriASTNode();
-                std::string preContent = Unpack<OriASTNode>(subNodes[1])->content;
-                //TODO oriAstNode->content =
+                auto preNum(Unpack<OriASTNode>(subNodes[1]));
+                oriAstNode->info = preNum->info;
+                oriAstNode->content = oriAstNode->info == "float"
+                                          ? std::to_string(-std::stof(preNum->content))
+                                          : std::to_string(-std::stoi(preNum->content));
                 return std::unique_ptr<ASTNode>(oriAstNode);
             }
             if (expressionFirst == "'")
@@ -226,12 +262,13 @@ namespace PascalAST
             if (expressionFirst == ";")
             {
                 //const_declaration_80-->; id = const_value const_declaration_80
+                auto constValue(Unpack<OriASTNode>(subNodes[3]));
                 BasicType *bType = new BasicType();
-                //TODO bType->basicType =
+                bType->basicType = constValue->info;
                 ConstantDeclaration *constantDeclaration = new ConstantDeclaration(
                     Unpack<OriASTNode>(subNodes[1])->content,
                     std::unique_ptr<BasicType>(bType),
-                    Unpack<OriASTNode>(subNodes[3])->content);
+                    constValue->content);
                 auto constantDeclarations(Unpack<ConstantDeclarations>(subNodes[4]));
                 constantDeclarations->constantDeclarations.push_back(std::unique_ptr<ConstantDeclaration>(constantDeclaration));
                 return Pack(constantDeclarations);
@@ -322,9 +359,8 @@ namespace PascalAST
             {
                 //period-->digits .. digits period_82
                 Range *range = new Range();
-                //TODO
-                // range->l = Unpack<OriASTNode>(subNodes[0])->content;
-                // range->r = Unpack<OriASTNode>(subNodes[2])->content;
+                range->l = std::stoi(Unpack<OriASTNode>(subNodes[0])->content);
+                range->r = std::stoi(Unpack<OriASTNode>(subNodes[2])->content);
                 auto periods(Unpack<Ranges>(subNodes[3]));
                 periods->ranges.push_back(std::unique_ptr<Range>(range));
                 return Pack(periods);
@@ -342,9 +378,8 @@ namespace PascalAST
             {
                 //period_82-->, digits .. digits period_82
                 Range *range = new Range();
-                //TODO
-                // range->l = Unpack<OriASTNode>(subNodes[1])->content;
-                // range->r = Unpack<OriASTNode>(subNodes[3])->content;
+                range->l = std::stoi(Unpack<OriASTNode>(subNodes[1])->content);
+                range->r = std::stoi(Unpack<OriASTNode>(subNodes[3])->content);
                 auto periods(Unpack<Ranges>(subNodes[4]));
                 periods->ranges.push_back(std::unique_ptr<Range>(range));
                 return Pack(periods);
@@ -456,7 +491,7 @@ namespace PascalAST
             if (expressionFirst == "var")
             {
                 //var_parameter-->var value_parameter
-                auto parameter(Unpack<Parameter>(subNodes[0]));
+                auto parameter(Unpack<Parameter>(subNodes[1]));
                 parameter->isRef = true;
                 return Pack(parameter);
             }
@@ -489,7 +524,19 @@ namespace PascalAST
             if (expressionFirst == "variable")
             {
                 //statement-->variable statement_90
-                //TODO
+                auto variable(Unpack<Variable>(subNodes[0]));
+                auto expression(Unpack<Expression>(subNodes[1]));
+                if (expression == nullptr)
+                {
+                    if (variable->varPart != nullptr && !variable->varPart->isProcedureCall)
+                    {
+                        //TODO: Error
+                    }
+                    ASTNode *procedureCallStatement = new ProcedureCallStatement(variable);
+                    return std::unique_ptr<ASTNode>(procedureCallStatement);
+                }
+                ASTNode *variableAssignStatement = new VariableAssignStatement(variable, expression);
+                return std::unique_ptr<ASTNode>(variableAssignStatement);
             }
             if (expressionFirst == "if")
             {
@@ -562,10 +609,7 @@ namespace PascalAST
             if (expressionFirst == "assignop")
             {
                 //statement_90-->assignop expression
-                ASTNode *variableAssignStatement = new VariableAssignStatement(
-                    std::unique_ptr<Variable>(),
-                    Unpack<Expression>(subNodes[1]));
-                return std::unique_ptr<ASTNode>(variableAssignStatement);
+                return std::move(subNodes[1]);
             }
         }
         if (expressionLeft == "expression")
@@ -665,7 +709,6 @@ namespace PascalAST
             if (expressionFirst == "relop")
             {
                 //expression_91-->relop simple_expression
-                //TODO: Detail
                 ASTNode *relPart = new RelPart(
                     Unpack<OriASTNode>(subNodes[0])->content,
                     Unpack<SimpleExpression>(subNodes[1]));
@@ -762,7 +805,6 @@ namespace PascalAST
             if (expressionFirst == "-")
             {
                 //factor-->- factor
-                //TODO
                 ASTNode *invFactor = new InvFactor(
                     Unpack<Factor>(subNodes[1]));
                 return std::unique_ptr<ASTNode>(invFactor);
@@ -784,7 +826,6 @@ namespace PascalAST
             if (expressionFirst == "not")
             {
                 //factor-->not factor
-                //TODO
                 ASTNode *notFactor = new NotFactor(
                     Unpack<Factor>(subNodes[1]));
                 return std::unique_ptr<ASTNode>(notFactor);
@@ -800,7 +841,6 @@ namespace PascalAST
             if (expressionFirst == "mulop")
             {
                 //term_88-->mulop factor term_88
-                //TODO
                 ASTNode *mulOpPart = new MulOpPart(
                     Unpack<OriASTNode>(subNodes[0])->content,
                     Unpack<Factor>(subNodes[1]),

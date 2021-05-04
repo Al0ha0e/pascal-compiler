@@ -3,11 +3,29 @@
 
 #include "lexer.h"
 #include "tools/tools.h"
+#include "ast.h"
 #include <string>
 #include <stack>
 
 namespace CompilerFront
 {
+    struct ReduceInfo
+    {
+        int reduceStackSize;
+        int reduceCnt;
+        std::string expressionLeft;
+        std::string expressionFirst;
+        ReduceInfo() {}
+        ReduceInfo(int reduceStackSize,
+                   int reduceCnt,
+                   std::string expressionLeft,
+                   std::string expressionFirst)
+            : reduceStackSize(reduceStackSize),
+              reduceCnt(reduceCnt),
+              expressionLeft(expressionLeft),
+              expressionFirst(expressionFirst) {}
+    };
+
     class Parser
     {
     public:
@@ -27,6 +45,8 @@ namespace CompilerFront
         std::string path;
         Lexer lexer;
         std::stack<int> symbolStack;
+        std::stack<ReduceInfo> reduceStack;
+        std::stack<std::unique_ptr<PascalAST::ASTNode>> astStack;
         Token curToken;
         Token nxtToken;
     };

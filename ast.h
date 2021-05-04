@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include "lexer.h"
 
 namespace PascalAST
 {
@@ -11,10 +12,16 @@ namespace PascalAST
     {
     };
 
+    std::unique_ptr<ASTNode> GenOriAstNode(CompilerFront::Token &);
+
+    std::unique_ptr<ASTNode> GenAstNode(std::string, std::string, std::vector<std::unique_ptr<ASTNode>>);
+
     struct OriASTNode : public ASTNode
     {
         std::string content;
-        std::vector<std::unique_ptr<ASTNode>> SubNodes;
+        std::string info;
+        OriASTNode() {}
+        OriASTNode(std::string &content, std::string &info) : content(content), info(info) {}
     };
 
     struct Identifiers : public ASTNode

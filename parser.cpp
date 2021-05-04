@@ -26,6 +26,22 @@ namespace CompilerFront
                     if (curToken.type == "if")
                         ifCnt++;
                     symbolStack.pop();
+
+                    astStack.push(PascalAST::GenOriAstNode(curToken));
+
+                    ReduceInfo info = reduceStack.top();
+                    if (symbolStack.size() == info.reduceStackSize)
+                    {
+                        reduceStack.pop();
+                        std::vector<std::unique_ptr<PascalAST::ASTNode>> subNodes;
+                        for (int i = 0; i < info.reduceCnt; i++)
+                        {
+                            subNodes.insert(subNodes.begin(), std::move(astStack.top()));
+                            astStack.pop();
+                        }
+                        astStack.push(PascalAST::GenAstNode(info.expressionLeft, info.expressionLeft, subNodes));
+                    }
+
                     curToken = nxtToken;
                     nxtToken = lexer.GetToken();
                 }
@@ -119,9 +135,33 @@ namespace CompilerFront
                     expression = topSymbol.subExpressions.find(item[0])->second[0];
                     expression.insert(expression.begin(), item[0]);
                 }
+                bool allEps = true;
+                int reduceStackSize = symbolStack.size();
+                int reduceCnt = 0;
                 for (int i = expression.size() - 1; i >= 0; --i)
+                {
                     if (expression[i] != Tools::EPS)
+                    {
                         symbolStack.push(expression[i]);
+                        reduceCnt++;
+                        allEps = false;
+                    }
+                }
+                if (allEps)
+                {
+                    astStack.push(PascalAST::GenAstNode(
+                        Tools::InvSymbolNameMap.find(topSymbolId)->second,
+                        Tools::InvSymbolNameMap.find(expression[0])->second,
+                        std::vector<std::unique_ptr<PascalAST::ASTNode>>()));
+                }
+                else
+                {
+                    reduceStack.push(ReduceInfo(
+                        reduceStackSize,
+                        reduceCnt,
+                        Tools::InvSymbolNameMap.find(topSymbolId)->second,
+                        Tools::InvSymbolNameMap.find(expression[0])->second));
+                }
                 std::cout << Tools::InvSymbolNameMap.find(topSymbolId)->second << "->";
                 for (int sb : expression)
                     std::cout << " " << Tools::InvSymbolNameMap.find(sb)->second;
