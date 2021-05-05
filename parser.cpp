@@ -10,7 +10,7 @@ namespace CompilerFront
         int ifCnt = 0;
         while (!symbolStack.empty())
         {
-            std::cout << "CURTOKEN " << curToken.type << " " << curToken.content << std::endl;
+            std::cout << "--------CURTOKEN " << curToken.type << " " << curToken.content << " --------" << std::endl;
             int topSymbolId = symbolStack.top();
             std::cout << "STK TOP " << symbolStack.size() << " " << Tools::InvSymbolNameMap.find(topSymbolId)->second << std::endl;
             const Tools::Symbol &topSymbol = Tools::Symbols.find(topSymbolId)->second;
@@ -28,20 +28,6 @@ namespace CompilerFront
                     symbolStack.pop();
 
                     astStack.push_back(PascalAST::GenOriAstNode(curToken));
-
-                    ReduceInfo info = reduceStack.top();
-                    if (symbolStack.size() == info.reduceStackSize)
-                    {
-                        reduceStack.pop();
-                        std::vector<std::unique_ptr<PascalAST::ASTNode>> subNodes;
-                        std::cout << "POP!!!!!!! " << info.expressionLeft << " " << info.expressionFirst << std::endl;
-                        for (int i = 0; i < info.reduceCnt; i++)
-                        {
-                            subNodes.insert(subNodes.begin(), std::move(astStack[astStack.size() - 1]));
-                            astStack.pop_back();
-                        }
-                        astStack.push_back(PascalAST::GenAstNode(info.expressionLeft, info.expressionFirst, subNodes));
-                    }
 
                     curToken = nxtToken;
                     nxtToken = lexer.GetToken();
@@ -154,20 +140,6 @@ namespace CompilerFront
                     astStack.push_back(PascalAST::GenAstNode(
                         Tools::InvSymbolNameMap.find(topSymbolId)->second,
                         Tools::InvSymbolNameMap.find(expression[0])->second, empty));
-
-                    ReduceInfo info = reduceStack.top();
-                    if (symbolStack.size() == info.reduceStackSize)
-                    {
-                        reduceStack.pop();
-                        std::vector<std::unique_ptr<PascalAST::ASTNode>> subNodes;
-                        std::cout << "POP!!!!!!! " << info.expressionLeft << " " << info.expressionFirst << std::endl;
-                        for (int i = 0; i < info.reduceCnt; i++)
-                        {
-                            subNodes.insert(subNodes.begin(), std::move(astStack[astStack.size() - 1]));
-                            astStack.pop_back();
-                        }
-                        astStack.push_back(PascalAST::GenAstNode(info.expressionLeft, info.expressionFirst, subNodes));
-                    }
                 }
                 else
                 {
@@ -183,6 +155,20 @@ namespace CompilerFront
                 for (int sb : expression)
                     std::cout << " " << Tools::InvSymbolNameMap.find(sb)->second;
                 std::cout << std::endl;
+            }
+            std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<STK SZ " << symbolStack.size() << " >>>>>>>>>>>>>>>>>>" << std::endl;
+
+            for (ReduceInfo info = reduceStack.top(); symbolStack.size() == info.reduceStackSize; info = reduceStack.top())
+            {
+                reduceStack.pop();
+                std::vector<std::unique_ptr<PascalAST::ASTNode>> subNodes;
+                std::cout << "POP!!!!!!! " << info.expressionLeft << " " << info.expressionFirst << std::endl;
+                for (int i = 0; i < info.reduceCnt; i++)
+                {
+                    subNodes.insert(subNodes.begin(), std::move(astStack[astStack.size() - 1]));
+                    astStack.pop_back();
+                }
+                astStack.push_back(PascalAST::GenAstNode(info.expressionLeft, info.expressionFirst, subNodes));
             }
         }
         return std::move(astStack[astStack.size() - 1]);
