@@ -6,11 +6,10 @@
 #include <memory>
 #include "lexer.h"
 #include "types.h"
+#include "syntax.h"
 
 namespace PascalAST
 {
-    typedef std::map<std::string, std::unique_ptr<TypeInfo>> SymbolTableItem;
-    typedef std::stack<SymbolTableItem> SymbolTable;
 
     struct ASTNode
     {
@@ -71,35 +70,35 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
 
-    struct Type : ASTNode
+    struct TypeDecl : ASTNode
     {
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
 
-    struct BasicType : public Type
+    struct BasicTypeDecl : public TypeDecl
     {
         std::string basicType;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
 
-    struct ArrayType : public Type
+    struct ArrayTypeDecl : public TypeDecl
     {
         std::unique_ptr<Ranges> ranges;
-        std::unique_ptr<BasicType> type;
-        ArrayType() {}
-        ArrayType(std::unique_ptr<Ranges> &&ranges,
-                  std::unique_ptr<BasicType> &&type) : ranges(std::move(ranges)), type(std::move(type)) {}
+        std::unique_ptr<BasicTypeDecl> type;
+        ArrayTypeDecl() {}
+        ArrayTypeDecl(std::unique_ptr<Ranges> &&ranges,
+                      std::unique_ptr<BasicTypeDecl> &&type) : ranges(std::move(ranges)), type(std::move(type)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
 
     struct ConstantDeclaration : public ASTNode
     {
         std::string name;
-        std::unique_ptr<BasicType> type;
+        std::unique_ptr<BasicTypeDecl> type;
         std::string content;
         ConstantDeclaration() {}
         ConstantDeclaration(std::string name,
-                            std::unique_ptr<BasicType> &&type,
+                            std::unique_ptr<BasicTypeDecl> &&type,
                             std::string content) : name(name), type(std::move(type)), content(content) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
@@ -112,10 +111,10 @@ namespace PascalAST
 
     struct VariableDeclaration : public ASTNode
     {
-        std::unique_ptr<Type> type;
+        std::unique_ptr<TypeDecl> type;
         std::unique_ptr<Identifiers> identifiers;
         VariableDeclaration() {}
-        VariableDeclaration(std::unique_ptr<Type> &&type,
+        VariableDeclaration(std::unique_ptr<TypeDecl> &&type,
                             std::unique_ptr<Identifiers> &&identifiers) : type(std::move(type)), identifiers(std::move(identifiers)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
@@ -123,25 +122,25 @@ namespace PascalAST
     struct VariableDeclarations : public ASTNode
     {
         std::vector<std::unique_ptr<VariableDeclaration>> variableDeclarations;
-        void Check();
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
 
     struct Parameter : public ASTNode
     {
         bool isRef;
-        std::unique_ptr<BasicType> type;
+        std::unique_ptr<BasicTypeDecl> type;
         std::unique_ptr<Identifiers> identifiers;
         Parameter() {}
         Parameter(bool isRef,
-                  std::unique_ptr<BasicType> &&type,
+                  std::unique_ptr<BasicTypeDecl> &&type,
                   std::unique_ptr<Identifiers> &&identifiers) : isRef(isRef), type(std::move(type)), identifiers(std::move(identifiers)) {}
-        void Check();
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
 
     struct ParameterList : public ASTNode
     {
         std::vector<std::unique_ptr<Parameter>> parameters;
-        void Check();
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
 
     struct VarPart;
@@ -152,7 +151,7 @@ namespace PascalAST
         Variable() {}
         Variable(std::string name,
                  std::unique_ptr<VarPart> &&varPart) : name(name), varPart(std::move(varPart)) {}
-        void Check();
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
     };
 
     struct VariableList : public ASTNode
@@ -179,6 +178,7 @@ namespace PascalAST
     struct NumFactor : public Factor
     {
         std::string val;
+        std::string type;
         void Check();
     };
 
@@ -398,12 +398,12 @@ namespace PascalAST
     {
         std::string name;
         std::unique_ptr<ParameterList> parameters;
-        std::unique_ptr<BasicType> returnType;
+        std::unique_ptr<BasicTypeDecl> returnType;
 
         SubProgramHead() {}
         SubProgramHead(std::string name,
                        std::unique_ptr<ParameterList> &&parameters,
-                       std::unique_ptr<BasicType> &&returnType) : name(name), parameters(std::move(parameters)), returnType(std::move(returnType)) {}
+                       std::unique_ptr<BasicTypeDecl> &&returnType) : name(name), parameters(std::move(parameters)), returnType(std::move(returnType)) {}
         void Check();
     };
 

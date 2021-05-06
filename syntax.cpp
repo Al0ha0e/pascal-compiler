@@ -4,8 +4,6 @@ namespace PascalAST
 {
     void AbstractSyntaxTree::Check()
     {
-        while (!symTable.empty())
-            symTable.pop();
         astRoot->Check(symTable);
     }
 
@@ -32,12 +30,12 @@ namespace PascalAST
         return GenType(VOID);
     }
 
-    std::unique_ptr<TypeInfo> Type::Check(SymbolTable &table)
+    std::unique_ptr<TypeInfo> TypeDecl::Check(SymbolTable &table)
     {
         return GenType(VOID);
     }
 
-    std::unique_ptr<TypeInfo> BasicType::Check(SymbolTable &table)
+    std::unique_ptr<TypeInfo> BasicTypeDecl::Check(SymbolTable &table)
     {
         if (basicType == "int")
         {
@@ -57,35 +55,66 @@ namespace PascalAST
         }
     }
 
-    std::unique_ptr<TypeInfo> ArrayType::Check(SymbolTable &table)
+    std::unique_ptr<TypeInfo> ArrayTypeDecl::Check(SymbolTable &table)
     {
         ranges->Check(table);
-        TypeInfo *arrType = new ArrayType(ranges->ranges.size(), type->Check(table)->GetTypeId());
-        return std::unique_ptr<arrType>;
+        TypeInfo *arrType = new ArrayType(int(ranges->ranges.size()), type->Check(table)->GetTypeId());
+        return std::unique_ptr<TypeInfo>(arrType);
     }
     std::unique_ptr<TypeInfo> ConstantDeclaration::Check(SymbolTable &table)
     {
-        //TODO content
-        table.top().insert(std::pair<std::string, std::unique_ptr<TypeInfo>>(name, type->Check(table)));
+        table.InsertSymbol(name, type->Check(table), true, content);
         return GenType(VOID);
     }
     std::unique_ptr<TypeInfo> ConstantDeclarations::Check(SymbolTable &table)
     {
         for (int i = 0; i < constantDeclarations.size(); i++)
             constantDeclarations[i]->Check(table);
+        return GenType(VOID);
     }
     std::unique_ptr<TypeInfo> VariableDeclaration::Check(SymbolTable &table)
     {
-        TypeID tp = type->Check(table)->GetTypeId();
+        auto tp(type->Check(table));
         identifiers->Check(table);
-        SymbolTableItem &item = table.top();
+        int layerCnt = table.GetLayerCnt();
+        int layer;
         for (std::string id : identifiers->identifiers)
         {
-            if (item.find(id) != item.end())
+            if (table.HasSymbol(id, layer) && layer + 1 == layerCnt)
             {
                 //TODO
             }
-            item.insert(std::pair<std::string, std::unique_ptr<TypeInfo>>(id, GenType(tp)));
+            else
+            {
+                table.InsertSymbol(id, tp->Copy(), false, "");
+            }
+            //item.insert(std::pair<std::string, std::unique_ptr<TypeInfo>>(id, GenType(tp)));
         }
+        return GenType(VOID);
+    }
+
+    std::unique_ptr<TypeInfo> VariableDeclarations::Check(SymbolTable &table)
+    {
+        for (int i = 0; i < variableDeclarations.size(); i++)
+            variableDeclarations[i]->Check(table);
+        return GenType(VOID);
+    }
+
+    std::unique_ptr<TypeInfo> Parameter::Check(SymbolTable &table)
+    {
+        type->Check(table);
+        identifiers->Check(table);
+        return GenType(VOID);
+    }
+
+    std::unique_ptr<TypeInfo> ParameterList::Check(SymbolTable &table)
+    {
+        for (int i = 0; i < parameters.size(); i++)
+            parameters[i]->Check(table);
+        return GenType(VOID);
+    }
+
+    std::unique_ptr<TypeInfo> Variable::Check(SymbolTable &table)
+    {
     }
 }

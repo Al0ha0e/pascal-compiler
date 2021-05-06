@@ -159,12 +159,12 @@ namespace PascalAST
             if (expressionFirst == "id")
             {
                 //const_declaration-->id = const_value const_declaration_80
-                BasicType *bType = new BasicType();
+                BasicTypeDecl *bType = new BasicTypeDecl();
                 auto constValue(Unpack<OriASTNode>(subNodes[2]));
                 bType->basicType = constValue->info;
                 ConstantDeclaration *const_declaration = new ConstantDeclaration(
                     Unpack<OriASTNode>(subNodes[0])->content,
-                    std::unique_ptr<BasicType>(bType),
+                    std::unique_ptr<BasicTypeDecl>(bType),
                     constValue->content);
                 auto constantDeclarations(Unpack<ConstantDeclarations>(subNodes[3]));
                 constantDeclarations->constantDeclarations.push_back(std::unique_ptr<ConstantDeclaration>(const_declaration));
@@ -251,11 +251,11 @@ namespace PascalAST
             {
                 //const_declaration_80-->; id = const_value const_declaration_80
                 auto constValue(Unpack<OriASTNode>(subNodes[3]));
-                BasicType *bType = new BasicType();
+                BasicTypeDecl *bType = new BasicTypeDecl();
                 bType->basicType = constValue->info;
                 ConstantDeclaration *constantDeclaration = new ConstantDeclaration(
                     Unpack<OriASTNode>(subNodes[1])->content,
-                    std::unique_ptr<BasicType>(bType),
+                    std::unique_ptr<BasicTypeDecl>(bType),
                     constValue->content);
                 auto constantDeclarations(Unpack<ConstantDeclarations>(subNodes[4]));
                 constantDeclarations->constantDeclarations.push_back(std::unique_ptr<ConstantDeclaration>(constantDeclaration));
@@ -285,9 +285,9 @@ namespace PascalAST
             if (expressionFirst == "array")
             {
                 //type-->array [ period ] of basic_type
-                ArrayType *arrayType = new ArrayType(
+                ArrayTypeDecl *arrayType = new ArrayTypeDecl(
                     Unpack<Ranges>(subNodes[2]),
-                    Unpack<BasicType>(subNodes[5]));
+                    Unpack<BasicTypeDecl>(subNodes[5]));
                 return std::unique_ptr<ASTNode>((ASTNode *)arrayType);
             }
         }
@@ -303,7 +303,7 @@ namespace PascalAST
             {
                 //var_declaration_81-->; idlist : type var_declaration_81
                 VariableDeclaration *variableDeclaration = new VariableDeclaration(
-                    Unpack<Type>(subNodes[3]),
+                    Unpack<TypeDecl>(subNodes[3]),
                     Unpack<Identifiers>(subNodes[1]));
                 auto variableDeclarations(Unpack<VariableDeclarations>(subNodes[4]));
                 variableDeclarations->variableDeclarations.push_back(std::unique_ptr<VariableDeclaration>(variableDeclaration));
@@ -315,28 +315,28 @@ namespace PascalAST
             if (expressionFirst == "integer")
             {
                 //basic_type-->integer
-                BasicType *bType = new BasicType();
+                BasicTypeDecl *bType = new BasicTypeDecl();
                 bType->basicType = Unpack<OriASTNode>(subNodes[0])->content;
                 return std::unique_ptr<ASTNode>((ASTNode *)bType);
             }
             if (expressionFirst == "real")
             {
                 //basic_type-->real
-                BasicType *bType = new BasicType();
+                BasicTypeDecl *bType = new BasicTypeDecl();
                 bType->basicType = Unpack<OriASTNode>(subNodes[0])->content;
                 return std::unique_ptr<ASTNode>((ASTNode *)bType);
             }
             if (expressionFirst == "boolean")
             {
                 //basic_type-->boolean
-                BasicType *bType = new BasicType();
+                BasicTypeDecl *bType = new BasicTypeDecl();
                 bType->basicType = Unpack<OriASTNode>(subNodes[0])->content;
                 return std::unique_ptr<ASTNode>((ASTNode *)bType);
             }
             if (expressionFirst == "char")
             {
                 //basic_type-->char
-                BasicType *bType = new BasicType();
+                BasicTypeDecl *bType = new BasicTypeDecl();
                 bType->basicType = Unpack<OriASTNode>(subNodes[0])->content;
                 return std::unique_ptr<ASTNode>((ASTNode *)bType);
             }
@@ -398,13 +398,13 @@ namespace PascalAST
             if (expressionFirst == "function")
             {
                 //subprogram_head-->function id formal_parameter : basic_type
-                BasicType *basicType = new BasicType();
+                BasicTypeDecl *basicType = new BasicTypeDecl();
                 basicType->basicType = Unpack<OriASTNode>(subNodes[4])->content;
 
                 ASTNode *subProgramHead = new SubProgramHead(
                     Unpack<OriASTNode>(subNodes[1])->content,
                     Unpack<ParameterList>(subNodes[2]),
-                    std::unique_ptr<BasicType>(basicType));
+                    std::unique_ptr<BasicTypeDecl>(basicType));
 
                 return std::unique_ptr<ASTNode>(subProgramHead);
             }
@@ -491,7 +491,7 @@ namespace PascalAST
                 //value_parameter-->idlist : basic_type
                 ASTNode *parameter = new Parameter(
                     false,
-                    Unpack<BasicType>(subNodes[2]),
+                    Unpack<BasicTypeDecl>(subNodes[2]),
                     Unpack<Identifiers>(subNodes[0]));
                 return std::unique_ptr<ASTNode>(parameter);
             }
@@ -787,7 +787,9 @@ namespace PascalAST
             {
                 //factor-->num
                 NumFactor *numFactor = new NumFactor();
-                numFactor->val = Unpack<OriASTNode>(subNodes[0])->content;
+                auto oriASTNode(Unpack<OriASTNode>(subNodes[0]));
+                numFactor->val = oriASTNode->content;
+                numFactor->type = oriASTNode->info;
                 return std::unique_ptr<ASTNode>((ASTNode *)numFactor);
             }
             if (expressionFirst == "-")

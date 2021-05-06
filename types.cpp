@@ -22,6 +22,18 @@ namespace PascalAST
         return GenType(VOID);
     }
 
+    std::unique_ptr<TypeInfo> VOIDType::Copy()
+    {
+        TypeInfo *ret = new VOIDType();
+        return std::unique_ptr<TypeInfo>(ret);
+    }
+
+    std::unique_ptr<TypeInfo> IntegerType::Copy()
+    {
+        TypeInfo *ret = new IntegerType();
+        return std::unique_ptr<TypeInfo>(ret);
+    }
+
     std::unique_ptr<TypeInfo> IntegerType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->GetTypeId() == REAL)
@@ -35,6 +47,12 @@ namespace PascalAST
         return GenType(VOID);
     }
 
+    std::unique_ptr<TypeInfo> RealType::Copy()
+    {
+        TypeInfo *ret = new RealType();
+        return std::unique_ptr<TypeInfo>(ret);
+    }
+
     std::unique_ptr<TypeInfo> RealType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsBasicType())
@@ -42,6 +60,12 @@ namespace PascalAST
             return GenType(REAL);
         }
         return GenType(VOID);
+    }
+
+    std::unique_ptr<TypeInfo> CharType::Copy()
+    {
+        TypeInfo *ret = new CharType();
+        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> CharType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
@@ -53,6 +77,12 @@ namespace PascalAST
         return GenType(VOID);
     }
 
+    std::unique_ptr<TypeInfo> BooleanType::Copy()
+    {
+        TypeInfo *ret = new BooleanType();
+        return std::unique_ptr<TypeInfo>(ret);
+    }
+
     std::unique_ptr<TypeInfo> BooleanType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsBasicType())
@@ -62,10 +92,28 @@ namespace PascalAST
         return GenType(VOID);
     }
 
+    std::unique_ptr<TypeInfo> TupleType::Copy()
+    {
+        TypeInfo *ret = new TupleType(subTypes);
+        return std::unique_ptr<TypeInfo>(ret);
+    }
+
+    std::unique_ptr<TypeInfo> FuncType::Copy()
+    {
+        TypeInfo *ret = new FuncType(argTypes, isRef, retType);
+        return std::unique_ptr<TypeInfo>(ret);
+    }
+
     std::unique_ptr<TypeInfo> FuncType::CalcFuncType(std::vector<std::unique_ptr<TypeInfo>> &&argTypes)
     {
         //TODO:
         return GenType(retType);
+    }
+
+    std::unique_ptr<TypeInfo> ArrayType::Copy()
+    {
+        TypeInfo *ret = new ArrayType(dimension, contentType);
+        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> ArrayType::CalcArrayType(std::vector<std::unique_ptr<TypeInfo>> &&idTypes)
