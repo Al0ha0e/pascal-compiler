@@ -360,17 +360,23 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> SubProgramHead::Check(SymbolTable &table)
     {
-        table.PushMap();
         table.InsertSymbol(name, std::unique_ptr<TypeInfo>(), true, "");
-        // table.InsertSymbol()
+        std::vector<bool> isRef;
+        auto &params = parameters->parameters;
+        for (int i = 0; i < params.size(); i++)
+        {
+            auto &ids = params[i]->identifiers->identifiers;
+            for (int j = 0; j < ids.size(); j++)
+                isRef.push_back(params[i]->isRef);
+        }
         FuncType *funcType = new FuncType(
             UniquePtrCast<TupleType>(parameters->Check(table)),
-            std::vector<bool>(),
+            isRef,
             returnType->Check(table));
         table.InsertSymbol(name, std::unique_ptr<TypeInfo>((TypeInfo *)funcType), true, "");
         return GenType(VOID);
-        //TODO
     }
+
     std::unique_ptr<TypeInfo> SubProgramBody::Check(SymbolTable &table)
     {
         constantDeclarations->Check(table);
@@ -380,8 +386,11 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> SubProgram::Check(SymbolTable &table)
     {
+
+        table.PushMap();
         head->Check(table);
         body->Check(table);
+        table.PopMap();
         return GenType(VOID);
     }
     std::unique_ptr<TypeInfo> SubProgramDeclarations::Check(SymbolTable &table)
@@ -394,6 +403,7 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> ProgramHead::Check(SymbolTable &table)
     {
         identifiers->Check(table);
+        //TODO: insert identifiers into table
         return GenType(VOID);
     }
 
@@ -407,8 +417,10 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> Program::Check(SymbolTable &table)
     {
+        table.PushMap();
         programHead->Check(table);
         programBody->Check(table);
+        table.PopMap();
         return GenType(VOID);
     }
 }
