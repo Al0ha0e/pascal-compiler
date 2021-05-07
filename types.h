@@ -6,6 +6,18 @@
 namespace PascalAST
 {
 
+    template <typename TB, typename TA>
+    inline std::unique_ptr<TB> UniquePtrCast(std::unique_ptr<TA> &&ori)
+    {
+        return std::unique_ptr<TB>(dynamic_cast<TB *>(ori->release()));
+    }
+
+    // template <typename T, typename... Ts>
+    // std::unique_ptr<T> make_unique(Ts &&...params)
+    // {
+    //     return std::unique_ptr<T>(new T(std::forward<Ts>(params)...));
+    // }
+
     enum TypeID
     {
         VOID,
@@ -18,13 +30,15 @@ namespace PascalAST
         TUPLE
     };
 
+    class TupleType;
+
     class TypeInfo
     {
     public:
         // virtual std::string ToString() = 0;
         virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType);
-        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::vector<std::unique_ptr<TypeInfo>> &&argTypes);
-        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::vector<std::unique_ptr<TypeInfo>> &&idTypes);
+        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes);
+        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes);
         virtual std::unique_ptr<TypeInfo> Copy() = 0;
 
         TypeInfo() {}
@@ -98,6 +112,18 @@ namespace PascalAST
                 subTypes.push_back(types[i]->Copy());
             }
         }
+        TupleType(std::vector<std::unique_ptr<TypeInfo>> &&types) : TypeInfo(TUPLE)
+        {
+            for (int i = 0; i < types.size(); i++)
+            {
+                subTypes.push_back(std::move(types[i]));
+            }
+        }
+        TupleType &operator+=(const TupleType &&ano)
+        {
+            for (int i = 0; i < ano.subTypes.size(); i++)
+                subTypes.push_back(std::move(ano.subTypes[i]));
+        }
 
         std::unique_ptr<TypeInfo> Copy();
 
@@ -108,32 +134,36 @@ namespace PascalAST
     class FuncType : public TypeInfo
     {
     public:
-        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::vector<std::unique_ptr<TypeInfo>> &&argTypes);
+        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes);
         std::unique_ptr<TypeInfo> Copy();
         FuncType() : TypeInfo(FUNC) {}
 
-        FuncType(std::vector<TypeID> &argTypes, std::vector<bool> &isRef, TypeID retType) : argTypes(argTypes), isRef(isRef), retType(retType), TypeInfo(FUNC) {}
+        FuncType(std::unique_ptr<TupleType> &&argTypes, std::vector<bool> &isRef, std::unique_ptr<TypeInfo> &&retType)
+            : argTypes(std::move(argTypes)), isRef(isRef), retType(std::move(retType)), TypeInfo(FUNC) {}
+
+        FuncType(std::unique_ptr<TupleType> &&argTypes, std::vector<bool> &&isRef, std::unique_ptr<TypeInfo> &&retType)
+            : argTypes(std::move(argTypes)), isRef(isRef), retType(std::move(retType)), TypeInfo(FUNC) {}
 
     private:
-        std::vector<TypeID> argTypes;
+        std::unique_ptr<TupleType> argTypes;
         std::vector<bool> isRef;
-        TypeID retType;
+        std::unique_ptr<TypeInfo> retType;
     };
 
     class ArrayType : public TypeInfo
     {
     public:
-        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::vector<std::unique_ptr<TypeInfo>> &&idTypes);
+        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes);
         std::unique_ptr<TypeInfo> Copy();
         ArrayType() : TypeInfo(ARRAY) {}
-        ArrayType(int dimension, TypeID contentType) : dimension(dimension), contentType(contentType), TypeInfo(ARRAY) {}
+        ArrayType(int dimension, std::unique_ptr<TypeInfo> &&contentType) : dimension(dimension), contentType(std::move(contentType)), TypeInfo(ARRAY) {}
 
     private:
         int dimension;
-        TypeID contentType;
+        std::unique_ptr<TypeInfo> contentType;
     };
 
-    std::unique_ptr<TypeInfo> GenType(TypeID id)
+    inline std::unique_ptr<TypeInfo> GenType(TypeID id)
     {
         TypeInfo *ret;
         if (id == VOID)
@@ -155,4 +185,23 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
+    inline std::unique_ptr<TypeInfo> GenTypeByStr(std::string id)
+    {
+        if (id == "int")
+        {
+            return GenType(INTEGER);
+        }
+        if (id == "real")
+        {
+            return GenType(REAL);
+        }
+        if (id == "char")
+        {
+            return GenType(CHAR);
+        }
+        if (id == "boolean")
+        {
+            return GenType(BOOLEAN);
+        }
+    }
 }

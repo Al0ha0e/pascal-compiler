@@ -71,9 +71,17 @@ namespace PascalAST
             return ret;
         }
 
+        bool SymbolAtTop(std::string id)
+        {
+            auto &top = table[table.size() - 1];
+            if (top.find(id) != top.end())
+                return false;
+            return true;
+        }
+
         bool InsertSymbol(std::string id, std::unique_ptr<TypeInfo> &&type, bool isConstant, std::string oriVal)
         {
-            table[table.size() - 1].insert(std::pair<std::string, SymbolTableItem>(id, SymbolTableItem(std::move(type), isConstant, oriVal)));
+            table[table.size() - 1][id] = SymbolTableItem(std::move(type), isConstant, oriVal);
         }
 
     private:

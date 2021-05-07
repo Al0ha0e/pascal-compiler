@@ -2,6 +2,7 @@
 
 namespace PascalAST
 {
+
     std::unique_ptr<TypeInfo> TypeInfo::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
     {
         //TODO: Error Handling
@@ -11,12 +12,12 @@ namespace PascalAST
         }
         return GenType(VOID);
     }
-    std::unique_ptr<TypeInfo> TypeInfo::CalcFuncType(std::vector<std::unique_ptr<TypeInfo>> &&argTypes)
+    std::unique_ptr<TypeInfo> TypeInfo::CalcFuncType(std::unique_ptr<TupleType> &&argTypes)
     {
         //TODO: Error Handling
         return GenType(VOID);
     }
-    std::unique_ptr<TypeInfo> TypeInfo::CalcArrayType(std::vector<std::unique_ptr<TypeInfo>> &&idTypes)
+    std::unique_ptr<TypeInfo> TypeInfo::CalcArrayType(std::unique_ptr<TupleType> &&idTypes)
     {
         //TODO: Error Handling
         return GenType(VOID);
@@ -100,25 +101,25 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> FuncType::Copy()
     {
-        TypeInfo *ret = new FuncType(argTypes, isRef, retType);
+        TypeInfo *ret = new FuncType(UniquePtrCast<TupleType>(argTypes->Copy()), isRef, retType->Copy());
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    std::unique_ptr<TypeInfo> FuncType::CalcFuncType(std::vector<std::unique_ptr<TypeInfo>> &&argTypes)
+    std::unique_ptr<TypeInfo> FuncType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes)
     {
         //TODO:
-        return GenType(retType);
+        return retType->Copy();
     }
 
     std::unique_ptr<TypeInfo> ArrayType::Copy()
     {
-        TypeInfo *ret = new ArrayType(dimension, contentType);
+        TypeInfo *ret = new ArrayType(dimension, contentType->Copy());
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    std::unique_ptr<TypeInfo> ArrayType::CalcArrayType(std::vector<std::unique_ptr<TypeInfo>> &&idTypes)
+    std::unique_ptr<TypeInfo> ArrayType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes)
     {
         //TODO:
-        return GenType(contentType);
+        return contentType->Copy();
     }
 }

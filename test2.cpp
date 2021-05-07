@@ -3,24 +3,13 @@
 #include <iostream>
 using namespace std;
 
-vector<unique_ptr<int>> a;
-
-unique_ptr<int> GSB()
-{
-}
-
-void GET(unique_ptr<int> &sb)
-{
-    unique_ptr<int> sb2(std::move(sb));
-    cout << *sb2 << endl;
-}
-
 int main()
 {
-    int b = 10132;
-    a.push_back(unique_ptr<int>(&b));
-    unique_ptr<int> c(move(a[0]));
-    cout << *c << endl;
-    GET(c);
+    int *ap = new int(10);
+    int *bp = new int(101);
+    std::unique_ptr<int> a(ap);
+    std::unique_ptr<int> b(std::move(a));
+    a = std::unique_ptr<int>(bp);
+    std::cout << *a << " " << *ap << " " << *b;
     return 0;
 }

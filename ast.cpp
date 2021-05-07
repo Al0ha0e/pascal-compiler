@@ -75,7 +75,8 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //program_head_89-->EPS
-                return std::unique_ptr<ASTNode>();
+                ASTNode *idlist = new Identifiers();
+                return std::unique_ptr<ASTNode>(idlist);
             }
             if (expressionFirst == "(")
             {
@@ -177,7 +178,7 @@ namespace PascalAST
             {
                 //var_declaration-->idlist : type var_declaration_81
                 VariableDeclaration *variableDeclaration = new VariableDeclaration(
-                    Unpack<Type>(subNodes[2]),
+                    Unpack<TypeDecl>(subNodes[2]),
                     Unpack<Identifiers>(subNodes[0]));
                 auto variableDeclarations(Unpack<VariableDeclarations>(subNodes[3]));
                 variableDeclarations->variableDeclarations.push_back(std::unique_ptr<VariableDeclaration>(variableDeclaration));
@@ -392,7 +393,7 @@ namespace PascalAST
                 ASTNode *subProgramHead = new SubProgramHead(
                     Unpack<OriASTNode>(subNodes[1])->content,
                     Unpack<ParameterList>(subNodes[2]),
-                    std::unique_ptr<BasicType>());
+                    std::unique_ptr<BasicTypeDecl>());
                 return std::unique_ptr<ASTNode>(subProgramHead);
             }
             if (expressionFirst == "function")
@@ -826,7 +827,7 @@ namespace PascalAST
             if (expressionFirst == "EPS")
             {
                 //term_88-->EPS
-                return std::unique_ptr<Term>();
+                return std::unique_ptr<ASTNode>();
             }
             if (expressionFirst == "mulop")
             {
