@@ -1,3 +1,6 @@
+#ifndef SYNTAX
+#define SYNTAX
+
 #include <map>
 #include <vector>
 #include <memory>
@@ -79,7 +82,7 @@ namespace PascalAST
             return true;
         }
 
-        bool InsertSymbol(std::string id, std::unique_ptr<TypeInfo> &&type, bool isConstant, std::string oriVal)
+        void InsertSymbol(std::string id, std::unique_ptr<TypeInfo> &&type, bool isConstant, std::string oriVal)
         {
             table[table.size() - 1][id] = SymbolTableItem(std::move(type), isConstant, oriVal);
         }
@@ -88,3 +91,5 @@ namespace PascalAST
         std::vector<SymbolMap> table;
     };
 }
+
+#endif

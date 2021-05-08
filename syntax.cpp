@@ -338,7 +338,7 @@ namespace PascalAST
             for (int j = 0; j < ids.size(); j++)
                 isRef.push_back(param->isRef);
         }
-        auto &retType = GenType(VOID);
+        auto retType(GenType(VOID));
         if (returnType != nullptr)
             retType = returnType->Check(table);
 

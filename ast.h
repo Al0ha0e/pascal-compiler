@@ -13,6 +13,7 @@ namespace PascalAST
     struct ASTNode
     {
         virtual std::unique_ptr<TypeInfo> Check(SymbolTable &table) = 0;
+        virtual void Show() = 0;
     };
 
     struct AbstractSyntaxTree
@@ -50,12 +51,16 @@ namespace PascalAST
         OriASTNode() {}
         OriASTNode(std::string content, std::string info) : content(content), info(info) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Identifiers : public ASTNode
     {
         std::vector<std::string> identifiers;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Range : public ASTNode
@@ -63,23 +68,31 @@ namespace PascalAST
         int l;
         int r;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Ranges : public ASTNode
     {
         std::vector<std::unique_ptr<Range>> ranges;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct TypeDecl : ASTNode
     {
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct BasicTypeDecl : public TypeDecl
     {
         std::string basicType;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ArrayTypeDecl : public TypeDecl
@@ -90,6 +103,8 @@ namespace PascalAST
         ArrayTypeDecl(std::unique_ptr<Ranges> &&ranges,
                       std::unique_ptr<BasicTypeDecl> &&type) : ranges(std::move(ranges)), type(std::move(type)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ConstantDeclaration : public ASTNode
@@ -102,12 +117,16 @@ namespace PascalAST
                             std::unique_ptr<BasicTypeDecl> &&type,
                             std::string content) : name(name), type(std::move(type)), content(content) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ConstantDeclarations : public ASTNode
     {
         std::vector<std::unique_ptr<ConstantDeclaration>> constantDeclarations;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct VariableDeclaration : public ASTNode
@@ -118,12 +137,16 @@ namespace PascalAST
         VariableDeclaration(std::unique_ptr<TypeDecl> &&type,
                             std::unique_ptr<Identifiers> &&identifiers) : type(std::move(type)), identifiers(std::move(identifiers)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct VariableDeclarations : public ASTNode
     {
         std::vector<std::unique_ptr<VariableDeclaration>> variableDeclarations;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Parameter : public ASTNode
@@ -136,12 +159,16 @@ namespace PascalAST
                   std::unique_ptr<BasicTypeDecl> &&type,
                   std::unique_ptr<Identifiers> &&identifiers) : isRef(isRef), type(std::move(type)), identifiers(std::move(identifiers)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ParameterList : public ASTNode
     {
         std::vector<std::unique_ptr<Parameter>> parameters;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct VarPart;
@@ -153,17 +180,23 @@ namespace PascalAST
         Variable(std::string name,
                  std::unique_ptr<VarPart> &&varPart) : name(name), varPart(std::move(varPart)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct VariableList : public ASTNode
     {
         std::vector<std::unique_ptr<Variable>> variables;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Factor : public ASTNode
     {
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Expression;
@@ -174,6 +207,8 @@ namespace PascalAST
         ExpressionFactor() {}
         ExpressionFactor(std::unique_ptr<Expression> &&expression) : expression(std::move(expression)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct NumFactor : public Factor
@@ -181,6 +216,8 @@ namespace PascalAST
         std::string val;
         std::string type;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct InvFactor : public Factor
@@ -189,6 +226,8 @@ namespace PascalAST
         InvFactor() {}
         InvFactor(std::unique_ptr<Factor> &&subFactor) : subFactor(std::move(subFactor)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct VariableFactor : public Factor
@@ -197,6 +236,8 @@ namespace PascalAST
         VariableFactor() {}
         VariableFactor(std::unique_ptr<Variable> &&variable) : variable(std::move(variable)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct NotFactor : public Factor
@@ -205,6 +246,8 @@ namespace PascalAST
         NotFactor() {}
         NotFactor(std::unique_ptr<Factor> &&subFactor) : subFactor(std::move(subFactor)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Term;
@@ -219,6 +262,8 @@ namespace PascalAST
                   std::unique_ptr<Factor> &&secondFactor,
                   std::unique_ptr<MulOpPart> &&followPart) : mulOp(mulOp), secondFactor(std::move(secondFactor)), followPart(std::move(followPart)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Term : public ASTNode
@@ -233,6 +278,8 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
         void Rotate();
+
+        void Show();
     };
 
     struct SimpleExpression;
@@ -248,6 +295,8 @@ namespace PascalAST
                   std::unique_ptr<Term> &&secondTerm,
                   std::unique_ptr<AddOpPart> &&followPart) : addOp(addOp), secondTerm(std::move(secondTerm)), followPart(std::move(followPart)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct SimpleExpression : public ASTNode
@@ -260,6 +309,8 @@ namespace PascalAST
                          std::unique_ptr<AddOpPart> &&addOpPart) : firstTerm(std::move(firstTerm)), addOpPart(std::move(addOpPart)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Rotate();
+
+        void Show();
     };
 
     struct RelPart : public ASTNode
@@ -271,6 +322,8 @@ namespace PascalAST
         RelPart(std::string relop,
                 std::unique_ptr<SimpleExpression> &&secondExpression) : relop(relop), secondExpression(std::move(secondExpression)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Expression : public ASTNode
@@ -282,12 +335,16 @@ namespace PascalAST
         Expression(std::unique_ptr<SimpleExpression> &&firstExpression,
                    std::unique_ptr<RelPart> &&relPart) : firstExpression(std::move(firstExpression)), relPart(std::move(relPart)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ExpressionList : public ASTNode
     {
         std::vector<std::unique_ptr<Expression>> expressions;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct VarPart : public ASTNode
@@ -299,6 +356,8 @@ namespace PascalAST
         VarPart(bool isProcedureCall,
                 std::unique_ptr<ExpressionList> &&expressionList) : isProcedureCall(isProcedureCall), expressionList(std::move(expressionList)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct CompoundStatement;
@@ -306,6 +365,8 @@ namespace PascalAST
     struct Statement : public ASTNode
     {
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct VariableAssignStatement : public Statement
@@ -317,6 +378,8 @@ namespace PascalAST
         VariableAssignStatement(std::unique_ptr<Variable> &&variable,
                                 std::unique_ptr<Expression> &&expression) : variable(std::move(variable)), expression(std::move(expression)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ProcedureCallStatement : public Statement
@@ -325,6 +388,8 @@ namespace PascalAST
         ProcedureCallStatement() {}
         ProcedureCallStatement(std::unique_ptr<Variable> &&variable) : variable(std::move(variable)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct SubCompoundStatement : public Statement
@@ -334,6 +399,8 @@ namespace PascalAST
         SubCompoundStatement() {}
         SubCompoundStatement(std::unique_ptr<CompoundStatement> &&compoundStatement) : compoundStatement(std::move(compoundStatement)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct IfElseStatement : public Statement
@@ -348,6 +415,8 @@ namespace PascalAST
                         std::unique_ptr<Statement> &&elseStatement)
             : ifExpression(std::move(ifExpression)), thenStatement(std::move(thenStatement)), elseStatement(std::move(elseStatement)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ForLoopStatement : public Statement
@@ -365,6 +434,8 @@ namespace PascalAST
                                                                        termiExpression(std::move(termiExpression)),
                                                                        loopStatement(std::move(loopStatement)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ReadStatement : public Statement
@@ -373,6 +444,8 @@ namespace PascalAST
         ReadStatement() {}
         ReadStatement(std::unique_ptr<VariableList> &&variableList) : variableList(std::move(variableList)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct WriteStatement : public Statement
@@ -382,12 +455,16 @@ namespace PascalAST
         WriteStatement() {}
         WriteStatement(std::unique_ptr<ExpressionList> &&expressionList) : expressionList(std::move(expressionList)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct StatementList : public ASTNode
     {
         std::vector<std::unique_ptr<Statement>> statements; //ELEM MAY NULL
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct CompoundStatement : ASTNode
@@ -397,6 +474,8 @@ namespace PascalAST
         CompoundStatement() {}
         CompoundStatement(std::unique_ptr<StatementList> &&statementList) : statementList(std::move(statementList)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct SubProgramHead : public ASTNode
@@ -410,6 +489,8 @@ namespace PascalAST
                        std::unique_ptr<ParameterList> &&parameters,
                        std::unique_ptr<BasicTypeDecl> &&returnType) : name(name), parameters(std::move(parameters)), returnType(std::move(returnType)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct SubProgramBody : public ASTNode
@@ -425,6 +506,8 @@ namespace PascalAST
               variableDeclarations(std::move(variableDeclarations)),
               compoundStatement(std::move(compoundStatement)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct SubProgram : public ASTNode
@@ -436,12 +519,16 @@ namespace PascalAST
         SubProgram(std::unique_ptr<SubProgramHead> &&head,
                    std::unique_ptr<SubProgramBody> &&body) : head(std::move(head)), body(std::move(body)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct SubProgramDeclarations : public ASTNode
     {
         std::vector<std::unique_ptr<SubProgram>> subPrograms;
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ProgramHead : ASTNode
@@ -451,6 +538,8 @@ namespace PascalAST
         ProgramHead() {}
         ProgramHead(std::string name, std::unique_ptr<Identifiers> &&ids) : identifiers(std::move(ids)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct ProgramBody : ASTNode
@@ -469,6 +558,8 @@ namespace PascalAST
                                                                               subProgramDeclarations(std::move(subProgramDeclarations)),
                                                                               compoundStatemnet(std::move(compoundStatemnet)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
     struct Program : ASTNode
@@ -478,6 +569,8 @@ namespace PascalAST
         Program() {}
         Program(std::unique_ptr<ProgramHead> &&head, std::unique_ptr<ProgramBody> &&body) : programHead(std::move(head)), programBody(std::move(body)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
+
+        void Show();
     };
 
 }

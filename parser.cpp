@@ -169,6 +169,8 @@ namespace CompilerFront
                     astStack.pop_back();
                 }
                 astStack.push_back(PascalAST::GenAstNode(info.expressionLeft, info.expressionFirst, subNodes));
+                if (reduceStack.empty())
+                    break;
             }
         }
         return std::move(astStack[astStack.size() - 1]);

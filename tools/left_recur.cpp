@@ -23,7 +23,7 @@ namespace Tools
         std::string line = "";
         while (std::getline(f, line))
         {
-            std::cout << line << std::endl;
+            // std::cout << line << std::endl;
             std::istringstream lstream(line);
             std::string symbolName;
             int isL = true;

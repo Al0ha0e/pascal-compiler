@@ -1,3 +1,6 @@
+#ifndef TYPES
+#define TYPES
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -9,7 +12,13 @@ namespace PascalAST
     template <typename TB, typename TA>
     inline std::unique_ptr<TB> UniquePtrCast(std::unique_ptr<TA> &&ori)
     {
-        return std::unique_ptr<TB>(dynamic_cast<TB *>(ori->release()));
+        return std::unique_ptr<TB>(dynamic_cast<TB *>(ori.release()));
+    }
+
+    template <typename TB, typename TA>
+    inline std::unique_ptr<TB> UniquePtrCast(std::unique_ptr<TA> &ori)
+    {
+        return std::unique_ptr<TB>(dynamic_cast<TB *>(ori.release()));
     }
 
     // template <typename T, typename... Ts>
@@ -44,9 +53,9 @@ namespace PascalAST
         TypeInfo() {}
         TypeInfo(TypeID id) : id(id) {}
 
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType)
-        {
-        }
+        // bool Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+        // {
+        // }
         TypeID GetTypeId()
         {
             return id;
@@ -55,6 +64,7 @@ namespace PascalAST
         {
             if (id == BOOLEAN || id == REAL || id == CHAR || id == INTEGER)
                 return true;
+            return false;
         }
         bool IsVoidType()
         {
@@ -119,11 +129,6 @@ namespace PascalAST
                 subTypes.push_back(std::move(types[i]));
             }
         }
-        TupleType &operator+=(const TupleType &&ano)
-        {
-            for (int i = 0; i < ano.subTypes.size(); i++)
-                subTypes.push_back(std::move(ano.subTypes[i]));
-        }
 
         std::unique_ptr<TypeInfo> Copy();
 
@@ -165,12 +170,8 @@ namespace PascalAST
 
     inline std::unique_ptr<TypeInfo> GenType(TypeID id)
     {
-        TypeInfo *ret;
-        if (id == VOID)
-        {
-            ret = new VOIDType();
-        }
-        else if (id == INTEGER)
+        TypeInfo *ret = new VOIDType();
+        if (id == INTEGER)
         {
             ret = new IntegerType();
         }
@@ -203,5 +204,8 @@ namespace PascalAST
         {
             return GenType(BOOLEAN);
         }
+        return GenType(VOID);
     }
 }
+
+#endif

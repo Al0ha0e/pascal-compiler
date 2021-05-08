@@ -177,7 +177,9 @@ namespace PascalAST
             {
                 //idlist-->id idlist_78
                 auto idlist(Unpack<Identifiers>(subNodes[1]));
-                idlist->identifiers.push_back(Unpack<OriASTNode>(subNodes[0])->content);
+                idlist->identifiers.insert(
+                    idlist->identifiers.begin(),
+                    Unpack<OriASTNode>(subNodes[0])->content);
                 return Pack(idlist);
             }
         }
@@ -193,7 +195,7 @@ namespace PascalAST
             {
                 //idlist_78-->, id idlist_78
                 auto idlist(Unpack<Identifiers>(subNodes[2]));
-                idlist->identifiers.push_back(Unpack<OriASTNode>(subNodes[1])->content);
+                idlist->identifiers.insert(idlist->identifiers.begin(), Unpack<OriASTNode>(subNodes[1])->content);
                 return Pack(idlist);
             }
         }
@@ -210,7 +212,9 @@ namespace PascalAST
                     std::unique_ptr<BasicTypeDecl>(bType),
                     constValue->content);
                 auto constantDeclarations(Unpack<ConstantDeclarations>(subNodes[3]));
-                constantDeclarations->constantDeclarations.push_back(std::unique_ptr<ConstantDeclaration>(const_declaration));
+                constantDeclarations->constantDeclarations.insert(
+                    constantDeclarations->constantDeclarations.begin(),
+                    std::unique_ptr<ConstantDeclaration>(const_declaration));
                 return Pack(constantDeclarations);
             }
         }
@@ -223,7 +227,9 @@ namespace PascalAST
                     Unpack<TypeDecl>(subNodes[2]),
                     Unpack<Identifiers>(subNodes[0]));
                 auto variableDeclarations(Unpack<VariableDeclarations>(subNodes[3]));
-                variableDeclarations->variableDeclarations.push_back(std::unique_ptr<VariableDeclaration>(variableDeclaration));
+                variableDeclarations->variableDeclarations.insert(
+                    variableDeclarations->variableDeclarations.begin(),
+                    std::unique_ptr<VariableDeclaration>(variableDeclaration));
                 return Pack(variableDeclarations);
             }
         }
@@ -239,7 +245,9 @@ namespace PascalAST
             {
                 //subprogram_declarations_79-->subprogram ; subprogram_declarations_79
                 auto subProgramDeclarations(Unpack<SubProgramDeclarations>(subNodes[2]));
-                subProgramDeclarations->subPrograms.push_back(Unpack<SubProgram>(subNodes[0]));
+                subProgramDeclarations->subPrograms.insert(
+                    subProgramDeclarations->subPrograms.begin(),
+                    Unpack<SubProgram>(subNodes[0]));
                 return Pack(subProgramDeclarations);
             }
         }
@@ -249,7 +257,7 @@ namespace PascalAST
             {
                 //statement_list-->statement statement_list_84
                 auto statementList(Unpack<StatementList>(subNodes[1]));
-                statementList->statements.push_back(Unpack<Statement>(subNodes[0]));
+                statementList->statements.insert(statementList->statements.begin(), Unpack<Statement>(subNodes[0]));
                 return Pack(statementList);
             }
         }
@@ -301,7 +309,9 @@ namespace PascalAST
                     std::unique_ptr<BasicTypeDecl>(bType),
                     constValue->content);
                 auto constantDeclarations(Unpack<ConstantDeclarations>(subNodes[4]));
-                constantDeclarations->constantDeclarations.push_back(std::unique_ptr<ConstantDeclaration>(constantDeclaration));
+                constantDeclarations->constantDeclarations.insert(
+                    constantDeclarations->constantDeclarations.begin(),
+                    std::unique_ptr<ConstantDeclaration>(constantDeclaration));
                 return Pack(constantDeclarations);
             }
         }
@@ -349,7 +359,9 @@ namespace PascalAST
                     Unpack<TypeDecl>(subNodes[3]),
                     Unpack<Identifiers>(subNodes[1]));
                 auto variableDeclarations(Unpack<VariableDeclarations>(subNodes[4]));
-                variableDeclarations->variableDeclarations.push_back(std::unique_ptr<VariableDeclaration>(variableDeclaration));
+                variableDeclarations->variableDeclarations.insert(
+                    variableDeclarations->variableDeclarations.begin(),
+                    std::unique_ptr<VariableDeclaration>(variableDeclaration));
                 return Pack(variableDeclarations);
             }
         }
@@ -393,7 +405,7 @@ namespace PascalAST
                 range->l = std::stoi(Unpack<OriASTNode>(subNodes[0])->content);
                 range->r = std::stoi(Unpack<OriASTNode>(subNodes[2])->content);
                 auto periods(Unpack<Ranges>(subNodes[3]));
-                periods->ranges.push_back(std::unique_ptr<Range>(range));
+                periods->ranges.insert(periods->ranges.begin(), std::unique_ptr<Range>(range));
                 return Pack(periods);
             }
         }
@@ -412,7 +424,7 @@ namespace PascalAST
                 range->l = std::stoi(Unpack<OriASTNode>(subNodes[1])->content);
                 range->r = std::stoi(Unpack<OriASTNode>(subNodes[3])->content);
                 auto periods(Unpack<Ranges>(subNodes[4]));
-                periods->ranges.push_back(std::unique_ptr<Range>(range));
+                periods->ranges.insert(periods->ranges.begin(), std::unique_ptr<Range>(range));
                 return Pack(periods);
             }
         }
@@ -441,14 +453,10 @@ namespace PascalAST
             if (expressionFirst == "function")
             {
                 //subprogram_head-->function id formal_parameter : basic_type
-                BasicTypeDecl *basicType = new BasicTypeDecl();
-                basicType->basicType = Unpack<OriASTNode>(subNodes[4])->content;
-
                 ASTNode *subProgramHead = new SubProgramHead(
                     Unpack<OriASTNode>(subNodes[1])->content,
                     Unpack<ParameterList>(subNodes[2]),
-                    std::unique_ptr<BasicTypeDecl>(basicType));
-
+                    Unpack<BasicTypeDecl>(subNodes[4]));
                 return std::unique_ptr<ASTNode>(subProgramHead);
             }
         }
@@ -484,7 +492,7 @@ namespace PascalAST
             {
                 //parameter_list-->parameter parameter_list_83
                 auto parameterList(Unpack<ParameterList>(subNodes[1]));
-                parameterList->parameters.push_back(Unpack<Parameter>(subNodes[0]));
+                parameterList->parameters.insert(parameterList->parameters.begin(), Unpack<Parameter>(subNodes[0]));
                 return Pack(parameterList);
             }
         }
@@ -513,7 +521,7 @@ namespace PascalAST
             {
                 //parameter_list_83-->; parameter parameter_list_83
                 auto parameterList(Unpack<ParameterList>(subNodes[2]));
-                parameterList->parameters.push_back(Unpack<Parameter>(subNodes[1]));
+                parameterList->parameters.insert(parameterList->parameters.begin(), Unpack<Parameter>(subNodes[1]));
                 return Pack(parameterList);
             }
         }
@@ -615,7 +623,7 @@ namespace PascalAST
             {
                 //statement_list_84-->; statement statement_list_84
                 auto statementList(Unpack<StatementList>(subNodes[2]));
-                statementList->statements.push_back(Unpack<Statement>(subNodes[1]));
+                statementList->statements.insert(statementList->statements.begin(), Unpack<Statement>(subNodes[1]));
                 return Pack(statementList);
             }
         }
@@ -673,7 +681,7 @@ namespace PascalAST
             {
                 //variable_list-->variable variable_list_85
                 auto variableList(Unpack<VariableList>(subNodes[1]));
-                variableList->variables.push_back(Unpack<Variable>(subNodes[0]));
+                variableList->variables.insert(variableList->variables.begin(), Unpack<Variable>(subNodes[0]));
                 return Pack(variableList);
             }
         }
@@ -683,7 +691,7 @@ namespace PascalAST
             {
                 //expression_list-->expression expression_list_86
                 auto expressionList(Unpack<ExpressionList>(subNodes[1]));
-                expressionList->expressions.push_back(Unpack<Expression>(subNodes[0]));
+                expressionList->expressions.insert(expressionList->expressions.begin(), Unpack<Expression>(subNodes[0]));
                 return Pack(expressionList);
             }
         }
@@ -759,7 +767,7 @@ namespace PascalAST
             {
                 //variable_list_85-->, variable variable_list_85
                 auto variableList(Unpack<VariableList>(subNodes[2]));
-                variableList->variables.push_back(Unpack<Variable>(subNodes[1]));
+                variableList->variables.insert(variableList->variables.begin(), Unpack<Variable>(subNodes[1]));
                 return Pack(variableList);
             }
         }
@@ -775,7 +783,7 @@ namespace PascalAST
             {
                 //expression_list_86-->, expression expression_list_86
                 auto expressionList(Unpack<ExpressionList>(subNodes[2]));
-                expressionList->expressions.push_back(Unpack<Expression>(subNodes[1]));
+                expressionList->expressions.insert(expressionList->expressions.begin(), Unpack<Expression>(subNodes[1]));
                 return Pack(expressionList);
             }
         }
@@ -882,5 +890,6 @@ namespace PascalAST
                 return std::unique_ptr<ASTNode>(mulOpPart);
             }
         }
+        return std::unique_ptr<ASTNode>();
     }
 }
