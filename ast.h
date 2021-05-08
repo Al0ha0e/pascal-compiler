@@ -403,7 +403,7 @@ namespace PascalAST
     {
         std::string name;
         std::unique_ptr<ParameterList> parameters;
-        std::unique_ptr<BasicTypeDecl> returnType;
+        std::unique_ptr<BasicTypeDecl> returnType; //NAY NULL
 
         SubProgramHead() {}
         SubProgramHead(std::string name,

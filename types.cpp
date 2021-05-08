@@ -113,7 +113,7 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> ArrayType::Copy()
     {
-        TypeInfo *ret = new ArrayType(dimension, contentType->Copy());
+        TypeInfo *ret = new ArrayType(dimensions, contentType->Copy());
         return std::unique_ptr<TypeInfo>(ret);
     }
 

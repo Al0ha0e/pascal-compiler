@@ -2,46 +2,6 @@
 
 namespace PascalAST
 {
-
-    void Term::Rotate()
-    {
-        if (mulOpPart == nullptr)
-            return;
-
-        MulOpPart *mulPartP = new MulOpPart(mulOpPart->mulOp, std::move(firstFactor), std::unique_ptr<MulOpPart>());
-        std::unique_ptr<MulOpPart> curMulPart(mulPartP);
-        while (mulOpPart->followPart != nullptr)
-        {
-            mulPartP = new MulOpPart(
-                mulOpPart->followPart->mulOp,
-                std::move(mulOpPart->secondFactor),
-                std::move(curMulPart));
-            curMulPart = std::unique_ptr<MulOpPart>(mulPartP);
-            mulOpPart = std::move(mulOpPart->followPart);
-        }
-        firstFactor = std::move(mulOpPart->secondFactor);
-        mulOpPart = std::move(curMulPart);
-    }
-
-    void SimpleExpression::Rotate()
-    {
-        if (addOpPart == nullptr)
-            return;
-        AddOpPart *addPartP = new AddOpPart(addOpPart->addOp, std::move(firstTerm), std::unique_ptr<AddOpPart>());
-        std::unique_ptr<AddOpPart> curAddPart(addPartP);
-        while (addOpPart->followPart != nullptr)
-        {
-            addPartP = new AddOpPart(
-                addOpPart->followPart->addOp,
-                std::move(addOpPart->secondTerm),
-                std::move(curAddPart));
-            curAddPart = std::unique_ptr<AddOpPart>(addPartP);
-            addOpPart = std::move(addOpPart->followPart);
-        }
-        firstTerm = std::move(addOpPart->secondTerm);
-        addOpPart = std::move(curAddPart);
-    }
-
     void AbstractSyntaxTree::Check()
     {
         astRoot->Check(symTable);
@@ -65,8 +25,8 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> Ranges::Check(SymbolTable &table)
     {
-        for (int i = 0; i < ranges.size(); i++)
-            ranges[i]->Check(table);
+        for (auto &range : ranges)
+            range->Check(table);
         return GenType(VOID);
     }
 
@@ -83,20 +43,33 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> ArrayTypeDecl::Check(SymbolTable &table)
     {
         ranges->Check(table);
-        TypeInfo *arrType = new ArrayType(int(ranges->ranges.size()), type->Check(table)->Copy());
+        std::vector<std::pair<int, int>> arrRanges;
+        for (auto &range : ranges->ranges)
+            arrRanges.push_back(std::pair<int, int>(range->l, range->r));
+
+        TypeInfo *arrType = new ArrayType(arrRanges, type->Check(table)->Copy());
         return std::unique_ptr<TypeInfo>(arrType);
     }
+
     std::unique_ptr<TypeInfo> ConstantDeclaration::Check(SymbolTable &table)
     {
-        table.InsertSymbol(name, type->Check(table), true, content);
+        if (table.SymbolAtTop(name))
+        { //TODO
+        }
+        else
+        {
+            table.InsertSymbol(name, type->Check(table), true, content);
+        }
         return GenType(VOID);
     }
+
     std::unique_ptr<TypeInfo> ConstantDeclarations::Check(SymbolTable &table)
     {
-        for (int i = 0; i < constantDeclarations.size(); i++)
-            constantDeclarations[i]->Check(table);
+        for (auto &declaration : constantDeclarations)
+            declaration->Check(table);
         return GenType(VOID);
     }
+
     std::unique_ptr<TypeInfo> VariableDeclaration::Check(SymbolTable &table)
     {
         auto tp(type->Check(table));
@@ -113,15 +86,14 @@ namespace PascalAST
             {
                 table.InsertSymbol(id, tp->Copy(), false, "");
             }
-            //item.insert(std::pair<std::string, std::unique_ptr<TypeInfo>>(id, GenType(tp)));
         }
         return GenType(VOID);
     }
 
     std::unique_ptr<TypeInfo> VariableDeclarations::Check(SymbolTable &table)
     {
-        for (int i = 0; i < variableDeclarations.size(); i++)
-            variableDeclarations[i]->Check(table);
+        for (auto &declaration : variableDeclarations)
+            declaration->Check(table);
         return GenType(VOID);
     }
 
@@ -134,12 +106,11 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> ParameterList::Check(SymbolTable &table)
     {
         std::vector<std::unique_ptr<TypeInfo>> types;
-        for (int i = 0; i < parameters.size(); i++)
+        for (auto &parameter : parameters)
         {
-            auto pType(parameters[i]->Check(table));
-            for (int j = 0; j < parameters[i]->identifiers->identifiers.size(); j++)
+            auto pType(parameter->Check(table));
+            for (auto id : parameter->identifiers->identifiers)
             {
-                std::string id = parameters[i]->identifiers->identifiers[j];
                 if (table.SymbolAtTop(id))
                 {
                     //TODO
@@ -148,7 +119,6 @@ namespace PascalAST
                 {
                     table.InsertSymbol(id, pType->Copy(), false, "");
                 }
-
                 types.push_back(pType->Copy());
             }
         }
@@ -175,6 +145,7 @@ namespace PascalAST
                 if (varPart->isProcedureCall)
                     return type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table)));
                 return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table)));
+                //TODO: Check Array Range
             }
             TupleType *emptyTuple = new TupleType();
             return type->CalcFuncType(std::unique_ptr<TupleType>(emptyTuple));
@@ -191,9 +162,9 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> VariableList::Check(SymbolTable &table)
     {
         std::vector<std::unique_ptr<TypeInfo>> types;
-        for (int i = 0; i < variables.size(); i++)
+        for (auto &variable : variables)
         {
-            types.push_back(variables[i]->Check(table));
+            types.push_back(variable->Check(table));
         }
         TypeInfo *tupleType = new TupleType(std::move(types));
         return std::unique_ptr<TypeInfo>(tupleType);
@@ -240,7 +211,6 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> Term::Check(SymbolTable &table)
     {
-        Rotate();
         if (mulOpPart == nullptr)
             return firstFactor->Check(table);
         return mulOpPart->Check(table)->CalcType(firstFactor->Check(table));
@@ -255,7 +225,6 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> SimpleExpression::Check(SymbolTable &table)
     {
-        Rotate();
         if (addOpPart == nullptr)
             return firstTerm->Check(table);
         return addOpPart->Check(table)->CalcType(firstTerm->Check(table));
@@ -279,9 +248,9 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> ExpressionList::Check(SymbolTable &table)
     {
         std::vector<std::unique_ptr<TypeInfo>> types;
-        for (int i = 0; i < expressions.size(); i++)
+        for (auto &expression : expressions)
         {
-            types.push_back(expressions[i]->Check(table));
+            types.push_back(expression->Check(table));
         }
         TypeInfo *tupleType = new TupleType(std::move(types));
         return std::unique_ptr<TypeInfo>(tupleType);
@@ -307,6 +276,7 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> ProcedureCallStatement::Check(SymbolTable &table)
     {
+        //TODO:CHECK CALLABLE
         variable->Check(table);
         return GenType(VOID);
     }
@@ -345,10 +315,10 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> StatementList::Check(SymbolTable &table)
     {
-        for (int i = 0; i < statements.size(); i++)
+        for (auto &statement : statements)
         {
-            if (statements[i] != nullptr)
-                statements[i]->Check(table);
+            if (statement != nullptr)
+                statement->Check(table);
         }
         return GenType(VOID);
     }
@@ -362,19 +332,23 @@ namespace PascalAST
     {
         table.InsertSymbol(name, std::unique_ptr<TypeInfo>(), true, "");
         std::vector<bool> isRef;
-        auto &params = parameters->parameters;
-        for (int i = 0; i < params.size(); i++)
+        for (auto &param : parameters->parameters)
         {
-            auto &ids = params[i]->identifiers->identifiers;
+            auto &ids = param->identifiers->identifiers;
             for (int j = 0; j < ids.size(); j++)
-                isRef.push_back(params[i]->isRef);
+                isRef.push_back(param->isRef);
         }
-        FuncType *funcType = new FuncType(
-            UniquePtrCast<TupleType>(parameters->Check(table)),
-            isRef,
-            returnType->Check(table));
-        table.InsertSymbol(name, std::unique_ptr<TypeInfo>((TypeInfo *)funcType), true, "");
-        return GenType(VOID);
+        auto &retType = GenType(VOID);
+        if (returnType != nullptr)
+            retType = returnType->Check(table);
+
+        std::unique_ptr<TypeInfo> funcType(
+            new FuncType(
+                UniquePtrCast<TupleType>(parameters->Check(table)),
+                isRef,
+                std::move(retType)));
+        table.InsertSymbol(name, funcType->Copy(), true, "");
+        return funcType;
     }
 
     std::unique_ptr<TypeInfo> SubProgramBody::Check(SymbolTable &table)
@@ -386,24 +360,28 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> SubProgram::Check(SymbolTable &table)
     {
-
         table.PushMap();
-        head->Check(table);
+        auto funcType(head->Check(table));
         body->Check(table);
         table.PopMap();
+        table.InsertSymbol(head->name, std::move(funcType), true, "");
+
         return GenType(VOID);
     }
     std::unique_ptr<TypeInfo> SubProgramDeclarations::Check(SymbolTable &table)
     {
-        for (int i = 0; i < subPrograms.size(); i++)
-            subPrograms[i]->Check(table);
+        for (auto &subProgram : subPrograms)
+            subProgram->Check(table);
         return GenType(VOID);
     }
 
     std::unique_ptr<TypeInfo> ProgramHead::Check(SymbolTable &table)
     {
+        table.InsertSymbol(name, GenType(VOID), true, "");
         identifiers->Check(table);
-        //TODO: insert identifiers into table
+        for (auto &id : identifiers->identifiers)
+            table.InsertSymbol(id, GenType(VOID), true, "");
+
         return GenType(VOID);
     }
 

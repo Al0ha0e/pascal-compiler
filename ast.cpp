@@ -5,6 +5,48 @@
 
 namespace PascalAST
 {
+    void Term::Rotate()
+    {
+        if (mulOpPart == nullptr)
+            return;
+
+        MulOpPart *mulPartP = new MulOpPart(mulOpPart->mulOp, std::move(firstFactor), std::unique_ptr<MulOpPart>());
+        std::unique_ptr<MulOpPart> curMulPart(mulPartP);
+        while (mulOpPart->followPart != nullptr)
+        {
+            mulPartP = new MulOpPart(
+                mulOpPart->followPart->mulOp,
+                std::move(mulOpPart->secondFactor),
+                std::move(curMulPart));
+            curMulPart = std::unique_ptr<MulOpPart>(mulPartP);
+            mulOpPart = std::move(mulOpPart->followPart);
+        }
+        firstFactor = std::move(mulOpPart->secondFactor);
+        mulOpPart = std::move(curMulPart);
+    }
+
+    void SimpleExpression::Rotate()
+    {
+        if (addOpPart == nullptr)
+            return;
+        firstTerm->Rotate();
+        AddOpPart *addPartP = new AddOpPart(addOpPart->addOp, std::move(firstTerm), std::unique_ptr<AddOpPart>());
+        std::unique_ptr<AddOpPart> curAddPart(addPartP);
+        while (addOpPart->followPart != nullptr)
+        {
+            addOpPart->secondTerm->Rotate();
+            addPartP = new AddOpPart(
+                addOpPart->followPart->addOp,
+                std::move(addOpPart->secondTerm),
+                std::move(curAddPart));
+            curAddPart = std::unique_ptr<AddOpPart>(addPartP);
+            addOpPart = std::move(addOpPart->followPart);
+        }
+        addOpPart->secondTerm->Rotate();
+        firstTerm = std::move(addOpPart->secondTerm);
+        addOpPart = std::move(curAddPart);
+    }
+
     std::unique_ptr<ASTNode> GenOriAstNode(CompilerFront::Token &token)
     {
         std::string tokenType = token.type;
@@ -677,6 +719,7 @@ namespace PascalAST
                 ASTNode *simpleExpression = new SimpleExpression(
                     Unpack<Term>(subNodes[0]),
                     Unpack<AddOpPart>(subNodes[1]));
+                ((SimpleExpression *)simpleExpression)->Rotate();
                 return std::unique_ptr<ASTNode>(simpleExpression);
             }
         }

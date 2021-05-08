@@ -156,10 +156,10 @@ namespace PascalAST
         virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes);
         std::unique_ptr<TypeInfo> Copy();
         ArrayType() : TypeInfo(ARRAY) {}
-        ArrayType(int dimension, std::unique_ptr<TypeInfo> &&contentType) : dimension(dimension), contentType(std::move(contentType)), TypeInfo(ARRAY) {}
+        ArrayType(std::vector<std::pair<int, int>> &dimensions, std::unique_ptr<TypeInfo> &&contentType) : dimensions(dimensions), contentType(std::move(contentType)), TypeInfo(ARRAY) {}
 
     private:
-        int dimension;
+        std::vector<std::pair<int, int>> dimensions;
         std::unique_ptr<TypeInfo> contentType;
     };
 
