@@ -21,37 +21,55 @@ namespace PascalAST
 
     typedef std::map<std::string, SymbolTableItem> SymbolMap;
 
+    struct SymbolScope
+    {
+        SymbolMap symbolMap;
+        std::shared_ptr<SymbolScope> upperScope;
+        std::vector<std::shared_ptr<SymbolScope>> subScope;
+        int layer;
+        int curSubCnt;
+
+        SymbolScope() {}
+        SymbolScope(std::shared_ptr<SymbolScope> &upperScope, int layer) : upperScope(upperScope), layer(layer) {}
+    };
+
     class SymbolTable
     {
     public:
         SymbolTable()
         {
-            table.push_back(SymbolMap());
+            rootScope = curScope = std::make_shared<SymbolScope>();
         }
 
         void PushMap()
         {
-            table.push_back(SymbolMap());
+            curScope->subScope.push_back(std::make_shared<SymbolScope>(curScope, curScope->layer + 1));
+        }
+
+        void Step()
+        {
+            if (curScope->curSubCnt + 1 < curScope->subScope.size())
+                curScope = curScope->subScope[curScope->curSubCnt++];
         }
 
         void PopMap()
         {
-            table.pop_back();
-        }
-
-        int GetLayerCnt()
-        {
-            return table.size();
+            if (curScope->upperScope != nullptr)
+            {
+                curScope->curSubCnt = 0;
+                curScope = curScope->upperScope;
+            }
         }
 
         SymbolMap::iterator FindSymbol(std::string id, bool &has, int &layer)
         {
             SymbolMap::iterator ret;
             has = false;
-            for (layer = table.size() - 1; layer >= 0; --layer)
+            for (auto scope = curScope; scope != nullptr; scope = scope->upperScope)
             {
-                ret = table[layer].find(id);
-                if (ret != table[layer].end())
+                ret = scope->symbolMap.find(id);
+                layer = scope->layer;
+                if (ret != scope->symbolMap.end())
                 {
                     has = true;
                     break;
@@ -63,9 +81,10 @@ namespace PascalAST
         bool HasSymbol(std::string id, int &layer)
         {
             bool ret = false;
-            for (layer = table.size() - 1; layer >= 0; --layer)
+            for (auto scope = curScope; scope != nullptr; scope = scope->upperScope)
             {
-                if (table[layer].find(id) != table[layer].end())
+                layer = scope->layer;
+                if (scope->symbolMap.find(id) != scope->symbolMap.end())
                 {
                     ret = true;
                     break;
@@ -76,7 +95,7 @@ namespace PascalAST
 
         bool SymbolAtTop(std::string id)
         {
-            auto &top = table[table.size() - 1];
+            auto &top = curScope->symbolMap;
             if (top.find(id) != top.end())
                 return false;
             return true;
@@ -84,11 +103,12 @@ namespace PascalAST
 
         void InsertSymbol(std::string id, std::unique_ptr<TypeInfo> &&type, bool isConstant, std::string oriVal)
         {
-            table[table.size() - 1][id] = SymbolTableItem(std::move(type), isConstant, oriVal);
+            curScope->symbolMap[id] = SymbolTableItem(std::move(type), isConstant, oriVal);
         }
 
     private:
-        std::vector<SymbolMap> table;
+        std::shared_ptr<SymbolScope> rootScope;
+        std::shared_ptr<SymbolScope> curScope;
     };
 }
 

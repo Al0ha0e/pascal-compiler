@@ -75,7 +75,6 @@ namespace PascalAST
     {
         auto tp(type->Check(table));
         identifiers->Check(table);
-        int layerCnt = table.GetLayerCnt();
         int layer;
         for (std::string id : identifiers->identifiers)
         {
@@ -378,6 +377,7 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> SubProgram::Check(SymbolTable &table)
     {
         table.PushMap();
+        table.Step();
         auto funcType(head->Check(table));
         body->Check(table);
         table.PopMap();
@@ -413,6 +413,7 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> Program::Check(SymbolTable &table)
     {
         table.PushMap();
+        table.Step();
         programHead->Check(table);
         programBody->Check(table);
         table.PopMap();
