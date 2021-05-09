@@ -58,7 +58,8 @@ namespace PascalAST
         }
         else
         {
-            table.InsertSymbol(name, type->Check(table), true, content);
+            TypeInfo *lValueType = new LValueType(type->Check(table));
+            table.InsertSymbol(name, std::unique_ptr<TypeInfo>(lValueType), true, content);
         }
         return GenType(VOID);
     }
@@ -84,7 +85,8 @@ namespace PascalAST
             }
             else
             {
-                table.InsertSymbol(id, tp->Copy(), false, "");
+                TypeInfo *lValueType = new LValueType(tp->Copy());
+                table.InsertSymbol(id, std::unique_ptr<TypeInfo>(lValueType), false, "");
             }
         }
         return GenType(VOID);
@@ -100,7 +102,16 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> Parameter::Check(SymbolTable &table)
     {
         identifiers->Check(table);
-        return type->Check(table);
+        TypeInfo *ret;
+        if (isRef)
+        {
+            ret = new RefType(type->Check(table));
+        }
+        else
+        {
+            ret = new LValueType(type->Check(table));
+        }
+        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> ParameterList::Check(SymbolTable &table)
@@ -135,10 +146,12 @@ namespace PascalAST
         if (!has)
         {
             //TODO
-            return GenType(VOID);
+            TypeInfo *ret = new RValueType(GenType(VOID));
+            return std::unique_ptr<TypeInfo>(ret);
         }
         std::unique_ptr<TypeInfo> &type = symbolIt->second.type;
-        if (type->GetTypeId() == FUNC)
+        auto targetType(((WrapperType *)type.get())->DeWrap());
+        if (targetType->GetTypeId() == FUNC)
         {
             if (varPart != nullptr)
             {
@@ -172,7 +185,8 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> Factor::Check(SymbolTable &table)
     {
-        return GenType(VOID);
+        TypeInfo *ret = new RValueType(GenType(VOID));
+        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> ExpressionFactor::Check(SymbolTable &table)
@@ -182,13 +196,15 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> NumFactor::Check(SymbolTable &table)
     {
-        return GenTypeByStr(type);
+        TypeInfo *ret = new RValueType(GenTypeByStr(type));
+        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> InvFactor::Check(SymbolTable &table)
     {
         //TODO type check
-        return subFactor->Check(table);
+        TypeInfo *ret = new RValueType(subFactor->Check(table));
+        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> VariableFactor::Check(SymbolTable &table)
@@ -199,7 +215,8 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> NotFactor::Check(SymbolTable &table)
     {
         //TODO type check
-        return subFactor->Check(table);
+        TypeInfo *ret = new RValueType(subFactor->Check(table));
+        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> MulOpPart::Check(SymbolTable &table)
@@ -242,7 +259,8 @@ namespace PascalAST
         firstExpression->Check(table);
         relPart->Check(table);
         //TODO
-        return GenType(BOOLEAN);
+        TypeInfo *ret = new RValueType(GenType(BOOLEAN));
+        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> ExpressionList::Check(SymbolTable &table)
@@ -270,7 +288,10 @@ namespace PascalAST
     {
         variable->Check(table);
         expression->Check(table);
-        //TODO
+        if (!variable->Check(table)->Compatible(expression->Check(table)))
+        {
+            //TODO
+        }
         return GenType(VOID);
     }
 
@@ -331,13 +352,6 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> SubProgramHead::Check(SymbolTable &table)
     {
         table.InsertSymbol(name, std::unique_ptr<TypeInfo>(), true, "");
-        std::vector<bool> isRef;
-        for (auto &param : parameters->parameters)
-        {
-            auto &ids = param->identifiers->identifiers;
-            for (int j = 0; j < ids.size(); j++)
-                isRef.push_back(param->isRef);
-        }
         auto retType(GenType(VOID));
         if (returnType != nullptr)
             retType = returnType->Check(table);
@@ -345,10 +359,13 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> funcType(
             new FuncType(
                 UniquePtrCast<TupleType>(parameters->Check(table)),
-                isRef,
                 std::move(retType)));
-        table.InsertSymbol(name, funcType->Copy(), true, "");
-        return funcType;
+
+        TypeInfo *lValueType = new LValueType(std::move(funcType));
+        std::unique_ptr<TypeInfo> ret(lValueType);
+        table.InsertSymbol(name, ret->Copy(), true, "");
+
+        return ret;
     }
 
     std::unique_ptr<TypeInfo> SubProgramBody::Check(SymbolTable &table)
@@ -377,10 +394,10 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> ProgramHead::Check(SymbolTable &table)
     {
-        table.InsertSymbol(name, GenType(VOID), true, "");
+        table.InsertSymbol(name, std::unique_ptr<TypeInfo>(), true, "");
         identifiers->Check(table);
         for (auto &id : identifiers->identifiers)
-            table.InsertSymbol(id, GenType(VOID), true, "");
+            table.InsertSymbol(id, std::unique_ptr<TypeInfo>(), true, "");
 
         return GenType(VOID);
     }

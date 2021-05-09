@@ -160,7 +160,7 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> FuncType::Copy()
     {
-        TypeInfo *ret = new FuncType(UniquePtrCast<TupleType>(argTypes->Copy()), isRef, retType->Copy());
+        TypeInfo *ret = new FuncType(UniquePtrCast<TupleType>(argTypes->Copy()), retType->Copy());
         return std::unique_ptr<TypeInfo>(ret);
     }
 

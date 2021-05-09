@@ -207,17 +207,16 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Copy();
         FuncType() : TypeInfo(FUNC) {}
 
-        FuncType(std::unique_ptr<TupleType> &&argTypes, std::vector<bool> &isRef, std::unique_ptr<TypeInfo> &&retType)
-            : argTypes(std::move(argTypes)), isRef(isRef), retType(std::move(retType)), TypeInfo(FUNC) {}
+        FuncType(std::unique_ptr<TupleType> &&argTypes, std::unique_ptr<TypeInfo> &&retType)
+            : argTypes(std::move(argTypes)), retType(std::move(retType)), TypeInfo(FUNC) {}
 
-        FuncType(std::unique_ptr<TupleType> &&argTypes, std::vector<bool> &&isRef, std::unique_ptr<TypeInfo> &&retType)
-            : argTypes(std::move(argTypes)), isRef(isRef), retType(std::move(retType)), TypeInfo(FUNC) {}
+        FuncType(std::unique_ptr<TupleType> &&argTypes, std::unique_ptr<TypeInfo> &&retType)
+            : argTypes(std::move(argTypes)), retType(std::move(retType)), TypeInfo(FUNC) {}
 
         bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
 
     private:
         std::unique_ptr<TupleType> argTypes;
-        std::vector<bool> isRef;
         std::unique_ptr<TypeInfo> retType;
     };
 
@@ -235,8 +234,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> contentType;
     };
 
-    inline std::unique_ptr<TypeInfo>
-    GenType(TypeID id)
+    inline std::unique_ptr<TypeInfo> GenType(TypeID id)
     {
         TypeInfo *ret = new VOIDType();
         if (id == INTEGER)
