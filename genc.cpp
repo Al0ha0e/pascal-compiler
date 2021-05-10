@@ -108,7 +108,7 @@ namespace PascalAST
         auto targetType(((WrapperType *)type.get())->DeWrap());
         if (varPart != nullptr)
         {
-            ret += varPart->GenCCode(table, isRef);
+            ret = varPart->GenCCode(table, isRef);
         }
         else
         {
@@ -164,7 +164,8 @@ namespace PascalAST
 
     std::string ExpressionFactor::GenCCode(SymbolTable &table, bool isRef)
     {
-        return expression->GenCCode(table, isRef);
+        std::string ret = "("
+        return ret + expression->GenCCode(table, isRef) + ")";
     }
 
     std::string NumFactor::GenCCode(SymbolTable &table, bool isRef)
@@ -174,8 +175,8 @@ namespace PascalAST
 
     std::string InvFactor::GenCCode(SymbolTable &table, bool isRef)
     {
-        std::string ret = "-";
-        return ret + subFactor->GenCCode(table, false);
+        std::string ret = "-(";
+        return ret + subFactor->GenCCode(table, false) + ")";
     }
 
     std::string VariableFactor::GenCCode(SymbolTable &table, bool isRef)
@@ -185,13 +186,13 @@ namespace PascalAST
 
     std::string NotFactor::GenCCode(SymbolTable &table, bool isRef)
     {
-        std::string ret = "!";
-        return ret + subFactor->GenCCode(table, false);
+        std::string ret = "!(";
+        return ret + subFactor->GenCCode(table, false) + ")";
     }
 
     std::string MulOpPart::GenCCode(SymbolTable &table, bool isRef)
     {
-        std::string ret = secondFactor->GenCCode(table, followPart == nullptr) + mulOp;
+        std::string ret = secondFactor->GenCCode(table, (followPart == nullptr) & isRef) + mulOp;
         if (followPart != nullptr)
             ret += followPart->GenCCode(table, false);
         return ret;
@@ -202,12 +203,12 @@ namespace PascalAST
         std::string ret;
         if (mulOpPart != nullptr)
             ret = mulOpPart->GenCCode(table, false);
-        ret += firstFactor->GenCCode(table, mulOpPart == nullptr);
+        ret += firstFactor->GenCCode(table, (mulOpPart == nullptr) & isRef);
     }
 
     std::string AddOpPart::GenCCode(SymbolTable &table, bool isRef)
     {
-        std::string ret = secondTerm->GenCCode(table, followPart == nullptr) + addOp;
+        std::string ret = secondTerm->GenCCode(table, (followPart == nullptr) & isRef) + addOp;
         if (followPart != nullptr)
             ret += followPart->GenCCode(table, false);
         return ret;
@@ -218,7 +219,7 @@ namespace PascalAST
         std::string ret;
         if (addOpPart != nullptr)
             ret = addOpPart->GenCCode(table, false);
-        ret += firstTerm->GenCCode(table, addOpPart == nullptr);
+        ret += firstTerm->GenCCode(table, (addOpPart == nullptr) & isRef);
     }
 
     std::string RelPart::GenCCode(SymbolTable &table, bool isRef)
@@ -237,7 +238,7 @@ namespace PascalAST
 
     std::string Expression::GenCCode(SymbolTable &table, bool isRef)
     {
-        std::string ret = firstExpression->GenCCode(table, relPart == nullptr);
+        std::string ret = firstExpression->GenCCode(table, (relPart == nullptr) & isRef);
         if (relPart != nullptr)
             ret += relPart->GenCCode(table, false);
         return ret;
@@ -306,6 +307,7 @@ namespace PascalAST
     std::string ForLoopStatement::GenCCode(SymbolTable &table, bool isRef)
     {
         std::string ret = "for(";
+        //TODO counter ref
         ret += counter + "=" + initExpression->GenCCode(table, false) + ";";
         ret += counter + "<=" + termiExpression->GenCCode(table, false) + ";";
         ret += counter + "++){\n";
@@ -317,7 +319,6 @@ namespace PascalAST
 
     std::string ReadStatement::GenCCode(SymbolTable &table, bool isRef)
     {
-        //TODO
         std::string ret = "scanf(";
         ret += variableList->GenCCode(table, true);
         ret += ");\n";
@@ -326,7 +327,9 @@ namespace PascalAST
 
     std::string WriteStatement::GenCCode(SymbolTable &table, bool isRef)
     {
-        //TODO
+        std::string ret = "printf(";
+        ret += typeStr + "," + expressionList->GenCCode(table, false) + ");\n";
+        return ret;
     }
 
     std::string StatementList::GenCCode(SymbolTable &table, bool isRef)

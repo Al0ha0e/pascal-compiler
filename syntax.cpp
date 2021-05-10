@@ -334,6 +334,7 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> WriteStatement::Check(SymbolTable &table)
     {
         expressionList->Check(table);
+        //TODO typeStr
         return GenType(VOID);
     }
     std::unique_ptr<TypeInfo> StatementList::Check(SymbolTable &table)

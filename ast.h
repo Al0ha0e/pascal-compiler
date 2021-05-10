@@ -477,6 +477,7 @@ namespace PascalAST
     struct WriteStatement : public Statement
     {
         std::unique_ptr<ExpressionList> expressionList;
+        std::string typeStr;
 
         WriteStatement() {}
         WriteStatement(std::unique_ptr<ExpressionList> &&expressionList) : expressionList(std::move(expressionList)) {}
