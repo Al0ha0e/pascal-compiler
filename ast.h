@@ -14,6 +14,7 @@ namespace PascalAST
     {
         virtual std::unique_ptr<TypeInfo> Check(SymbolTable &table) = 0;
         virtual void Show() = 0;
+        virtual std::string GenCCode(SymbolTable &table, bool isRef);
     };
 
     struct AbstractSyntaxTree
@@ -50,17 +51,18 @@ namespace PascalAST
         std::string info;
         OriASTNode() {}
         OriASTNode(std::string content, std::string info) : content(content), info(info) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
     };
 
     struct Identifiers : public ASTNode
     {
         std::vector<std::string> identifiers;
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct Range : public ASTNode
@@ -93,6 +95,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct ArrayTypeDecl : public TypeDecl
@@ -116,17 +119,19 @@ namespace PascalAST
         ConstantDeclaration(std::string name,
                             std::unique_ptr<BasicTypeDecl> &&type,
                             std::string content) : name(name), type(std::move(type)), content(content) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct ConstantDeclarations : public ASTNode
     {
         std::vector<std::unique_ptr<ConstantDeclaration>> constantDeclarations;
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct VariableDeclaration : public ASTNode
@@ -136,17 +141,19 @@ namespace PascalAST
         VariableDeclaration() {}
         VariableDeclaration(std::unique_ptr<TypeDecl> &&type,
                             std::unique_ptr<Identifiers> &&identifiers) : type(std::move(type)), identifiers(std::move(identifiers)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct VariableDeclarations : public ASTNode
     {
         std::vector<std::unique_ptr<VariableDeclaration>> variableDeclarations;
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct Parameter : public ASTNode
@@ -158,17 +165,19 @@ namespace PascalAST
         Parameter(bool isRef,
                   std::unique_ptr<BasicTypeDecl> &&type,
                   std::unique_ptr<Identifiers> &&identifiers) : isRef(isRef), type(std::move(type)), identifiers(std::move(identifiers)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct ParameterList : public ASTNode
     {
         std::vector<std::unique_ptr<Parameter>> parameters;
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct VarPart;
@@ -179,17 +188,19 @@ namespace PascalAST
         Variable() {}
         Variable(std::string name,
                  std::unique_ptr<VarPart> &&varPart) : name(name), varPart(std::move(varPart)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct VariableList : public ASTNode
     {
         std::vector<std::unique_ptr<Variable>> variables;
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct Factor : public ASTNode
@@ -206,18 +217,20 @@ namespace PascalAST
         std::unique_ptr<Expression> expression;
         ExpressionFactor() {}
         ExpressionFactor(std::unique_ptr<Expression> &&expression) : expression(std::move(expression)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct NumFactor : public Factor
     {
         std::string val;
         std::string type;
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct InvFactor : public Factor
@@ -225,9 +238,10 @@ namespace PascalAST
         std::unique_ptr<Factor> subFactor;
         InvFactor() {}
         InvFactor(std::unique_ptr<Factor> &&subFactor) : subFactor(std::move(subFactor)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct VariableFactor : public Factor
@@ -235,9 +249,10 @@ namespace PascalAST
         std::unique_ptr<Variable> variable;
         VariableFactor() {}
         VariableFactor(std::unique_ptr<Variable> &&variable) : variable(std::move(variable)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct NotFactor : public Factor
@@ -245,9 +260,10 @@ namespace PascalAST
         std::unique_ptr<Factor> subFactor;
         NotFactor() {}
         NotFactor(std::unique_ptr<Factor> &&subFactor) : subFactor(std::move(subFactor)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct Term;
@@ -261,9 +277,10 @@ namespace PascalAST
         MulOpPart(std::string mulOp,
                   std::unique_ptr<Factor> &&secondFactor,
                   std::unique_ptr<MulOpPart> &&followPart) : mulOp(mulOp), secondFactor(std::move(secondFactor)), followPart(std::move(followPart)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct Term : public ASTNode
@@ -276,10 +293,9 @@ namespace PascalAST
              std::unique_ptr<MulOpPart> &&mulOpPart) : firstFactor(std::move(firstFactor)), mulOpPart(std::move(mulOpPart)) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
-
         void Rotate();
-
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct SimpleExpression;
@@ -294,9 +310,10 @@ namespace PascalAST
         AddOpPart(std::string addOp,
                   std::unique_ptr<Term> &&secondTerm,
                   std::unique_ptr<AddOpPart> &&followPart) : addOp(addOp), secondTerm(std::move(secondTerm)), followPart(std::move(followPart)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct SimpleExpression : public ASTNode
@@ -307,10 +324,11 @@ namespace PascalAST
         SimpleExpression() {}
         SimpleExpression(std::unique_ptr<Term> &&firstTerm,
                          std::unique_ptr<AddOpPart> &&addOpPart) : firstTerm(std::move(firstTerm)), addOpPart(std::move(addOpPart)) {}
+
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Rotate();
-
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct RelPart : public ASTNode
@@ -321,9 +339,10 @@ namespace PascalAST
         RelPart() {}
         RelPart(std::string relop,
                 std::unique_ptr<SimpleExpression> &&secondExpression) : relop(relop), secondExpression(std::move(secondExpression)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct Expression : public ASTNode
@@ -334,17 +353,19 @@ namespace PascalAST
         Expression() {}
         Expression(std::unique_ptr<SimpleExpression> &&firstExpression,
                    std::unique_ptr<RelPart> &&relPart) : firstExpression(std::move(firstExpression)), relPart(std::move(relPart)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct ExpressionList : public ASTNode
     {
         std::vector<std::unique_ptr<Expression>> expressions;
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct VarPart : public ASTNode
@@ -355,9 +376,10 @@ namespace PascalAST
         VarPart() {}
         VarPart(bool isProcedureCall,
                 std::unique_ptr<ExpressionList> &&expressionList) : isProcedureCall(isProcedureCall), expressionList(std::move(expressionList)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct CompoundStatement;
@@ -365,7 +387,6 @@ namespace PascalAST
     struct Statement : public ASTNode
     {
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
-
         void Show();
     };
 
@@ -377,9 +398,10 @@ namespace PascalAST
         VariableAssignStatement() {}
         VariableAssignStatement(std::unique_ptr<Variable> &&variable,
                                 std::unique_ptr<Expression> &&expression) : variable(std::move(variable)), expression(std::move(expression)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct ProcedureCallStatement : public Statement
@@ -387,9 +409,10 @@ namespace PascalAST
         std::unique_ptr<Variable> variable;
         ProcedureCallStatement() {}
         ProcedureCallStatement(std::unique_ptr<Variable> &&variable) : variable(std::move(variable)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct SubCompoundStatement : public Statement
@@ -398,9 +421,10 @@ namespace PascalAST
 
         SubCompoundStatement() {}
         SubCompoundStatement(std::unique_ptr<CompoundStatement> &&compoundStatement) : compoundStatement(std::move(compoundStatement)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct IfElseStatement : public Statement
@@ -414,9 +438,10 @@ namespace PascalAST
                         std::unique_ptr<Statement> &&thenStatement,
                         std::unique_ptr<Statement> &&elseStatement)
             : ifExpression(std::move(ifExpression)), thenStatement(std::move(thenStatement)), elseStatement(std::move(elseStatement)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct ForLoopStatement : public Statement
@@ -434,8 +459,8 @@ namespace PascalAST
                                                                        termiExpression(std::move(termiExpression)),
                                                                        loopStatement(std::move(loopStatement)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
-
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct ReadStatement : public Statement
@@ -443,9 +468,10 @@ namespace PascalAST
         std::unique_ptr<VariableList> variableList;
         ReadStatement() {}
         ReadStatement(std::unique_ptr<VariableList> &&variableList) : variableList(std::move(variableList)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct WriteStatement : public Statement
@@ -454,17 +480,19 @@ namespace PascalAST
 
         WriteStatement() {}
         WriteStatement(std::unique_ptr<ExpressionList> &&expressionList) : expressionList(std::move(expressionList)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct StatementList : public ASTNode
     {
         std::vector<std::unique_ptr<Statement>> statements; //ELEM MAY NULL
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct CompoundStatement : ASTNode
@@ -473,9 +501,10 @@ namespace PascalAST
 
         CompoundStatement() {}
         CompoundStatement(std::unique_ptr<StatementList> &&statementList) : statementList(std::move(statementList)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct SubProgramHead : public ASTNode
@@ -488,9 +517,10 @@ namespace PascalAST
         SubProgramHead(std::string name,
                        std::unique_ptr<ParameterList> &&parameters,
                        std::unique_ptr<BasicTypeDecl> &&returnType) : name(name), parameters(std::move(parameters)), returnType(std::move(returnType)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct SubProgramBody : public ASTNode
@@ -505,9 +535,10 @@ namespace PascalAST
             : constantDeclarations(std::move(constantDeclarations)),
               variableDeclarations(std::move(variableDeclarations)),
               compoundStatement(std::move(compoundStatement)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct SubProgram : public ASTNode
@@ -518,9 +549,10 @@ namespace PascalAST
         SubProgram() {}
         SubProgram(std::unique_ptr<SubProgramHead> &&head,
                    std::unique_ptr<SubProgramBody> &&body) : head(std::move(head)), body(std::move(body)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct SubProgramDeclarations : public ASTNode
@@ -529,6 +561,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct ProgramHead : ASTNode
@@ -537,8 +570,8 @@ namespace PascalAST
         std::unique_ptr<Identifiers> identifiers;
         ProgramHead() {}
         ProgramHead(std::string name, std::unique_ptr<Identifiers> &&ids) : identifiers(std::move(ids)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
     };
 
@@ -558,8 +591,8 @@ namespace PascalAST
                                                                               subProgramDeclarations(std::move(subProgramDeclarations)),
                                                                               compoundStatemnet(std::move(compoundStatemnet)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table);
-
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
     struct Program : ASTNode
@@ -568,9 +601,10 @@ namespace PascalAST
         std::unique_ptr<ProgramBody> programBody;
         Program() {}
         Program(std::unique_ptr<ProgramHead> &&head, std::unique_ptr<ProgramBody> &&body) : programHead(std::move(head)), programBody(std::move(body)) {}
-        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
 
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table);
         void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
 }

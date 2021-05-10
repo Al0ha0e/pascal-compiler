@@ -176,6 +176,7 @@ namespace PascalAST
         std::vector<std::unique_ptr<TypeInfo>> types;
         for (auto &variable : variables)
         {
+            //TODO: Check LVALUE
             types.push_back(variable->Check(table));
         }
         TypeInfo *tupleType = new TupleType(std::move(types));
@@ -317,6 +318,8 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> ForLoopStatement::Check(SymbolTable &table)
     {
+        //TODO:Check counter
+        //TODO duplicate?
         initExpression->Check(table);
         termiExpression->Check(table);
         if (loopStatement != nullptr)
