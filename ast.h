@@ -371,6 +371,7 @@ namespace PascalAST
     struct VarPart : public ASTNode
     {
         bool isProcedureCall;
+        std::vector<bool> argIsRef;
         std::unique_ptr<ExpressionList> expressionList;
 
         VarPart() {}

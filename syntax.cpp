@@ -4,7 +4,8 @@ namespace PascalAST
 {
     void AbstractSyntaxTree::Check()
     {
-        astRoot->Check(symTable);
+        bool ok;
+        astRoot->Check(symTable, ok);
     }
 
     std::unique_ptr<TypeInfo> OriASTNode::Check(SymbolTable &table, bool &ok)
@@ -19,7 +20,7 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> Range::Check(SymbolTable &table, bool &ok)
     {
-        if(l > r)
+        if (l > r)
         {
             ok = false;
             //TODO
@@ -162,19 +163,23 @@ namespace PascalAST
         {
             if (varPart != nullptr)
             {
+                auto argTypes(UniquePtrCast<FuncType>(targetType)->GetArgTypes());
+                for (auto &argType : argTypes)
+                    varPart->argIsRef.push_back(argType->GetTypeId() == REF);
+
                 if (varPart->isProcedureCall)
-                    return type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)));
-                return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)));
-                //TODO: Check Array Range
+                    return type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
+                return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
             }
             TupleType *emptyTuple = new TupleType();
-            return type->CalcFuncType(std::unique_ptr<TupleType>(emptyTuple));
+            return type->CalcFuncType(std::unique_ptr<TupleType>(emptyTuple), ok);
         }
         if (varPart != nullptr)
         {
             if (varPart->isProcedureCall)
-                return type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)));
-            return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)));
+                return type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
+            //TODO: Check Array Range
+            return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
         }
         return type->Copy();
     }
@@ -184,8 +189,13 @@ namespace PascalAST
         std::vector<std::unique_ptr<TypeInfo>> types;
         for (auto &variable : variables)
         {
-            //TODO: Check LVALUE
-            types.push_back(variable->Check(table, ok));
+            auto type(variable->Check(table, ok));
+            if ((type->GetTypeId() != LVALUE) && (type->GetTypeId() != REF))
+            {
+                //TODO
+                ok = false;
+            }
+            types.push_back(std::move(type));
         }
         TypeInfo *tupleType = new TupleType(std::move(types));
         return std::unique_ptr<TypeInfo>(tupleType);
@@ -231,28 +241,28 @@ namespace PascalAST
     {
         if (followPart == nullptr)
             return secondFactor->Check(table, ok);
-        return followPart->Check(table, ok)->CalcType(secondFactor->Check(table, ok));
+        return followPart->Check(table, ok)->CalcType(secondFactor->Check(table, ok), ok);
     }
 
     std::unique_ptr<TypeInfo> Term::Check(SymbolTable &table, bool &ok)
     {
         if (mulOpPart == nullptr)
             return firstFactor->Check(table, ok);
-        return mulOpPart->Check(table, ok)->CalcType(firstFactor->Check(table, ok));
+        return mulOpPart->Check(table, ok)->CalcType(firstFactor->Check(table, ok), ok);
     }
 
     std::unique_ptr<TypeInfo> AddOpPart::Check(SymbolTable &table, bool &ok)
     {
         if (followPart == nullptr)
             return secondTerm->Check(table, ok);
-        return followPart->Check(table, ok)->CalcType(secondTerm->Check(table, ok));
+        return followPart->Check(table, ok)->CalcType(secondTerm->Check(table, ok), ok);
     }
 
     std::unique_ptr<TypeInfo> SimpleExpression::Check(SymbolTable &table, bool &ok)
     {
         if (addOpPart == nullptr)
             return firstTerm->Check(table, ok);
-        return addOpPart->Check(table, ok)->CalcType(firstTerm->Check(table, ok));
+        return addOpPart->Check(table, ok)->CalcType(firstTerm->Check(table, ok), ok);
     }
 
     std::unique_ptr<TypeInfo> RelPart::Check(SymbolTable &table, bool &ok)
@@ -295,8 +305,16 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> VariableAssignStatement::Check(SymbolTable &table, bool &ok)
     {
         variable->Check(table, ok);
+        int layer;
+        bool has;
+        auto &item = table.FindSymbol(variable->name, has, layer);
+        if (has && item->second.isConstant)
+        {
+            //TODO
+            ok = false;
+        }
         expression->Check(table, ok);
-        if (!variable->Check(table, ok)->Compatible(expression->Check(table, ok)))
+        if (!variable->Check(table, ok)->AssignCompatible(expression->Check(table, ok)))
         {
             //TODO
             ok = false;
@@ -306,7 +324,6 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> ProcedureCallStatement::Check(SymbolTable &table, bool &ok)
     {
-        //TODO:CHECK CALLABLE
         variable->Check(table, ok);
         return GenType(VOID);
     }
@@ -327,9 +344,27 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> ForLoopStatement::Check(SymbolTable &table, bool &ok)
     {
-        //TODO:Check counter
-        //TODO duplicate?
-        initExpression->Check(table, ok);
+        int layer;
+        bool has;
+        auto &item = table.FindSymbol(counter, has, layer);
+        auto &itemType = item->second.type;
+        if (!has)
+        {
+            //TODO
+            ok = false;
+        }
+        else
+        {
+            if (item->second.isConstant)
+            {
+                //TODO
+                ok = false;
+            }
+        }
+        if (!itemType->AssignCompatible(initExpression->Check(table, ok)))
+        {
+            ok = false;
+        }
         termiExpression->Check(table, ok);
         if (loopStatement != nullptr)
             loopStatement->Check(table, ok);
@@ -342,8 +377,26 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> WriteStatement::Check(SymbolTable &table, bool &ok)
     {
-        expressionList->Check(table, ok);
+        auto types = UniquePtrCast<TupleType>(expressionList->Check(table, ok))->GetSubTypes();
         //TODO typeStr
+        typeStr = "";
+        for (auto &type : types)
+        {
+            TypeID tp = UniquePtrCast<WrapperType>(type->Copy())->DeWrap()->GetTypeId();
+            switch (tp)
+            {
+            case BOOLEAN:
+            case INTEGER:
+                typeStr += "\%d";
+                break;
+            case REAL:
+                typeStr += "\%f";
+                break;
+            case CHAR:
+                typeStr += "\%c";
+                break;
+            }
+        }
         return GenType(VOID);
     }
     std::unique_ptr<TypeInfo> StatementList::Check(SymbolTable &table, bool &ok)
@@ -389,7 +442,11 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> SubProgram::Check(SymbolTable &table, bool &ok)
     {
-        //TODO Check name
+        if (table.SymbolAtTop(head->name))
+        {
+            //TODO
+            ok = false;
+        }
         table.PushMap();
         table.Step();
         auto funcType(head->Check(table, ok));
@@ -410,9 +467,15 @@ namespace PascalAST
     {
         table.InsertSymbol(name, std::unique_ptr<TypeInfo>(), true, "");
         identifiers->Check(table, ok);
-        //TODO id check
         for (auto &id : identifiers->identifiers)
+        {
+            if (table.SymbolAtTop(id))
+            {
+                //TODO
+                ok = false;
+            }
             table.InsertSymbol(id, std::unique_ptr<TypeInfo>(), true, "");
+        }
 
         return GenType(VOID);
     }

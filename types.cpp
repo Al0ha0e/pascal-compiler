@@ -2,10 +2,10 @@
 
 namespace PascalAST
 {
-
+    //TODO: Error Handling
     std::unique_ptr<TypeInfo> TypeInfo::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
-        //TODO: Error Handling
+
         ok = false;
         if (anotherType->IsBasicType())
         {
@@ -15,15 +15,18 @@ namespace PascalAST
     }
     std::unique_ptr<TypeInfo> TypeInfo::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok)
     {
-        //TODO: Error Handling
         ok = false;
         return GenType(VOID);
     }
     std::unique_ptr<TypeInfo> TypeInfo::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
     {
-        //TODO: Error Handling
         ok = false;
         return GenType(VOID);
+    }
+
+    bool TypeInfo::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    {
+        return this->AssignCompatible(std::move(anotherType));
     }
 
     //VOIDType
@@ -33,7 +36,7 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    bool VOIDType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool VOIDType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return false;
     }
@@ -46,14 +49,14 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    bool IntegerType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool IntegerType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsBasicType())
             return true;
         return false;
     }
 
-    std::unique_ptr<TypeInfo> IntegerType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
+    std::unique_ptr<TypeInfo> IntegerType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
         if (anotherType->GetTypeId() == REAL)
         {
@@ -74,14 +77,14 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    bool RealType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RealType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsBasicType())
             return true;
         return false;
     }
 
-    std::unique_ptr<TypeInfo> RealType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
+    std::unique_ptr<TypeInfo> RealType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
         if (anotherType->IsBasicType())
         {
@@ -98,14 +101,14 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    bool CharType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool CharType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsBasicType())
             return true;
         return false;
     }
 
-    std::unique_ptr<TypeInfo> CharType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
+    std::unique_ptr<TypeInfo> CharType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
         if (anotherType->IsBasicType())
         {
@@ -122,14 +125,14 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    bool BooleanType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool BooleanType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsBasicType())
             return true;
         return false;
     }
 
-    std::unique_ptr<TypeInfo> BooleanType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
+    std::unique_ptr<TypeInfo> BooleanType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
         if (anotherType->IsBasicType())
         {
@@ -146,7 +149,7 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    bool TupleType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool TupleType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->GetTypeId() != TUPLE)
             return false;
@@ -155,7 +158,20 @@ namespace PascalAST
             return false;
         bool compatible = true;
         for (int i = 0; i < subTypes.size(); i++)
-            compatible &= subTypes[i]->Compatible(std::move(ano->subTypes[i]));
+            compatible &= subTypes[i]->InitCompatible(std::move(ano->subTypes[i]));
+        return compatible;
+    }
+
+    bool TupleType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    {
+        if (anotherType->GetTypeId() != TUPLE)
+            return false;
+        auto ano(UniquePtrCast<TupleType>(anotherType));
+        if (ano->subTypes.size() != subTypes.size())
+            return false;
+        bool compatible = true;
+        for (int i = 0; i < subTypes.size(); i++)
+            compatible &= subTypes[i]->AssignCompatible(std::move(ano->subTypes[i]));
         return compatible;
     }
 
@@ -167,15 +183,16 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    bool FuncType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool FuncType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         //TEMP FALSE
         return false;
     }
 
-    std::unique_ptr<TypeInfo> FuncType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes)
+    std::unique_ptr<TypeInfo> FuncType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok)
     {
-        //TODO:
+        if (this->argTypes->InitCompatible(std::move(argTypes)))
+            ok = false;
         return retType->Copy();
     }
 
@@ -187,15 +204,19 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    bool ArrayType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool ArrayType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         //TEMP FALSE
         return false;
     }
 
-    std::unique_ptr<TypeInfo> ArrayType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes)
+    std::unique_ptr<TypeInfo> ArrayType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
     {
-        //TODO:
+        auto subTypes(idTypes->GetSubTypes());
+        if (subTypes.size() != dimensions.size())
+            ok = false;
+        for (auto &type : subTypes)
+            ok &= type->IsBasicType() && (type->GetTypeId() != REAL);
         return contentType->Copy();
     }
 
@@ -227,14 +248,14 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(lValueType);
     }
 
-    bool LValueType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool LValueType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsWrapperType())
         {
             auto ano(UniquePtrCast<WrapperType>(anotherType)->DeWrap());
-            return targetType->Compatible(std::move(ano));
+            return targetType->AssignCompatible(std::move(ano));
         }
-        return targetType->Compatible(std::move(anotherType));
+        return targetType->AssignCompatible(std::move(anotherType));
     }
 
     //RValueType
@@ -244,7 +265,7 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(rValueType);
     }
 
-    bool RValueType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RValueType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return false;
     }
@@ -256,14 +277,24 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(refValueType);
     }
 
-    bool RefType::Compatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RefType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         TypeID tid = anotherType->GetTypeId();
         if (tid == REF || tid == LVALUE)
         {
             auto ano(UniquePtrCast<WrapperType>(anotherType)->DeWrap());
-            return targetType->Compatible(std::move(ano));
+            return targetType->InitCompatible(std::move(ano));
         }
         return false;
+    }
+
+    bool RefType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    {
+        if (anotherType->IsWrapperType())
+        {
+            auto ano(UniquePtrCast<WrapperType>(anotherType)->DeWrap());
+            return targetType->AssignCompatible(std::move(ano));
+        }
+        return targetType->AssignCompatible(std::move(anotherType));
     }
 }

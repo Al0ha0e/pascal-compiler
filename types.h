@@ -52,7 +52,8 @@ namespace PascalAST
         virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok);
         virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok);
         virtual std::unique_ptr<TypeInfo> Copy() = 0;
-        virtual bool Compatible(std::unique_ptr<TypeInfo> &&anotherType) = 0;
+        virtual bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        virtual bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType) = 0;
 
         TypeInfo() {}
         TypeInfo(TypeID id) : id(id) {}
@@ -110,7 +111,7 @@ namespace PascalAST
         LValueType(std::unique_ptr<TypeInfo> &&targetType) : WrapperType(std::move(targetType), LVALUE) {}
 
         std::unique_ptr<TypeInfo> Copy();
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
     };
 
     class RValueType : public WrapperType
@@ -120,7 +121,7 @@ namespace PascalAST
         RValueType(std::unique_ptr<TypeInfo> &&targetType) : WrapperType(std::move(targetType), RVALUE) {}
 
         std::unique_ptr<TypeInfo> Copy();
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
     };
 
     class RefType : public WrapperType
@@ -130,13 +131,14 @@ namespace PascalAST
         RefType(std::unique_ptr<TypeInfo> &&targetType) : WrapperType(std::move(targetType), REF) {}
 
         std::unique_ptr<TypeInfo> Copy();
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        virtual bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType) override;
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
     };
 
     class VOIDType : public TypeInfo
     {
         std::unique_ptr<TypeInfo> Copy();
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
     };
 
     class BooleanType : public TypeInfo
@@ -144,7 +146,7 @@ namespace PascalAST
         virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok);
         std::unique_ptr<TypeInfo> Copy();
         BooleanType() : TypeInfo(BOOLEAN) {}
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
     };
 
     class IntegerType : public TypeInfo
@@ -153,7 +155,7 @@ namespace PascalAST
         virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok);
         std::unique_ptr<TypeInfo> Copy();
         IntegerType() : TypeInfo(INTEGER) {}
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
     };
 
     class RealType : public TypeInfo
@@ -162,7 +164,7 @@ namespace PascalAST
         virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok);
         std::unique_ptr<TypeInfo> Copy();
         RealType() : TypeInfo(REAL) {}
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
     };
 
     class CharType : public TypeInfo
@@ -171,7 +173,7 @@ namespace PascalAST
         virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok);
         std::unique_ptr<TypeInfo> Copy();
         CharType() : TypeInfo(CHAR) {}
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
     };
 
     class TupleType : public TypeInfo
@@ -194,7 +196,16 @@ namespace PascalAST
         }
 
         std::unique_ptr<TypeInfo> Copy();
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        virtual bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType) override;
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+
+        std::vector<std::unique_ptr<TypeInfo>> GetSubTypes()
+        {
+            std::vector<std::unique_ptr<TypeInfo>> ret;
+            for (auto &type : subTypes)
+                ret.push_back(type->Copy());
+            return std::move(ret);
+        }
 
     private:
         std::vector<std::unique_ptr<TypeInfo>> subTypes;
@@ -213,7 +224,12 @@ namespace PascalAST
         FuncType(std::unique_ptr<TupleType> &&argTypes, std::unique_ptr<TypeInfo> &&retType)
             : argTypes(std::move(argTypes)), retType(std::move(retType)), TypeInfo(FUNC) {}
 
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+
+        std::vector<std::unique_ptr<TypeInfo>> GetArgTypes()
+        {
+            return argTypes->GetSubTypes();
+        }
 
     private:
         std::unique_ptr<TupleType> argTypes;
@@ -226,8 +242,9 @@ namespace PascalAST
         virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok);
         std::unique_ptr<TypeInfo> Copy();
         ArrayType() : TypeInfo(ARRAY) {}
-        ArrayType(std::vector<std::pair<int, int>> &dimensions, std::unique_ptr<TypeInfo> &&contentType) : dimensions(dimensions), contentType(std::move(contentType)), TypeInfo(ARRAY) {}
-        bool Compatible(std::unique_ptr<TypeInfo> &&anotherType);
+        ArrayType(std::vector<std::pair<int, int>> &dimensions, std::unique_ptr<TypeInfo> &&contentType)
+            : dimensions(dimensions), contentType(std::move(contentType)), TypeInfo(ARRAY) {}
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
 
     private:
         std::vector<std::pair<int, int>> dimensions;

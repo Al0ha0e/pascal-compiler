@@ -2,7 +2,6 @@
 
 namespace PascalAST
 {
-    //TODO REF TYPE
 
     std::string ASTNode::GenCCode(SymbolTable &table, bool isRef)
     {
@@ -112,7 +111,6 @@ namespace PascalAST
         }
         else
         {
-            //TODO CALL
             if (targetType->GetTypeId() == FUNC)
             {
                 ret = name + "()";
@@ -121,11 +119,11 @@ namespace PascalAST
             {
                 if (type->GetTypeId() == REF)
                 {
-                    ret = isRef ? name : std::string("*") + name;
+                    ret = isRef ? name : std::string("(*") + name + ")";
                 }
                 else if (type->GetTypeId() == LVALUE)
                 {
-                    ret = isRef ? std::string("&") + name : name;
+                    ret = isRef ? std::string("(&") + name + ")" : name;
                 }
             }
         }
@@ -164,7 +162,7 @@ namespace PascalAST
 
     std::string ExpressionFactor::GenCCode(SymbolTable &table, bool isRef)
     {
-        std::string ret = "("
+        std::string ret = "(";
         return ret + expression->GenCCode(table, isRef) + ")";
     }
 
@@ -254,20 +252,28 @@ namespace PascalAST
         return ret;
     }
 
-    std::string VarPart::GenCCode(SymbolTable &table)
+    std::string VarPart::GenCCode(SymbolTable &table, bool isRef)
     {
         std::string ret;
         if (isProcedureCall)
         {
             ret = "(";
-            ret += expressionList->GenCCode(table) + ")";
+            std::string argCode;
+            for (int i = 0; i < argIsRef.size(); i++)
+            {
+                argCode += expressionList->expressions[i]->GenCCode(table, argIsRef[i]);
+                argCode += ",";
+            }
+            if (argCode.length())
+                argCode.pop_back();
+            ret += argCode + ")";
         }
         else
         {
             for (auto &expression : expressionList->expressions)
             {
                 ret += "[";
-                ret += expression->GenCCode(table) + "]";
+                ret += expression->GenCCode(table, false) + "]";
             }
         }
         return ret;
@@ -307,10 +313,14 @@ namespace PascalAST
     std::string ForLoopStatement::GenCCode(SymbolTable &table, bool isRef)
     {
         std::string ret = "for(";
-        //TODO counter ref
-        ret += counter + "=" + initExpression->GenCCode(table, false) + ";";
-        ret += counter + "<=" + termiExpression->GenCCode(table, false) + ";";
-        ret += counter + "++){\n";
+        bool has;
+        int layer;
+        auto &type = table.FindSymbol(counter, has, layer)->second.type;
+        bool isRef = type->GetTypeId() == REF;
+        std::string counterStr = isRef ? std::string("(*") + counter + ")" : counter;
+        ret += counterStr + "=" + initExpression->GenCCode(table, false) + ";";
+        ret += counterStr + "<=" + termiExpression->GenCCode(table, false) + ";";
+        ret += counterStr + "++){\n";
         if (loopStatement != nullptr)
             ret += loopStatement->GenCCode(table, false);
         ret += "}\n";
