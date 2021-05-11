@@ -3,23 +3,26 @@
 namespace PascalAST
 {
 
-    std::unique_ptr<TypeInfo> TypeInfo::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
+    std::unique_ptr<TypeInfo> TypeInfo::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
         //TODO: Error Handling
+        ok = false;
         if (anotherType->IsBasicType())
         {
             return std::move(anotherType);
         }
         return GenType(VOID);
     }
-    std::unique_ptr<TypeInfo> TypeInfo::CalcFuncType(std::unique_ptr<TupleType> &&argTypes)
+    std::unique_ptr<TypeInfo> TypeInfo::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok)
     {
         //TODO: Error Handling
+        ok = false;
         return GenType(VOID);
     }
-    std::unique_ptr<TypeInfo> TypeInfo::CalcArrayType(std::unique_ptr<TupleType> &&idTypes)
+    std::unique_ptr<TypeInfo> TypeInfo::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
     {
         //TODO: Error Handling
+        ok = false;
         return GenType(VOID);
     }
 
@@ -197,23 +200,23 @@ namespace PascalAST
     }
 
     //WrapperType
-    std::unique_ptr<TypeInfo> WrapperType::CalcType(std::unique_ptr<TypeInfo> &&anotherType)
+    std::unique_ptr<TypeInfo> WrapperType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
         if (anotherType->IsWrapperType())
             anotherType = UniquePtrCast<WrapperType>(anotherType)->DeWrap();
-        TypeInfo *ret = new RValueType(targetType->CalcType(std::move(anotherType)));
+        TypeInfo *ret = new RValueType(targetType->CalcType(std::move(anotherType), ok));
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    std::unique_ptr<TypeInfo> WrapperType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes)
+    std::unique_ptr<TypeInfo> WrapperType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok)
     {
-        TypeInfo *ret = new RValueType(targetType->CalcFuncType(std::move(argTypes)));
+        TypeInfo *ret = new RValueType(targetType->CalcFuncType(std::move(argTypes), ok));
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    std::unique_ptr<TypeInfo> WrapperType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes)
+    std::unique_ptr<TypeInfo> WrapperType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
     {
-        TypeInfo *ret = new RValueType(targetType->CalcArrayType(std::move(idTypes)));
+        TypeInfo *ret = new RValueType(targetType->CalcArrayType(std::move(idTypes), ok));
         return std::unique_ptr<TypeInfo>(ret);
     }
 
