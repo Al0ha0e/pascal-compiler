@@ -1,14 +1,11 @@
-program recursiveFibonacci(input,output);
-var i: integer;
-function A(n: integer): integer;
-begin
-    write(1,input);
-end;
-function B(n: integer): integer;
-begin
-    write(2,n);
-    A(n+1)
-end;
-begin
-    B(1);
-end.
+program example(input, output);
+    var x, y: integer;
+    function gcd(a, b: integer): integer;
+        begin 
+            if b=0 then gcd:=a
+            else gcd:=gcd(b, a mod b)
+        end;
+    begin
+        read(x, y);
+        write(gcd(x, y))
+    end.

@@ -72,6 +72,7 @@ namespace PascalAST
         }
         if (tokenType == "id")
         {
+            std::cout << "ID CONTENT " << token.content << std::endl;
             ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }

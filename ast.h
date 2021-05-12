@@ -22,7 +22,17 @@ namespace PascalAST
         SymbolTable symTable;
         std::unique_ptr<ASTNode> astRoot;
 
-        void Check();
+        AbstractSyntaxTree() {}
+        AbstractSyntaxTree(std::unique_ptr<ASTNode> &&astRoot) : astRoot(std::move(astRoot))
+        {
+        }
+
+        bool Check();
+        std::string GenCCode()
+        {
+            symTable.Reset();
+            return astRoot->GenCCode(symTable, false);
+        }
     };
 
     std::unique_ptr<ASTNode> GenOriAstNode(CompilerFront::Token &token);
@@ -571,7 +581,7 @@ namespace PascalAST
         std::string name;
         std::unique_ptr<Identifiers> identifiers;
         ProgramHead() {}
-        ProgramHead(std::string name, std::unique_ptr<Identifiers> &&ids) : identifiers(std::move(ids)) {}
+        ProgramHead(std::string name, std::unique_ptr<Identifiers> &&ids) : name(name), identifiers(std::move(ids)) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();

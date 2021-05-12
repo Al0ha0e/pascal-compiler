@@ -10,25 +10,33 @@ namespace PascalAST
 
     std::string Identifiers::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "Identifiers" << std::endl;
         std::string ret;
         for (auto &id : identifiers)
             ret += id + ",";
         if (ret.size())
             ret.pop_back();
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string BasicTypeDecl::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "BasicTypeDecl" << std::endl;
         if (basicType == "real")
             return "float";
         if (basicType == "boolean")
+            return "int";
+        if (basicType == "integer")
             return "int";
         return basicType;
     }
 
     std::string ConstantDeclaration::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "ConstantDeclaration" << std::endl;
         std::string ret =
             "const " + type->GenCCode(table, isRef) + " " + name + " = " + content + ";\n";
         return ret;
@@ -36,20 +44,27 @@ namespace PascalAST
 
     std::string ConstantDeclarations::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "ConstantDeclarations" << std::endl;
         std::string ret;
         for (auto &decl : constantDeclarations)
             ret += decl->GenCCode(table, isRef);
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string VariableDeclaration::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "VariableDeclaration" << std::endl;
         std::string ret;
-        if (typeid(type) == typeid(BasicTypeDecl))
+        if (typeid(*(type.get())) == typeid(BasicTypeDecl))
         {
-            ret = type->GenCCode(table, isRef) + " " + identifiers->GenCCode(table, isRef) + ";\n";
+            std::cout << "???" << std::endl;
+            ret = type->GenCCode(table, isRef);
+            ret += " " + identifiers->GenCCode(table, isRef) + ";\n";
         }
-        else if (typeid(type) == typeid(ArrayTypeDecl))
+        else if (typeid(*(type.get())) == typeid(ArrayTypeDecl))
         {
             ArrayTypeDecl *arrType = (ArrayTypeDecl *)type.get();
             ret = arrType->type->GenCCode(table, isRef) + " ";
@@ -70,14 +85,19 @@ namespace PascalAST
 
     std::string VariableDeclarations::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "VariableDeclarations" << std::endl;
         std::string ret;
         for (auto &decl : variableDeclarations)
             ret += decl->GenCCode(table, isRef);
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string Parameter::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "Parameter" << std::endl;
         std::string ret;
         for (auto &id : identifiers->identifiers)
         {
@@ -90,16 +110,21 @@ namespace PascalAST
 
     std::string ParameterList::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "ParameterList" << std::endl;
         std::string ret;
         for (auto &param : parameters)
             ret += param->GenCCode(table, isRef);
         if (ret.size())
             ret.pop_back();
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string Variable::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "Variable" << std::endl;
         std::string ret;
         bool has;
         int layer;
@@ -107,7 +132,7 @@ namespace PascalAST
         auto targetType(((WrapperType *)type.get())->DeWrap());
         if (varPart != nullptr)
         {
-            ret = varPart->GenCCode(table, isRef);
+            ret = name + varPart->GenCCode(table, isRef);
         }
         else
         {
@@ -132,6 +157,7 @@ namespace PascalAST
 
     std::string VariableList::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "VariableList" << std::endl;
         std::string ret = "\"";
         bool has;
         int layer;
@@ -157,39 +183,48 @@ namespace PascalAST
         ret += "\"";
         for (auto &var : variables)
             ret += std::string(",") + var->GenCCode(table, isRef);
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string ExpressionFactor::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "ExpressionFactor" << std::endl;
         std::string ret = "(";
         return ret + expression->GenCCode(table, isRef) + ")";
     }
 
     std::string NumFactor::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "NumFactor" << std::endl;
         return val;
     }
 
     std::string InvFactor::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "InvFactor" << std::endl;
         std::string ret = "-(";
         return ret + subFactor->GenCCode(table, false) + ")";
     }
 
     std::string VariableFactor::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "VariableFactor" << std::endl;
         return variable->GenCCode(table, isRef);
     }
 
     std::string NotFactor::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "NotFactor" << std::endl;
         std::string ret = "!(";
         return ret + subFactor->GenCCode(table, false) + ")";
     }
 
     std::string MulOpPart::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "MulOpPart" << std::endl;
         std::string ret = secondFactor->GenCCode(table, (followPart == nullptr) & isRef) + mulOp;
         if (followPart != nullptr)
             ret += followPart->GenCCode(table, false);
@@ -198,14 +233,17 @@ namespace PascalAST
 
     std::string Term::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "Term" << std::endl;
         std::string ret;
         if (mulOpPart != nullptr)
             ret = mulOpPart->GenCCode(table, false);
         ret += firstFactor->GenCCode(table, (mulOpPart == nullptr) & isRef);
+        return ret;
     }
 
     std::string AddOpPart::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "AddOpPart" << std::endl;
         std::string ret = secondTerm->GenCCode(table, (followPart == nullptr) & isRef) + addOp;
         if (followPart != nullptr)
             ret += followPart->GenCCode(table, false);
@@ -214,14 +252,17 @@ namespace PascalAST
 
     std::string SimpleExpression::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "SimpleExpression" << std::endl;
         std::string ret;
         if (addOpPart != nullptr)
             ret = addOpPart->GenCCode(table, false);
         ret += firstTerm->GenCCode(table, (addOpPart == nullptr) & isRef);
+        return ret;
     }
 
     std::string RelPart::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "RelPart" << std::endl;
         std::string ret = relop;
         if (ret == "=")
         {
@@ -236,6 +277,7 @@ namespace PascalAST
 
     std::string Expression::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "Expression" << std::endl;
         std::string ret = firstExpression->GenCCode(table, (relPart == nullptr) & isRef);
         if (relPart != nullptr)
             ret += relPart->GenCCode(table, false);
@@ -244,16 +286,21 @@ namespace PascalAST
 
     std::string ExpressionList::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "ExpressionList" << std::endl;
         std::string ret;
         for (auto &expression : expressions)
             ret += expression->GenCCode(table, isRef) + ",";
         if (ret.size())
             ret.pop_back();
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string VarPart::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "VarPart" << std::endl;
         std::string ret;
         if (isProcedureCall)
         {
@@ -281,22 +328,26 @@ namespace PascalAST
 
     std::string VariableAssignStatement::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "VariableAssignStatement" << std::endl;
         return variable->GenCCode(table, false) + "=" + expression->GenCCode(table, false) + ";\n";
     }
 
     std::string ProcedureCallStatement::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "ProcedureCallStatement" << std::endl;
         return variable->GenCCode(table, false) + ";\n";
     }
 
     std::string SubCompoundStatement::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "SubCompoundStatement" << std::endl;
         std::string ret = "{\n";
         return ret + compoundStatement->GenCCode(table, isRef) + "}\n";
     }
 
     std::string IfElseStatement::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "IfElseStatement" << std::endl;
         std::string ret = "if(";
         ret += ifExpression->GenCCode(table, false) + "){\n";
         if (thenStatement != nullptr)
@@ -307,17 +358,19 @@ namespace PascalAST
             ret += "else{\n";
             ret += elseStatement->GenCCode(table, false) + "}\n";
         }
-        return;
+        return ret;
     }
 
     std::string ForLoopStatement::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "ForLoopStatement" << std::endl;
         std::string ret = "for(";
         bool has;
         int layer;
         auto &type = table.FindSymbol(counter, has, layer)->second.type;
-        bool isRef = type->GetTypeId() == REF;
-        std::string counterStr = isRef ? std::string("(*") + counter + ")" : counter;
+        std::string counterStr = type->GetTypeId() == REF
+                                     ? std::string("(*") + counter + ")"
+                                     : counter;
         ret += counterStr + "=" + initExpression->GenCCode(table, false) + ";";
         ret += counterStr + "<=" + termiExpression->GenCCode(table, false) + ";";
         ret += counterStr + "++){\n";
@@ -329,6 +382,7 @@ namespace PascalAST
 
     std::string ReadStatement::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "ReadStatement" << std::endl;
         std::string ret = "scanf(";
         ret += variableList->GenCCode(table, true);
         ret += ");\n";
@@ -337,6 +391,7 @@ namespace PascalAST
 
     std::string WriteStatement::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "WriteStatement" << std::endl;
         std::string ret = "printf(";
         ret += typeStr + "," + expressionList->GenCCode(table, false) + ");\n";
         return ret;
@@ -344,53 +399,74 @@ namespace PascalAST
 
     std::string StatementList::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "StatementList" << std::endl;
         std::string ret = "";
         for (auto &statement : statements)
-            ret += statement->GenCCode(table, isRef);
+        {
+            if (statement != nullptr)
+                ret += statement->GenCCode(table, isRef);
+        }
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string CompoundStatement::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "CompoundStatement" << std::endl;
         return statementList->GenCCode(table, isRef);
     }
 
     std::string SubProgramHead::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "SubProgramHead" << std::endl;
         std::string ret = returnType == nullptr ? "void " : (returnType->GenCCode(table, isRef) + " ");
         ret += name + "(";
         ret += parameters->GenCCode(table, isRef) + ")\n";
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string SubProgramBody::GenCCode(SymbolTable &table, bool isRef)
     {
-        std::string ret = constantDeclarations->GenCCode(table, isRef) +
-                          variableDeclarations->GenCCode(table, isRef) +
-                          compoundStatement->GenCCode(table, isRef);
+        std::cout << "SubProgramBody" << std::endl;
+        std::string ret = constantDeclarations->GenCCode(table, isRef);
+        ret += variableDeclarations->GenCCode(table, isRef);
+        ret += compoundStatement->GenCCode(table, isRef);
         return ret;
     }
 
     std::string SubProgram::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "SubProgram" << std::endl;
+        table.Step();
         std::string ret = head->GenCCode(table, isRef) + "{\n";
         ret += body->GenCCode(table, isRef) + "}\n";
+        table.PopMap();
         return ret;
     }
 
     std::string SubProgramDeclarations::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "SubProgramDeclarations" << std::endl;
         std::string ret = "";
         for (auto &program : subPrograms)
             ret += program->GenCCode(table, isRef);
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << ret << std::endl;
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         return ret;
     }
 
     std::string ProgramBody::GenCCode(SymbolTable &table, bool isRef)
     {
-        std::string ret = constantDeclarations->GenCCode(table, isRef) +
-                          variableDeclarations->GenCCode(table, isRef) +
-                          subProgramDeclarations->GenCCode(table, isRef);
+        std::cout << "ProgramBody " << std::endl;
+        std::string ret = constantDeclarations->GenCCode(table, isRef);
+        ret += variableDeclarations->GenCCode(table, isRef);
+        ret += subProgramDeclarations->GenCCode(table, isRef);
         ret += "int main(){\n";
         ret += compoundStatemnet->GenCCode(table, isRef);
         ret += "return 0;\n}";
@@ -399,7 +475,10 @@ namespace PascalAST
 
     std::string Program::GenCCode(SymbolTable &table, bool isRef)
     {
+        std::cout << "Program" << std::endl;
+        table.Step();
         std::string ret = "#include<stdio.h>\n" + programBody->GenCCode(table, isRef);
+        table.PopMap();
         return ret;
     }
 }

@@ -29,8 +29,8 @@ namespace PascalAST
         int layer;
         int curSubCnt;
 
-        SymbolScope() {}
-        SymbolScope(std::shared_ptr<SymbolScope> &upperScope, int layer) : upperScope(upperScope), layer(layer) {}
+        SymbolScope() : layer(0), curSubCnt(0) {}
+        SymbolScope(std::shared_ptr<SymbolScope> &upperScope, int layer) : upperScope(upperScope), layer(layer), curSubCnt(0) {}
     };
 
     class SymbolTable
@@ -43,13 +43,15 @@ namespace PascalAST
 
         void PushMap()
         {
+            std::cout << "------PUSH " << curScope->layer << " CNT " << curScope->curSubCnt << std::endl;
             curScope->subScope.push_back(std::make_shared<SymbolScope>(curScope, curScope->layer + 1));
         }
 
         void Step()
         {
-            if (curScope->curSubCnt + 1 < curScope->subScope.size())
+            if (curScope->curSubCnt < curScope->subScope.size())
                 curScope = curScope->subScope[curScope->curSubCnt++];
+            std::cout << "-----STEP " << curScope->layer << std::endl;
         }
 
         void PopMap()
@@ -61,6 +63,11 @@ namespace PascalAST
             }
         }
 
+        void Reset()
+        {
+            curScope->curSubCnt = 0;
+        }
+
         SymbolMap::iterator FindSymbol(std::string id, bool &has, int &layer)
         {
             SymbolMap::iterator ret;
@@ -69,6 +76,7 @@ namespace PascalAST
             {
                 ret = scope->symbolMap.find(id);
                 layer = scope->layer;
+                std::cout << "LOOK FOR " << layer << std::endl;
                 if (ret != scope->symbolMap.end())
                 {
                     has = true;
@@ -97,12 +105,14 @@ namespace PascalAST
         {
             auto &top = curScope->symbolMap;
             if (top.find(id) != top.end())
-                return false;
-            return true;
+                return true;
+            return false;
         }
 
         void InsertSymbol(std::string id, std::unique_ptr<TypeInfo> &&type, bool isConstant, std::string oriVal)
         {
+            std::cout << "INSERT SYMBOL " << id << " " << type->GetTypeId() << std::endl;
+            std::cout << "INSERT SYMBOL " << ((WrapperType *)type.get())->DeWrap()->GetTypeId() << std::endl;
             curScope->symbolMap[id] = SymbolTableItem(std::move(type), isConstant, oriVal);
         }
 
