@@ -1,9 +1,11 @@
 program example(input, output);
-    var x, y: integer;
-    function gcd(a, b: integer): integer;
+    var q, w: array[1..2,27..40] of integer;x,y:integer;
+    function gcd(var a, b: integer): integer;
         begin 
+            q[a,b] := gcd(a,b);
+            w[b,a] := y + 123;
             if b=0 then gcd:=a
-            else gcd:=gcd(b, a mod b)
+            else gcd:=gcd(b, a)
         end;
     begin
         read(x, y);

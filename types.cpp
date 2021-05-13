@@ -258,9 +258,12 @@ namespace PascalAST
             std::cout << "$$$$$ARRAY DIMENSION ERROR" << std::endl;
             ok = false;
         }
-
         for (auto &type : subTypes)
-            ok &= type->IsBasicType() && (type->GetTypeId() != REAL);
+        {
+            auto targetType = ((WrapperType *)type.get())->DeWrap();
+            ok &= targetType->IsBasicType() && (targetType->GetTypeId() != REAL);
+        }
+
         return contentType->Copy();
     }
 

@@ -265,6 +265,13 @@ namespace PascalAST
 
         bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
         bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        std::vector<int> GetOffset()
+        {
+            std::vector<int> ret;
+            for (auto &dim : dimensions)
+                ret.push_back(dim.first);
+            return ret;
+        }
 
     private:
         std::vector<std::pair<int, int>> dimensions;

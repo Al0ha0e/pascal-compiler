@@ -383,6 +383,7 @@ namespace PascalAST
     {
         bool isProcedureCall;
         std::vector<bool> argIsRef;
+        std::vector<int> indexOffset; //TODO
         std::unique_ptr<ExpressionList> expressionList;
 
         VarPart() {}

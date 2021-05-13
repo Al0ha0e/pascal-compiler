@@ -101,8 +101,9 @@ namespace PascalAST
                 for (auto &range : arrType->ranges->ranges)
                 {
                     ret += "[";
-                    ret += std::to_string(range->r - range->l + 1) + "],";
+                    ret += std::to_string(range->r - range->l + 1) + "]";
                 }
+                ret += ",";
             }
             ret[ret.length() - 1] = ';';
             ret += "\n";
@@ -129,7 +130,7 @@ namespace PascalAST
         for (auto &id : identifiers->identifiers)
         {
             ret += type->GenCCode(table, isRef) + " ";
-            ret += isRef ? "*" : "";
+            ret += this->isRef ? "*" : "";
             ret += id + ",";
         }
         return ret;
@@ -343,14 +344,13 @@ namespace PascalAST
             if (argCode.length())
                 argCode.pop_back();
             ret += argCode + ")";
+            return ret;
         }
-        else
+        for (int i = 0; i < indexOffset.size(); i++)
         {
-            for (auto &expression : expressionList->expressions)
-            {
-                ret += "[";
-                ret += expression->GenCCode(table, false) + "]";
-            }
+            ret += "[(";
+            ret += expressionList->expressions[i]->GenCCode(table, false);
+            ret += std::string(") - (") + std::to_string(indexOffset[i]) + ")]";
         }
         return ret;
     }

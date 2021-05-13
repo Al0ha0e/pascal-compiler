@@ -216,7 +216,10 @@ namespace PascalAST
             }
 
             if (isAssignLeft && table.SymbolAtTop(name))
+            {
+                std::cout << "Variable OVER " << ok << std::endl;
                 return ((FuncType *)targetType.get())->RetAsLValue();
+            }
 
             TupleType *emptyTuple = new TupleType();
             std::cout << "Variable OVER " << ok << std::endl;
@@ -229,6 +232,18 @@ namespace PascalAST
                 std::cout << "Variable OVER " << ok << std::endl;
                 return type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
             }
+            if (targetType->GetTypeId() == ARRAY)
+            {
+                varPart->indexOffset = ((ArrayType *)targetType.get())->GetOffset();
+                if (isAssignLeft)
+                {
+                    auto arrRetType = type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
+                    LValueType *arrRetLValue = new LValueType(UniquePtrCast<WrapperType>(arrRetType)->DeWrap());
+                    std::cout << "Variable OVER " << ok << std::endl;
+                    return std::unique_ptr<TypeInfo>((TypeInfo *)arrRetLValue);
+                }
+            }
+
             //TODO: Check Array Range
             std::cout << "Variable OVER " << ok << std::endl;
             return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
