@@ -57,12 +57,17 @@ namespace PascalAST
         }
         if (tokenType == "digits")
         {
-            ASTNode *oriASTNode = new OriASTNode(token.content, std::string("int"));
+            ASTNode *oriASTNode = new OriASTNode(token.content, "int");
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
         if (tokenType == "float")
         {
-            ASTNode *oriASTNode = new OriASTNode(token.content, std::string("float"));
+            ASTNode *oriASTNode = new OriASTNode(token.content, "float");
+            return std::unique_ptr<ASTNode>(oriASTNode);
+        }
+        if (tokenType == "letter")
+        {
+            ASTNode *oriASTNode = new OriASTNode(std::string(1, '\'') + token.content + "\'", "char");
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
         if (tokenType == "mulop")
@@ -72,7 +77,6 @@ namespace PascalAST
         }
         if (tokenType == "id")
         {
-            std::cout << "ID CONTENT " << token.content << std::endl;
             ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }

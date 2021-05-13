@@ -5,7 +5,7 @@ namespace CompilerFront
 {
 
     std::set<char> SinglePunct = {'(', ')', ',', ';', '[', ']',
-                                  '\'', '=', '+', '-'};
+                                  '=', '+', '-'};
 
     std::set<std::string> Keywords = {"not", "program", "const", "var", "procedure",
                                       "function", "begin", "end", "array", "of", "integer",
@@ -26,7 +26,7 @@ namespace CompilerFront
             }
             else if (curChar == '\n')
             {
-                column = 0;
+                column = 1;
                 line++;
             }
             if (++pos >= contentLength)
@@ -34,10 +34,42 @@ namespace CompilerFront
             curChar = content[pos];
         }
         //TODO ABNORMAL CHARACTER
-        //TODO COMMENT
+        if (charST)
+        {
+            pos++;
+            if (curChar == '\'')
+            {
+                charST = false;
+                return Token(std::string(1, curChar), std::string(1, curChar), line, column++);
+            }
+            return Token("letter", std::string(1, curChar), line, column++);
+        }
+        if (curChar == '{')
+        {
+            bool inComment = true;
+            while (inComment)
+            {
+                column++;
+                if (curChar == '\n')
+                {
+                    column = 1;
+                    line++;
+                }
+                else if (curChar = '}')
+                    inComment = false;
+                if (++pos >= contentLength)
+                    return Token("$", "$", line, column);
+            }
+        }
         if (SinglePunct.find(curChar) != SinglePunct.end())
         {
             pos++;
+            return Token(std::string(1, curChar), std::string(1, curChar), line, column++);
+        }
+        if (curChar == '\'')
+        {
+            pos++;
+            charST = true;
             return Token(std::string(1, curChar), std::string(1, curChar), line, column++);
         }
         if (curChar == '*' || curChar == '/')
@@ -135,5 +167,6 @@ namespace CompilerFront
                 return Token(retStr, retStr, line, stColumn);
             return Token("id", retStr, line, stColumn);
         }
+        return Token("$", "$", line, column);
     }
 }

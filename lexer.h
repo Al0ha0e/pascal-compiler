@@ -27,7 +27,7 @@ namespace CompilerFront
     {
     public:
         Lexer() {}
-        Lexer(std::string path) : pos(0), line(1), column(1), path(path)
+        Lexer(std::string path) : pos(0), line(1), column(1), path(path), charST(false)
         {
             std::ifstream f(path);
             std::ostringstream tmp;
@@ -45,6 +45,7 @@ namespace CompilerFront
         int contentLength;
         std::string path;
         std::string content;
+        bool charST;
     };
 }
 

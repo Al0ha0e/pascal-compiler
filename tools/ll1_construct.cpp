@@ -288,6 +288,9 @@ namespace Tools
     }
 
     std::map<int, std::map<int, LL1Item>> LL1Table;
+    std::map<int, std::set<int>> SyncTable;
+
+    static std::vector<std::string> syncSymbol = {"$", "begin", "const", "var", "procedure", "function", "array", "(", "for", "if", "read", "write"};
 
     void GenLL1()
     {
@@ -373,6 +376,25 @@ namespace Tools
             }
             LL1Table.insert(std::pair<int, std::map<int, LL1Item>>(nonTermiId, ll1Map));
         }
+        for (int nonTermiId : nonTermiIds)
+        {
+            std::set<int> syncSet;
+            auto &ll1Map = LL1Table.find(nonTermiId)->second;
+            auto followSet = FollowSet.find(nonTermiId)->second;
+            for (auto &followId : followSet)
+            {
+                if (ll1Map.find(followId) == ll1Map.end())
+                    syncSet.insert(followId);
+            }
+            for (std::string syncStr : syncSymbol)
+            {
+                int syncId = SymbolNameMap.find(syncStr)->second;
+                if (ll1Map.find(syncId) == ll1Map.end())
+                    syncSet.insert(syncId);
+            }
+
+            SyncTable.insert(std::pair<int, std::set<int>>(nonTermiId, syncSet));
+        }
     }
 
     void ShowLL1Table()
@@ -398,7 +420,7 @@ namespace Tools
         }
     }
 
-    void SaveLL1Table(std::string path)
+    void SaveLL1Table(std::string tablePath, std::string syncPath)
     {
         std::string s;
         for (auto symbolIt : Symbols)
@@ -417,14 +439,29 @@ namespace Tools
                 s += itemStr + "\n";
             }
         }
-        std::ofstream ofile(path);
+        std::ofstream ofile(tablePath);
+        ofile << s;
+        ofile.close();
+
+        s = "";
+        for (auto symbolIt : Symbols)
+        {
+            if (symbolIt.second.type == TERMI)
+                continue;
+            int symbolId = symbolIt.first;
+            s += InvSymbolNameMap.find(symbolId)->second + "\n";
+            for (auto item : SyncTable.find(symbolId)->second)
+                s += InvSymbolNameMap.find(item)->second + " ";
+            s += "\n";
+        }
+        ofile = std::ofstream(syncPath);
         ofile << s;
         ofile.close();
     }
 
-    void LoadLL1Table(std::string path)
+    void LoadLL1Table(std::string tablePath, std::string syncPath)
     {
-        std::ifstream f(path);
+        std::ifstream f(tablePath);
         std::string line = "";
         int curSymbol;
         while (std::getline(f, line))
@@ -450,6 +487,24 @@ namespace Tools
                     item.push_back(SymbolNameMap.find(items[i])->second);
                 LL1Table.find(curSymbol)->second.insert(std::pair<int, LL1Item>(sb, item));
             }
+        }
+        f.close();
+
+        f = std::ifstream(syncPath);
+        line = "";
+        while (std::getline(f, line))
+        {
+            curSymbol = SymbolNameMap.find(line)->second;
+            std::set<int> syncSet;
+            std::getline(f, line);
+            std::istringstream itemStream(line);
+            std::string temp;
+            while (std::getline(itemStream, temp, ' '))
+            {
+                if (temp.length())
+                    syncSet.insert(SymbolNameMap.find(temp)->second);
+            }
+            SyncTable.insert(std::pair<int, std::set<int>>(curSymbol, syncSet));
         }
         f.close();
     }

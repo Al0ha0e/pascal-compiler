@@ -1,0 +1,96 @@
+programstruct
+const var begin array procedure function ( if for read write $ 
+program_head
+; const var begin array procedure function ( if for read write $ 
+program_body
+. array ( if for read write $ 
+program_head_89
+const var begin array procedure function if for read write $ 
+const_declarations
+array ( if for read write $ 
+var_declarations
+const array ( if for read write $ 
+subprogram_declarations
+const var array ( if for read write $ 
+compound_statement
+; . const var end array procedure function ( if for read write else $ 
+idlist
+const var begin : array procedure function ( ) if for read write $ 
+idlist_78
+const var begin array procedure function ( if for read write $ 
+const_declaration
+; const var begin array procedure function ( if for read write $ 
+var_declaration
+; const var begin array procedure function ( if for read write $ 
+subprogram_declarations_79
+const var array ( if for read write $ 
+statement_list
+const var array procedure function ( $ 
+const_value
+; const var begin array procedure function ( if for read write $ 
+const_declaration_80
+const var begin array procedure function ( if for read write $ 
+num
+; const var begin end = + - array ] procedure function ( ) if then for to do read write else , or mulop relop $ 
+type
+; const var begin procedure function ( if for read write $ 
+var_declaration_81
+const var begin array procedure function ( if for read write $ 
+basic_type
+; const var begin array procedure function ( ) if for read write $ 
+period
+const var begin array ] procedure function ( if for read write $ 
+period_82
+const var begin array procedure function ( if for read write $ 
+subprogram
+; const var begin array ( if for read write $ 
+subprogram_head
+; const var begin array ( if for read write $ 
+subprogram_body
+; array procedure function ( if for read write $ 
+formal_parameter
+const var begin array procedure function if for read write $ 
+parameter_list
+const begin array procedure function ( ) if for read write $ 
+parameter
+; const begin array procedure function ( ) if for read write $ 
+parameter_list_83
+const var begin array procedure function ( if for read write $ 
+var_parameter
+; const begin array procedure function ( ) if for read write $ 
+value_parameter
+; const var begin array procedure function ( ) if for read write $ 
+statement
+const var array procedure function ( $ 
+statement_list_84
+const var begin array procedure function ( if for read write $ 
+variable
+; const var begin end = + - array ] procedure function ( ) if then for assignop to do read write else , or mulop relop $ 
+statement_90
+const var begin array procedure function ( if for read write $ 
+expression
+; const var begin end array ] procedure function ) if then for to do read write else , $ 
+else_part
+const var begin array procedure function ( if for read write $ 
+variable_list
+const var begin array procedure function ( ) if for read write $ 
+expression_list
+const var begin array ] procedure function ) if for read write $ 
+id_varpart
+const var begin array procedure function if for read write $ 
+simple_expression
+; const var begin end = array ] procedure function ) if then for to do read write else , relop $ 
+expression_91
+const var begin array procedure function ( if for read write $ 
+variable_list_85
+const var begin array procedure function ( if for read write $ 
+expression_list_86
+const var begin array procedure function ( if for read write $ 
+term
+; const var begin end = + array ] procedure function ) if then for to do read write else , or relop $ 
+simple_expression_87
+const var begin array procedure function ( if for read write $ 
+factor
+; const var begin end = + array ] procedure function ) if then for to do read write else , or mulop relop $ 
+term_88
+const var begin array procedure function ( if for read write $ 

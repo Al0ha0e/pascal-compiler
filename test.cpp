@@ -6,11 +6,19 @@ using namespace CompilerFront;
 int main()
 {
 
-    Parser parser("./test.txt", "./tools/reduced.txt", "./tools/ll1_table.txt", "programstruct");
+    Parser parser(
+        "./test.txt",
+        "./tools/reduced.txt",
+        "./tools/ll1_table.txt",
+        "./tools/sync.txt",
+        "programstruct");
     std::cout << "---------------------------" << std::endl;
     // Tools::ShowLL1Table();
     std::cout << "PARSE ST" << std::endl;
-    PascalAST::AbstractSyntaxTree ast(parser.Parse());
+    bool ok;
+    PascalAST::AbstractSyntaxTree ast(parser.Parse(ok));
+    if (!ok)
+        return 0;
     ast.astRoot->Show();
     std::cout << "PARSE OVER" << std::endl;
     if (ast.Check())

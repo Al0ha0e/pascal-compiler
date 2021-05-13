@@ -54,8 +54,8 @@ namespace Tools
 
     void ShowLL1Table();
 
-    void SaveLL1Table(std::string);
-    void LoadLL1Table(std::string);
+    void SaveLL1Table(std::string, std::string);
+    void LoadLL1Table(std::string, std::string);
 
     void GenSyntaxTemplate(std::string);
 
@@ -65,6 +65,7 @@ namespace Tools
     extern std::map<int, std::set<int>> FirstSet;
     extern std::map<int, std::set<int>> FollowSet;
     extern std::map<int, std::map<int, LL1Item>> LL1Table;
+    extern std::map<int, std::set<int>> SyncTable;
 
     inline void InsertSymbolId(int id, std::string name)
     {
