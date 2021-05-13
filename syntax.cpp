@@ -500,7 +500,7 @@ namespace PascalAST
         std::cout << "WriteStatement" << std::endl;
         auto types = UniquePtrCast<TupleType>(expressionList->Check(table, ok))->GetSubTypes();
         //TODO typeStr
-        typeStr = "";
+        typeStr = "\"";
         for (auto &type : types)
         {
             TypeID tp = UniquePtrCast<WrapperType>(type->Copy())->DeWrap()->GetTypeId();
@@ -518,6 +518,7 @@ namespace PascalAST
                 break;
             }
         }
+        typeStr += "\"";
         std::cout << "WriteStatement OVER " << ok << std::endl;
         return GenType(VOID);
     }

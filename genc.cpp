@@ -165,7 +165,14 @@ namespace PascalAST
         {
             if (targetType->GetTypeId() == FUNC)
             {
-                ret = name + "()";
+                if (isAssignLeft && table.SymbolAtTop(name))
+                {
+                    ret = name + "_ret";
+                }
+                else
+                {
+                    ret = name + "()";
+                }
             }
             else
             {
@@ -466,7 +473,13 @@ namespace PascalAST
         std::cout << "SubProgram" << std::endl;
         table.Step();
         std::string ret = head->GenCCode(table, isRef) + "{\n";
-        ret += body->GenCCode(table, isRef) + "}\n";
+        std::string returnId = head->name + "_ret";
+        if (head->returnType != nullptr)
+            ret += head->returnType->GenCCode(table, isRef) + " " + returnId + ";\n";
+        ret += body->GenCCode(table, isRef);
+        if (head->returnType != nullptr)
+            ret += std::string("return ") + returnId + ";\n";
+        ret += "}\n";
         table.PopMap();
         return ret;
     }
