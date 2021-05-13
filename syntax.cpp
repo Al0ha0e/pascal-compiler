@@ -214,6 +214,10 @@ namespace PascalAST
                 std::cout << "Variable OVER " << ok << std::endl;
                 return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
             }
+
+            if (isAssignLeft && table.SymbolAtTop(name))
+                return ((FuncType *)targetType.get())->RetAsLValue();
+
             TupleType *emptyTuple = new TupleType();
             std::cout << "Variable OVER " << ok << std::endl;
             return type->CalcFuncType(std::unique_ptr<TupleType>(emptyTuple), ok);
@@ -403,7 +407,7 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> VariableAssignStatement::Check(SymbolTable &table, bool &ok)
     {
         std::cout << "VariableAssignStatement" << std::endl;
-        variable->Check(table, ok);
+        auto varType(variable->Check(table, ok));
         int layer;
         bool has;
         const auto &item = table.FindSymbol(variable->name, has, layer);
@@ -413,8 +417,7 @@ namespace PascalAST
             std::cout << "$$$$$CANNOT ASSIGN TO CONST" << std::endl;
             ok = false;
         }
-        expression->Check(table, ok);
-        if (!variable->Check(table, ok)->AssignCompatible(expression->Check(table, ok)))
+        else if (!varType->AssignCompatible(expression->Check(table, ok)))
         {
             //TODO
             std::cout << "$$$$$ASSIGN NOT COMPATIBLE" << std::endl;
@@ -541,7 +544,7 @@ namespace PascalAST
     {
         std::cout << "SubProgramHead" << std::endl;
         auto lVoid = std::unique_ptr<TypeInfo>(new LValueType(GenType(VOID)));
-        table.InsertSymbol(name, lVoid->Copy(), true, "");
+        table.InsertSymbol(name, lVoid->Copy(), false, "");
         auto retType(lVoid->Copy());
         if (returnType != nullptr)
         {
@@ -555,7 +558,7 @@ namespace PascalAST
 
         TypeInfo *lValueType = new LValueType(std::move(funcType));
         std::unique_ptr<TypeInfo> ret(lValueType);
-        table.InsertSymbol(name, ret->Copy(), true, "");
+        table.InsertSymbol(name, ret->Copy(), false, "");
         std::cout << "SubProgramHead OVER " << ok << std::endl;
         return ret;
     }
@@ -583,7 +586,7 @@ namespace PascalAST
         auto funcType(head->Check(table, ok));
         body->Check(table, ok);
         table.PopMap();
-        table.InsertSymbol(head->name, std::move(funcType), true, "");
+        table.InsertSymbol(head->name, std::move(funcType), false, "");
         std::cout << "SubProgram OVER " << ok << std::endl;
         return GenType(VOID);
     }
@@ -600,7 +603,7 @@ namespace PascalAST
     {
         std::cout << "ProgramHead" << std::endl;
         auto lVoid = std::unique_ptr<TypeInfo>(new LValueType(GenType(VOID)));
-        table.InsertSymbol(name, lVoid->Copy(), true, "");
+        table.InsertSymbol(name, lVoid->Copy(), false, "");
         identifiers->Check(table, ok);
         for (auto &id : identifiers->identifiers)
         {
@@ -610,7 +613,7 @@ namespace PascalAST
                 std::cout << "$$$$$PROGRAM NAME ALREADY EXIST" << std::endl;
                 ok = false;
             }
-            table.InsertSymbol(id, lVoid->Copy(), true, "");
+            table.InsertSymbol(id, lVoid->Copy(), false, "");
         }
         std::cout << "ProgramHead OVER " << ok << std::endl;
         return GenType(VOID);

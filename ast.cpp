@@ -575,6 +575,7 @@ namespace PascalAST
                     ASTNode *procedureCallStatement = new ProcedureCallStatement(std::move(variable));
                     return std::unique_ptr<ASTNode>(procedureCallStatement);
                 }
+                variable->isAssignLeft = true;
                 ASTNode *variableAssignStatement = new VariableAssignStatement(std::move(variable), std::move(expression));
                 return std::unique_ptr<ASTNode>(variableAssignStatement);
             }
@@ -728,7 +729,7 @@ namespace PascalAST
                 ASTNode *simpleExpression = new SimpleExpression(
                     Unpack<Term>(subNodes[0]),
                     Unpack<AddOpPart>(subNodes[1]));
-                ((SimpleExpression *)simpleExpression)->Rotate();
+                // ((SimpleExpression *)simpleExpression)->Rotate();
                 return std::unique_ptr<ASTNode>(simpleExpression);
             }
         }
@@ -885,7 +886,7 @@ namespace PascalAST
             {
                 //term_88-->mulop factor term_88
                 ASTNode *mulOpPart = new MulOpPart(
-                    Unpack<OriASTNode>(subNodes[0])->content,
+                    Unpack<OriASTNode>(subNodes[0])->info,
                     Unpack<Factor>(subNodes[1]),
                     Unpack<MulOpPart>(subNodes[2]));
                 return std::unique_ptr<ASTNode>(mulOpPart);

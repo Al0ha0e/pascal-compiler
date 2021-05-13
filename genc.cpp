@@ -3,6 +3,33 @@
 namespace PascalAST
 {
 
+    inline std::string ConvCRelop(std::string s)
+    {
+        if (s == "=")
+            return "==";
+        if (s == "<>")
+            return "!=";
+        return s;
+    }
+
+    inline std::string ConvCAddop(std::string s)
+    {
+        if (s == "or")
+            return "|";
+        return s;
+    }
+
+    inline std::string ConvCMulop(std::string s)
+    {
+        if (s == "div")
+            return "/";
+        if (s == "and")
+            return "&";
+        if (s == "mod")
+            return "%";
+        return s;
+    }
+
     std::string ASTNode::GenCCode(SymbolTable &table, bool isRef)
     {
         return "";
@@ -225,7 +252,9 @@ namespace PascalAST
     std::string MulOpPart::GenCCode(SymbolTable &table, bool isRef)
     {
         std::cout << "MulOpPart" << std::endl;
-        std::string ret = secondFactor->GenCCode(table, (followPart == nullptr) & isRef) + mulOp;
+        std::string ret = std::string(" ") + ConvCMulop(mulOp) + " ";
+        ret += secondFactor->GenCCode(table, (followPart == nullptr) & isRef);
+
         if (followPart != nullptr)
             ret += followPart->GenCCode(table, false);
         return ret;
@@ -235,16 +264,17 @@ namespace PascalAST
     {
         std::cout << "Term" << std::endl;
         std::string ret;
+        ret = firstFactor->GenCCode(table, (mulOpPart == nullptr) & isRef);
         if (mulOpPart != nullptr)
-            ret = mulOpPart->GenCCode(table, false);
-        ret += firstFactor->GenCCode(table, (mulOpPart == nullptr) & isRef);
+            ret += mulOpPart->GenCCode(table, false);
         return ret;
     }
 
     std::string AddOpPart::GenCCode(SymbolTable &table, bool isRef)
     {
         std::cout << "AddOpPart" << std::endl;
-        std::string ret = secondTerm->GenCCode(table, (followPart == nullptr) & isRef) + addOp;
+        std::string ret = std::string(" ") + ConvCAddop(addOp) + " ";
+        ret += secondTerm->GenCCode(table, (followPart == nullptr) & isRef);
         if (followPart != nullptr)
             ret += followPart->GenCCode(table, false);
         return ret;
@@ -254,24 +284,16 @@ namespace PascalAST
     {
         std::cout << "SimpleExpression" << std::endl;
         std::string ret;
+        ret = firstTerm->GenCCode(table, (addOpPart == nullptr) & isRef);
         if (addOpPart != nullptr)
-            ret = addOpPart->GenCCode(table, false);
-        ret += firstTerm->GenCCode(table, (addOpPart == nullptr) & isRef);
+            ret += addOpPart->GenCCode(table, false);
         return ret;
     }
 
     std::string RelPart::GenCCode(SymbolTable &table, bool isRef)
     {
         std::cout << "RelPart" << std::endl;
-        std::string ret = relop;
-        if (ret == "=")
-        {
-            ret = "==";
-        }
-        else if (ret == "<>")
-        {
-            ret = "!=";
-        }
+        std::string ret = ConvCRelop(relop);
         return ret + secondExpression->GenCCode(table, false);
     }
 
@@ -329,7 +351,7 @@ namespace PascalAST
     std::string VariableAssignStatement::GenCCode(SymbolTable &table, bool isRef)
     {
         std::cout << "VariableAssignStatement" << std::endl;
-        return variable->GenCCode(table, false) + "=" + expression->GenCCode(table, false) + ";\n";
+        return variable->GenCCode(table, false) + " = " + expression->GenCCode(table, false) + ";\n";
     }
 
     std::string ProcedureCallStatement::GenCCode(SymbolTable &table, bool isRef)

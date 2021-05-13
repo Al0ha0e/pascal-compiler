@@ -195,9 +195,10 @@ namespace PascalAST
     {
         std::string name;
         std::unique_ptr<VarPart> varPart; //MAY NULL
+        bool isAssignLeft;
         Variable() {}
         Variable(std::string name,
-                 std::unique_ptr<VarPart> &&varPart) : name(name), varPart(std::move(varPart)) {}
+                 std::unique_ptr<VarPart> &&varPart) : name(name), varPart(std::move(varPart)), isAssignLeft(false) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();

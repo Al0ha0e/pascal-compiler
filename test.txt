@@ -2,6 +2,8 @@ program example(input, output);
     var x, y: integer;
     function gcd(a, b: integer): integer;
         begin 
+            a := a * a / b and b * a;
+            a := a + b or a - (a - b);
             if b=0 then gcd:=a
             else gcd:=gcd(b, a mod b)
         end;

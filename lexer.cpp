@@ -5,12 +5,12 @@ namespace CompilerFront
 {
 
     std::set<char> SinglePunct = {'(', ')', ',', ';', '[', ']',
-                                  '\'', '=', '+', '-', '*', '/'};
+                                  '\'', '=', '+', '-'};
 
     std::set<std::string> Keywords = {"not", "program", "const", "var", "procedure",
                                       "function", "begin", "end", "array", "of", "integer",
                                       "real", "boolean", "char", "if", "then", "else",
-                                      "for", "to", "do", "read", "write"};
+                                      "for", "to", "do", "read", "write", "or"};
     std::set<std::string> Mulop = {"div", "mod", "and"};
 
     Token Lexer::GetToken()
@@ -40,7 +40,11 @@ namespace CompilerFront
             pos++;
             return Token(std::string(1, curChar), std::string(1, curChar), line, column++);
         }
-
+        if (curChar == '*' || curChar == '/')
+        {
+            pos++;
+            return Token("mulop", std::string(1, curChar), line, column++);
+        }
         if (curChar == ':')
         {
             if (++pos >= contentLength || content[pos] != '=')

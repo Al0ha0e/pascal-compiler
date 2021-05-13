@@ -243,6 +243,12 @@ namespace PascalAST
             return argTypes->GetSubTypes();
         }
 
+        std::unique_ptr<TypeInfo> RetAsLValue()
+        {
+            TypeInfo *lval = new LValueType(retType->Copy());
+            return std::unique_ptr<TypeInfo>(lval);
+        }
+
     private:
         std::unique_ptr<TupleType> argTypes;
         std::unique_ptr<TypeInfo> retType;
