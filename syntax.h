@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include "ast.h"
+#include "ir.h"
 
 namespace PascalAST
 {
