@@ -4,8 +4,11 @@
 namespace CompilerFront
 {
 
-    std::set<char> SinglePunct = {'(', ')', ',', ';', '[', ']',
-                                  '=', '+', '-'};
+    std::set<char> ValidPunct = {
+        ' ', '\n', '(', ')', ',', ';', '[', ']', '=', '+',
+        '-', '\'', '*', '/', ':', '.', '<', '>', '{'};
+
+    std::set<char> SinglePunct = {'(', ')', ',', ';', '[', ']', '=', '+', '-'};
 
     std::set<std::string> Keywords = {"not", "program", "const", "var", "procedure",
                                       "function", "begin", "end", "array", "of", "integer",
@@ -13,27 +16,21 @@ namespace CompilerFront
                                       "for", "to", "do", "read", "write", "or"};
     std::set<std::string> Mulop = {"div", "mod", "and"};
 
+    inline bool isDigit(char c)
+    {
+        return c >= '0' && c <= '9';
+    }
+
+    inline bool isAlpha(char c)
+    {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+
     Token Lexer::GetToken()
     {
         if (pos >= contentLength)
             return Token("$", "$", line, column);
         char curChar = content[pos];
-        while (curChar == ' ' || curChar == '\n')
-        {
-            if (curChar == ' ')
-            {
-                column++;
-            }
-            else if (curChar == '\n')
-            {
-                column = 1;
-                line++;
-            }
-            if (++pos >= contentLength)
-                return Token("$", "$", line, column);
-            curChar = content[pos];
-        }
-        //TODO ABNORMAL CHARACTER
         if (charST)
         {
             pos++;
@@ -44,23 +41,56 @@ namespace CompilerFront
             }
             return Token("letter", std::string(1, curChar), line, column++);
         }
-        if (curChar == '{') //TODO DEBUG
+        while (curChar == ' ' || curChar == '\n' || curChar == '{')
         {
-            bool inComment = true;
-            while (inComment)
+            while (curChar == ' ' || curChar == '\n')
             {
-                column++;
-                if (curChar == '\n')
+                if (curChar == ' ')
+                {
+                    column++;
+                }
+                else if (curChar == '\n')
                 {
                     column = 1;
                     line++;
                 }
-                else if (curChar == '}')
-                    inComment = false;
                 if (++pos >= contentLength)
                     return Token("$", "$", line, column);
+                curChar = content[pos];
+            }
+
+            if (curChar == '{')
+            {
+                bool inComment = true;
+                while (inComment)
+                {
+                    if (curChar == '\n')
+                    {
+                        column = 1;
+                        line++;
+                    }
+                    else
+                    {
+                        column++;
+                        if (curChar == '}')
+                            inComment = false;
+                    }
+                    if (++pos >= contentLength)
+                        return Token("$", "$", line, column);
+                    curChar = content[pos];
+                }
+            }
+            while (!isDigit(curChar) && !isAlpha(curChar) && ValidPunct.find(curChar) == ValidPunct.end())
+            {
+                std::cout << "line: " << line << " column: " << column
+                          << " Lexer Error: unexpected character " << curChar << std::endl;
+                column++;
+                if (++pos >= contentLength)
+                    return Token("$", "$", line, column);
+                curChar = content[pos];
             }
         }
+        //TODO ABNORMAL CHARACTER
         if (SinglePunct.find(curChar) != SinglePunct.end())
         {
             pos++;
@@ -113,7 +143,7 @@ namespace CompilerFront
         std::string retStr;
         int digitStg = 0;
         int stColumn = column;
-        while (curChar >= '0' && curChar <= '9')
+        while (isDigit(curChar))
         {
             digitStg = 1;
             retStr += std::string(1, curChar);
@@ -124,13 +154,13 @@ namespace CompilerFront
         }
         if (digitStg)
         {
-            if (curChar == '.' && pos + 1 < contentLength && content[pos + 1] >= '0' && content[pos + 1] <= '9')
+            if (curChar == '.' && pos + 1 < contentLength && isDigit(content[pos + 1]))
             {
                 digitStg = 2;
                 retStr += ".";
                 curChar = content[++pos];
                 column++;
-                while (curChar >= '0' && curChar <= '9')
+                while (isDigit(curChar))
                 {
                     retStr += std::string(1, curChar);
                     column++;
@@ -146,14 +176,14 @@ namespace CompilerFront
         if (digitStg == 2)
             return Token("float", retStr, line, stColumn);
 
-        if ((curChar >= 'a' && curChar <= 'z') || (curChar >= 'A' && curChar <= 'Z'))
+        if (isAlpha(curChar))
         {
             retStr = std::string(1, curChar);
             column++;
             if (++pos >= contentLength)
                 return Token("id", retStr, line, stColumn);
             curChar = content[pos];
-            while ((curChar >= 'a' && curChar <= 'z') || (curChar >= 'A' && curChar <= 'Z') || (curChar >= '0' && curChar <= '9'))
+            while (isAlpha(curChar) || isDigit(curChar))
             {
                 retStr += std::string(1, curChar);
                 column++;

@@ -18,7 +18,7 @@ int main()
     PascalAST::AbstractSyntaxTree ast(parser.Parse(ok));
     if (!ok)
         return 0;
-    ast.astRoot->Show();
+    // ast.astRoot->Show();
     std::cout << "PARSE OVER" << std::endl;
     if (ast.Check())
     {
