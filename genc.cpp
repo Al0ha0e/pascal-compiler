@@ -161,6 +161,8 @@ namespace PascalAST
         if (varPart != nullptr)
         {
             ret = name + varPart->GenCCode(table, isRef);
+            if ((!varPart->isProcedureCall) && isRef)
+                ret = std::string("(&(") + ret + "))";
         }
         else
         {

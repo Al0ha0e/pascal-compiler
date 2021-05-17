@@ -44,7 +44,7 @@ namespace PascalAST
 
         void PushMap()
         {
-            std::cout << "------PUSH " << curScope->layer << " CNT " << curScope->curSubCnt << std::endl;
+            //std::cout << "------PUSH " << curScope->layer << " CNT " << curScope->curSubCnt << std::endl;
             curScope->subScope.push_back(std::make_shared<SymbolScope>(curScope, curScope->layer + 1));
         }
 
@@ -52,7 +52,7 @@ namespace PascalAST
         {
             if (curScope->curSubCnt < curScope->subScope.size())
                 curScope = curScope->subScope[curScope->curSubCnt++];
-            std::cout << "-----STEP " << curScope->layer << std::endl;
+            //std::cout << "-----STEP " << curScope->layer << std::endl;
         }
 
         void PopMap()
@@ -77,7 +77,7 @@ namespace PascalAST
             {
                 ret = scope->symbolMap.find(id);
                 layer = scope->layer;
-                std::cout << "LOOK FOR " << layer << std::endl;
+                //std::cout << "LOOK FOR " << layer << std::endl;
                 if (ret != scope->symbolMap.end())
                 {
                     has = true;
@@ -112,8 +112,8 @@ namespace PascalAST
 
         void InsertSymbol(std::string id, std::unique_ptr<TypeInfo> &&type, bool isConstant, std::string oriVal)
         {
-            std::cout << "INSERT SYMBOL " << id << " " << type->GetTypeId() << std::endl;
-            std::cout << "INSERT SYMBOL " << ((WrapperType *)type.get())->DeWrap()->GetTypeId() << std::endl;
+            //std::cout << "INSERT SYMBOL " << id << " " << type->GetTypeId() << std::endl;
+            //std::cout << "INSERT SYMBOL " << ((WrapperType *)type.get())->DeWrap()->GetTypeId() << std::endl;
             curScope->symbolMap[id] = SymbolTableItem(std::move(type), isConstant, oriVal);
         }
 

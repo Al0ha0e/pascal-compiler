@@ -14,12 +14,14 @@ namespace PascalAST
         }
         return GenType(VOID);
     }
+
     std::unique_ptr<TypeInfo> TypeInfo::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok)
     {
         ok = false;
         std::cout << "$$$$$VOIDTYPE CNNOT CALL" << std::endl;
         return GenType(VOID);
     }
+
     std::unique_ptr<TypeInfo> TypeInfo::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
     {
         ok = false;
@@ -34,10 +36,16 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
+    std::string VOIDType::ToString()
+    {
+        return "void";
+    }
+
     bool VOIDType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return false;
     }
+
     bool VOIDType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return false;
@@ -51,9 +59,13 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
+    std::string IntegerType::ToString()
+    {
+        return "integer";
+    }
+
     bool IntegerType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
-        std::cout << "HAHAHA" << std::endl;
         return AssignCompatible(std::move(anotherType));
     }
     bool IntegerType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
@@ -84,6 +96,11 @@ namespace PascalAST
         return std::unique_ptr<TypeInfo>(ret);
     }
 
+    std::string RealType::ToString()
+    {
+        return "real";
+    }
+
     bool RealType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return AssignCompatible(std::move(anotherType));
@@ -98,9 +115,7 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> RealType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
         if (anotherType->IsBasicType())
-        {
             return GenType(REAL);
-        }
         return GenType(VOID);
     }
 
@@ -111,10 +126,17 @@ namespace PascalAST
         TypeInfo *ret = new CharType();
         return std::unique_ptr<TypeInfo>(ret);
     }
+
+    std::string CharType::ToString()
+    {
+        return "char";
+    }
+
     bool CharType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return AssignCompatible(std::move(anotherType));
     }
+
     bool CharType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsBasicType())
@@ -124,10 +146,12 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> CharType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
+        if (anotherType->GetTypeId() == BOOLEAN)
+            return GenType(CHAR);
+
         if (anotherType->IsBasicType())
-        {
             return std::move(anotherType);
-        }
+
         return GenType(VOID);
     }
 
@@ -138,10 +162,17 @@ namespace PascalAST
         TypeInfo *ret = new BooleanType();
         return std::unique_ptr<TypeInfo>(ret);
     }
+
+    std::string BooleanType::ToString()
+    {
+        return "boolean";
+    }
+
     bool BooleanType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return AssignCompatible(std::move(anotherType));
     }
+
     bool BooleanType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         if (anotherType->IsBasicType())
@@ -152,9 +183,7 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> BooleanType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
     {
         if (anotherType->IsBasicType())
-        {
             return std::move(anotherType);
-        }
         return GenType(VOID);
     }
 
@@ -164,6 +193,17 @@ namespace PascalAST
     {
         TypeInfo *ret = new TupleType(subTypes);
         return std::unique_ptr<TypeInfo>(ret);
+    }
+
+    std::string TupleType::ToString()
+    {
+        std::string ret = "Tuple(";
+        for (auto &subType : subTypes)
+        {
+            ret += subType->ToString() + ",";
+        }
+        ret += ")";
+        return ret;
     }
 
     bool TupleType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
@@ -184,7 +224,7 @@ namespace PascalAST
         bool compatible = true;
         for (int i = 0; i < subTypes.size(); i++)
         {
-            std::cout << "TEST INIT " << subTypes[i]->GetTypeId() << " " << ano->subTypes[i]->GetTypeId() << std::endl;
+            //std::cout << "TEST INIT " << subTypes[i]->GetTypeId() << " " << ano->subTypes[i]->GetTypeId() << std::endl;
             compatible &= subTypes[i]->InitCompatible(std::move(ano->subTypes[i]));
         }
         return compatible;
@@ -210,10 +250,18 @@ namespace PascalAST
         TypeInfo *ret = new FuncType(UniquePtrCast<TupleType>(argTypes->Copy()), retType->Copy());
         return std::unique_ptr<TypeInfo>(ret);
     }
+
+    std::string FuncType::ToString()
+    {
+        std::string ret = argTypes->ToString() + "->" + retType->ToString();
+        return ret;
+    }
+
     bool FuncType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return false;
     }
+
     bool FuncType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         //TEMP FALSE
@@ -237,6 +285,14 @@ namespace PascalAST
     {
         TypeInfo *ret = new ArrayType(dimensions, contentType->Copy());
         return std::unique_ptr<TypeInfo>(ret);
+    }
+
+    std::string ArrayType::ToString()
+    {
+        std::string ret = contentType->ToString() + "[";
+        for (auto &dim : dimensions)
+            ret += std::to_string(dim.first) + ".." + std::to_string(dim.second) + ",";
+        return ret + "]";
     }
 
     bool ArrayType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
@@ -284,7 +340,7 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> WrapperType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
     {
-        TypeInfo *ret = new RValueType(targetType->CalcArrayType(std::move(idTypes), ok));
+        TypeInfo *ret = new LValueType(targetType->CalcArrayType(std::move(idTypes), ok));
         return std::unique_ptr<TypeInfo>(ret);
     }
 
@@ -293,6 +349,13 @@ namespace PascalAST
     {
         TypeInfo *lValueType = new LValueType(targetType->Copy());
         return std::unique_ptr<TypeInfo>(lValueType);
+    }
+
+    std::string LValueType::ToString()
+    {
+        std::string ret = "LVal(";
+        ret += targetType->ToString();
+        return ret + ")";
     }
 
     bool LValueType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
@@ -304,7 +367,7 @@ namespace PascalAST
     {
         if (anotherType->IsWrapperType())
         {
-            std::cout << "ASSIGN COMPATIBLE TEST " << targetType->GetTypeId() << std::endl;
+            // std::cout << "ASSIGN COMPATIBLE TEST " << targetType->GetTypeId() << std::endl;
             auto ano(UniquePtrCast<WrapperType>(anotherType)->DeWrap());
             return targetType->AssignCompatible(std::move(ano));
         }
@@ -317,10 +380,19 @@ namespace PascalAST
         TypeInfo *rValueType = new RValueType(targetType->Copy());
         return std::unique_ptr<TypeInfo>(rValueType);
     }
+
+    std::string RValueType::ToString()
+    {
+        std::string ret = "RVal(";
+        ret += targetType->ToString();
+        return ret + ")";
+    }
+
     bool RValueType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return false;
     }
+
     bool RValueType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
     {
         return false;
@@ -331,6 +403,13 @@ namespace PascalAST
     {
         TypeInfo *refValueType = new RefType(targetType->Copy());
         return std::unique_ptr<TypeInfo>(refValueType);
+    }
+
+    std::string RefType::ToString()
+    {
+        std::string ret = "Ref(";
+        ret += targetType->ToString();
+        return ret + ")";
     }
 
     bool RefType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)

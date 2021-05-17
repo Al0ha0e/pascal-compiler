@@ -36,7 +36,6 @@ namespace CompilerFront
                 }
                 else
                 {
-                    //TODO Error Handling
                     ok = false;
                     logErrMsg(curToken.stLine, curToken.stColumn, topSymbolId, oriSymbolId, true);
                     symbolStack.pop();
@@ -50,7 +49,6 @@ namespace CompilerFront
                 auto itemIt = items.find(oriSymbolId);
                 if (itemIt == items.end())
                 {
-                    //TODO Error Handling
                     ok = false;
                     logErrMsg(curToken.stLine, curToken.stColumn, topSymbolId, oriSymbolId, false);
                     auto &syncSet = Tools::SyncTable.find(topSymbolId)->second;

@@ -52,35 +52,35 @@ namespace PascalAST
         std::string tokenType = token.type;
         if (tokenType == "relop")
         {
-            ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
+            ASTNode *oriASTNode = new OriASTNode(token.content, token.content, token.stLine, token.stColumn);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
         if (tokenType == "digits")
         {
-            ASTNode *oriASTNode = new OriASTNode(token.content, "int");
+            ASTNode *oriASTNode = new OriASTNode(token.content, "int", token.stLine, token.stColumn);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
         if (tokenType == "float")
         {
-            ASTNode *oriASTNode = new OriASTNode(token.content, "float");
+            ASTNode *oriASTNode = new OriASTNode(token.content, "float", token.stLine, token.stColumn);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
         if (tokenType == "letter")
         {
-            ASTNode *oriASTNode = new OriASTNode(std::string(1, '\'') + token.content + "\'", "char");
+            ASTNode *oriASTNode = new OriASTNode(std::string(1, '\'') + token.content + "\'", "char", token.stLine, token.stColumn);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
         if (tokenType == "mulop")
         {
-            ASTNode *oriASTNode = new OriASTNode(token.type, token.content);
+            ASTNode *oriASTNode = new OriASTNode(token.type, token.content, token.stLine, token.stColumn);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
         if (tokenType == "id")
         {
-            ASTNode *oriASTNode = new OriASTNode(token.content, token.content);
+            ASTNode *oriASTNode = new OriASTNode(token.content, token.content, token.stLine, token.stColumn);
             return std::unique_ptr<ASTNode>(oriASTNode);
         }
-        ASTNode *oriASTNode = new OriASTNode(token.type, token.type);
+        ASTNode *oriASTNode = new OriASTNode(token.type, token.type, token.stLine, token.stColumn);
         return std::unique_ptr<ASTNode>(oriASTNode);
     }
 
@@ -182,9 +182,10 @@ namespace PascalAST
             {
                 //idlist-->id idlist_78
                 auto idlist(Unpack<Identifiers>(subNodes[1]));
-                idlist->identifiers.insert(
-                    idlist->identifiers.begin(),
-                    Unpack<OriASTNode>(subNodes[0])->content);
+                auto id = Unpack<OriASTNode>(subNodes[0]);
+                idlist->identifiers.insert(idlist->identifiers.begin(), id->content);
+                idlist->stLines.insert(idlist->stLines.begin(), id->stLine);
+                idlist->stColumns.insert(idlist->stColumns.begin(), id->stColumn);
                 return Pack(idlist);
             }
         }
@@ -200,7 +201,10 @@ namespace PascalAST
             {
                 //idlist_78-->, id idlist_78
                 auto idlist(Unpack<Identifiers>(subNodes[2]));
-                idlist->identifiers.insert(idlist->identifiers.begin(), Unpack<OriASTNode>(subNodes[1])->content);
+                auto id = Unpack<OriASTNode>(subNodes[1]);
+                idlist->identifiers.insert(idlist->identifiers.begin(), id->content);
+                idlist->stLines.insert(idlist->stLines.begin(), id->stLine);
+                idlist->stColumns.insert(idlist->stColumns.begin(), id->stColumn);
                 return Pack(idlist);
             }
         }
@@ -212,10 +216,15 @@ namespace PascalAST
                 BasicTypeDecl *bType = new BasicTypeDecl();
                 auto constValue(Unpack<OriASTNode>(subNodes[2]));
                 bType->basicType = constValue->info;
+
+                auto name = Unpack<OriASTNode>(subNodes[0]);
+
                 ConstantDeclaration *const_declaration = new ConstantDeclaration(
-                    Unpack<OriASTNode>(subNodes[0])->content,
+                    name->content,
                     std::unique_ptr<BasicTypeDecl>(bType),
-                    constValue->content);
+                    constValue->content,
+                    name->stLine,
+                    name->stColumn);
                 auto constantDeclarations(Unpack<ConstantDeclarations>(subNodes[3]));
                 constantDeclarations->constantDeclarations.insert(
                     constantDeclarations->constantDeclarations.begin(),
@@ -309,10 +318,14 @@ namespace PascalAST
                 auto constValue(Unpack<OriASTNode>(subNodes[3]));
                 BasicTypeDecl *bType = new BasicTypeDecl();
                 bType->basicType = constValue->info;
+                auto name = Unpack<OriASTNode>(subNodes[1]);
                 ConstantDeclaration *constantDeclaration = new ConstantDeclaration(
-                    Unpack<OriASTNode>(subNodes[1])->content,
+                    name->content,
                     std::unique_ptr<BasicTypeDecl>(bType),
-                    constValue->content);
+                    constValue->content,
+                    name->stLine,
+                    name->stColumn);
+
                 auto constantDeclarations(Unpack<ConstantDeclarations>(subNodes[4]));
                 constantDeclarations->constantDeclarations.insert(
                     constantDeclarations->constantDeclarations.begin(),
@@ -406,9 +419,13 @@ namespace PascalAST
             if (expressionFirst == "digits")
             {
                 //period-->digits .. digits period_82
-                Range *range = new Range();
-                range->l = std::stoi(Unpack<OriASTNode>(subNodes[0])->content);
-                range->r = std::stoi(Unpack<OriASTNode>(subNodes[2])->content);
+                auto l = Unpack<OriASTNode>(subNodes[0]);
+                Range *range = new Range(
+                    std::stoi(l->content),
+                    std::stoi(Unpack<OriASTNode>(subNodes[2])->content),
+                    l->stLine,
+                    l->stColumn);
+
                 auto periods(Unpack<Ranges>(subNodes[3]));
                 periods->ranges.insert(periods->ranges.begin(), std::unique_ptr<Range>(range));
                 return Pack(periods);
@@ -425,9 +442,12 @@ namespace PascalAST
             if (expressionFirst == ",")
             {
                 //period_82-->, digits .. digits period_82
-                Range *range = new Range();
-                range->l = std::stoi(Unpack<OriASTNode>(subNodes[1])->content);
-                range->r = std::stoi(Unpack<OriASTNode>(subNodes[3])->content);
+                auto l = Unpack<OriASTNode>(subNodes[1]);
+                Range *range = new Range(
+                    std::stoi(l->content),
+                    std::stoi(Unpack<OriASTNode>(subNodes[3])->content),
+                    l->stLine,
+                    l->stColumn);
                 auto periods(Unpack<Ranges>(subNodes[4]));
                 periods->ranges.insert(periods->ranges.begin(), std::unique_ptr<Range>(range));
                 return Pack(periods);
@@ -449,19 +469,25 @@ namespace PascalAST
             if (expressionFirst == "procedure")
             {
                 //subprogram_head-->procedure id formal_parameter
+                auto id = Unpack<OriASTNode>(subNodes[1]);
                 ASTNode *subProgramHead = new SubProgramHead(
-                    Unpack<OriASTNode>(subNodes[1])->content,
+                    id->content,
                     Unpack<ParameterList>(subNodes[2]),
-                    std::unique_ptr<BasicTypeDecl>());
+                    std::unique_ptr<BasicTypeDecl>(),
+                    id->stLine,
+                    id->stColumn);
                 return std::unique_ptr<ASTNode>(subProgramHead);
             }
             if (expressionFirst == "function")
             {
                 //subprogram_head-->function id formal_parameter : basic_type
+                auto id = Unpack<OriASTNode>(subNodes[1]);
                 ASTNode *subProgramHead = new SubProgramHead(
-                    Unpack<OriASTNode>(subNodes[1])->content,
+                    id->content,
                     Unpack<ParameterList>(subNodes[2]),
-                    Unpack<BasicTypeDecl>(subNodes[4]));
+                    Unpack<BasicTypeDecl>(subNodes[4]),
+                    id->stLine,
+                    id->stColumn);
                 return std::unique_ptr<ASTNode>(subProgramHead);
             }
         }
@@ -595,11 +621,14 @@ namespace PascalAST
             if (expressionFirst == "for")
             {
                 //statement-->for id assignop expression to expression do statement
+                auto id = Unpack<OriASTNode>(subNodes[1]);
                 ASTNode *forLoopStatement = new ForLoopStatement(
-                    Unpack<OriASTNode>(subNodes[1])->content,
+                    id->content,
                     Unpack<Expression>(subNodes[3]),
                     Unpack<Expression>(subNodes[5]),
-                    Unpack<Statement>(subNodes[7]));
+                    Unpack<Statement>(subNodes[7]),
+                    id->stLine,
+                    id->stColumn);
                 return std::unique_ptr<ASTNode>(forLoopStatement);
             }
             if (expressionFirst == "read")
@@ -638,9 +667,12 @@ namespace PascalAST
             if (expressionFirst == "id")
             {
                 //variable-->id id_varpart
+                auto id = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *variable = new Variable(
-                    Unpack<OriASTNode>(subNodes[0])->content,
-                    Unpack<VarPart>(subNodes[1]));
+                    id->content,
+                    Unpack<VarPart>(subNodes[1]),
+                    id->stLine,
+                    id->stColumn);
                 return std::unique_ptr<ASTNode>(variable);
             }
         }
