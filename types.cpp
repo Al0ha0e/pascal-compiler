@@ -90,7 +90,7 @@ namespace PascalAST
 
         if (anotherType->GetTypeId() == REAL)
         {
-            if (op == "div")
+            if (op == "div" || op == "mod")
             {
                 ok = false;
                 errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
@@ -139,7 +139,7 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> RealType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
-        if (op == "div")
+        if (op == "div" || op == "mod")
         {
             ok = false;
             errMsg = std::string("operation ") + op + " is not compatiable with type " + ToString();
@@ -190,7 +190,7 @@ namespace PascalAST
         if (op == "/" && anotherType->IsBasicType())
             return GenType(REAL);
 
-        if (op == "div" && anotherType->GetTypeId() == REAL)
+        if ((op == "div" || op == "mod") && anotherType->GetTypeId() == REAL)
         {
             ok = false;
             errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
@@ -245,7 +245,7 @@ namespace PascalAST
         if (op == "/" && anotherType->IsBasicType())
             return GenType(REAL);
 
-        if (op == "div" && anotherType->GetTypeId() == REAL)
+        if ((op == "div" || op == "mod") && anotherType->GetTypeId() == REAL)
         {
             ok = false;
             errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();

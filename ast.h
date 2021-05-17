@@ -57,12 +57,7 @@ namespace PascalAST
         // return std::unique_ptr<ASTNode>(retPtr);
     }
 
-    void logErrMsg(int line, int column, std::string msg)
-    {
-        std::ostringstream errMsg;
-        errMsg << "line: " << line << " column: " << column << " " << msg;
-        std::cout << errMsg.str() << std::endl;
-    }
+    void logErrMsg(int line, int column, std::string msg);
 
     struct OriASTNode : public ASTNode
     {

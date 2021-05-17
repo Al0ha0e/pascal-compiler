@@ -522,7 +522,7 @@ namespace PascalAST
                 logErrMsg(stLine, stColumn, "Error: Variable identifier expected");
             }
             auto &itemType = item->second.type;
-            auto &valType = initExpression->Check(table, ok);
+            auto valType = initExpression->Check(table, ok);
             std::string errMsg;
             //std::cout << "FOR LOOP " << itemType->GetTypeId() << std::endl;
             if (!itemType->AssignCompatible(valType->Copy(), errMsg))

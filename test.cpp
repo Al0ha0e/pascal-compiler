@@ -1,12 +1,11 @@
 #include "lexer.h"
 #include "parser.h"
 #include <iostream>
-using namespace CompilerFront;
 
 int main()
 {
 
-    Parser parser(
+    CompilerFront::Parser parser(
         "./test.txt",
         "./tools/reduced.txt",
         "./tools/ll1_table.txt",

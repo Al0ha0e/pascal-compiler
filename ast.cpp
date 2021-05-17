@@ -47,6 +47,13 @@ namespace PascalAST
     //     addOpPart = std::move(curAddPart);
     // }
 
+    void logErrMsg(int line, int column, std::string msg)
+    {
+        std::ostringstream errMsg;
+        errMsg << "line: " << line << " column: " << column << " " << msg;
+        std::cout << errMsg.str() << std::endl;
+    }
+
     std::unique_ptr<ASTNode> GenOriAstNode(CompilerFront::Token &token)
     {
         std::string tokenType = token.type;
