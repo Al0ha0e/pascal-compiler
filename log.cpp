@@ -235,6 +235,14 @@ namespace PascalAST
             loopStatement->Show();
     }
 
+    void WhileStatement::Show()
+    {
+        std::cout << "WhileStatement " << std::endl;
+        termiExpression->Show();
+        if (loopStatement != nullptr)
+            loopStatement->Show();
+    }
+
     void ReadStatement::Show()
     {
         std::cout << "ReadStatement" << std::endl;

@@ -412,6 +412,16 @@ namespace PascalAST
         return ret;
     }
 
+    std::string WhileStatement::GenCCode(SymbolTable &table, bool isRef)
+    {
+        std::string ret = "while(";
+        ret += termiExpression->GenCCode(table, false) + "){";
+        if (loopStatement != nullptr)
+            ret += loopStatement->GenCCode(table, false);
+        ret += "}\n";
+        return ret;
+    }
+
     std::string ReadStatement::GenCCode(SymbolTable &table, bool isRef)
     {
         std::cout << "ReadStatement" << std::endl;

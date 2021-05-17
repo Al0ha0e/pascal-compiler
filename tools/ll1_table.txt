@@ -49,6 +49,7 @@ begin statement
 end statement
 if statement
 for statement
+while statement
 read statement
 write statement
 const_value
@@ -114,6 +115,7 @@ begin compound_statement
 end EPS
 if if
 for for
+while while
 read read
 write write
 else EPS

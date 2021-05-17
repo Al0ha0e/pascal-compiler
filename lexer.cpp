@@ -13,7 +13,7 @@ namespace CompilerFront
     std::set<std::string> Keywords = {"not", "program", "const", "var", "procedure",
                                       "function", "begin", "end", "array", "of", "integer",
                                       "real", "boolean", "char", "if", "then", "else",
-                                      "for", "to", "do", "read", "write", "or"};
+                                      "for", "while", "to", "do", "read", "write", "or"};
     std::set<std::string> Mulop = {"div", "mod", "and"};
 
     inline bool isDigit(char c)
@@ -90,7 +90,6 @@ namespace CompilerFront
                 curChar = content[pos];
             }
         }
-        //TODO ABNORMAL CHARACTER
         if (SinglePunct.find(curChar) != SinglePunct.end())
         {
             pos++;

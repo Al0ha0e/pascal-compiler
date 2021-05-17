@@ -538,6 +538,15 @@ namespace PascalAST
         //std::cout << "ForLoopStatement OVER " << ok << std::endl;
         return GenType(VOID);
     }
+
+    std::unique_ptr<TypeInfo> WhileStatement::Check(SymbolTable &table, bool &ok)
+    {
+        termiExpression->Check(table, ok);
+        if (loopStatement != nullptr)
+            loopStatement->Check(table, ok);
+        return GenType(VOID);
+    }
+
     std::unique_ptr<TypeInfo> ReadStatement::Check(SymbolTable &table, bool &ok)
     {
         //std::cout << "ReadStatement" << std::endl;

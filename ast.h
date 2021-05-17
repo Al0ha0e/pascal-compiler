@@ -536,6 +536,21 @@ namespace PascalAST
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
 
+    struct WhileStatement : public Statement
+    {
+        std::unique_ptr<Expression> termiExpression;
+        std::unique_ptr<Statement> loopStatement; //MAY NULL
+
+        WhileStatement() {}
+        WhileStatement(std::unique_ptr<Expression> &&termiExpression,
+                       std::unique_ptr<Statement> &&loopStatement)
+            : termiExpression(std::move(termiExpression)),
+              loopStatement(std::move(loopStatement)) {}
+        std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
+        void Show();
+        virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
+    };
+
     struct ReadStatement : public Statement
     {
         std::unique_ptr<VariableList> variableList;

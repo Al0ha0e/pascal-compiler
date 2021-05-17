@@ -230,6 +230,9 @@ if(expressionFirst=="if"){
 if(expressionFirst=="for"){
 //statement-->for id assignop expression to expression do statement
 }
+if(expressionFirst=="while"){
+//statement-->while expression do statement
+}
 if(expressionFirst=="read"){
 //statement-->read ( variable_list )
 }

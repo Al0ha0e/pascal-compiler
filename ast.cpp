@@ -638,6 +638,14 @@ namespace PascalAST
                     id->stColumn);
                 return std::unique_ptr<ASTNode>(forLoopStatement);
             }
+            if (expressionFirst == "while")
+            {
+                //statement--> while expression do statement
+                ASTNode *whileStatement = new WhileStatement(
+                    Unpack<Expression>(subNodes[1]),
+                    Unpack<Statement>(subNodes[3]));
+                return std::unique_ptr<ASTNode>(whileStatement);
+            }
             if (expressionFirst == "read")
             {
                 //statement-->read ( variable_list )
