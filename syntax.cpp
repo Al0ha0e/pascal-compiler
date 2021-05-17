@@ -198,6 +198,9 @@ namespace PascalAST
         //std::cout << "VTYPE " << type->GetTypeId() << std::endl;
         auto targetType(((WrapperType *)type.get())->DeWrap());
         //std::cout << "TARGET TYPE " << targetType->GetTypeId() << std::endl;
+
+        std::string errMsg;
+
         if (targetType->GetTypeId() == FUNC)
         {
             if (varPart != nullptr)
@@ -209,10 +212,16 @@ namespace PascalAST
                 if (varPart->isProcedureCall)
                 {
                     //std::cout << "Variable OVER " << ok << std::endl;
-                    return type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
+                    auto ret = type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok, errMsg);
+                    if (errMsg.length())
+                        logErrMsg(stLine, stColumn, errMsg);
+                    return ret;
                 }
                 //std::cout << "Variable OVER " << ok << std::endl;
-                return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
+                auto ret = type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok, errMsg);
+                if (errMsg.length())
+                    logErrMsg(stLine, stColumn, errMsg);
+                return ret;
             }
 
             if (isAssignLeft && table.SymbolAtTop(name))
@@ -223,21 +232,29 @@ namespace PascalAST
 
             TupleType *emptyTuple = new TupleType();
             //std::cout << "Variable OVER " << ok << std::endl;
-            return type->CalcFuncType(std::unique_ptr<TupleType>(emptyTuple), ok);
+            auto ret = type->CalcFuncType(std::unique_ptr<TupleType>(emptyTuple), ok, errMsg);
+            if (errMsg.length())
+                logErrMsg(stLine, stColumn, errMsg);
+            return ret;
         }
         if (varPart != nullptr)
         {
             if (varPart->isProcedureCall)
             {
                 //std::cout << "Variable OVER " << ok << std::endl;
-                return type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
+                auto ret = type->CalcFuncType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok, errMsg);
+                if (errMsg.length())
+                    logErrMsg(stLine, stColumn, errMsg);
+                return ret;
             }
+
             if (targetType->GetTypeId() == ARRAY)
-            {
                 varPart->indexOffset = ((ArrayType *)targetType.get())->GetOffset();
-            }
             //std::cout << "Variable OVER " << ok << std::endl;
-            return type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok);
+            auto ret = type->CalcArrayType(UniquePtrCast<TupleType>(varPart->Check(table, ok)), ok, errMsg);
+            if (errMsg.length())
+                logErrMsg(stLine, stColumn, errMsg);
+            return ret;
         }
         //std::cout << "Variable OVER " << ok << std::endl;
         return type->Copy();
@@ -328,7 +345,12 @@ namespace PascalAST
             return secondFactor->Check(table, ok);
         }
         //std::cout << "MulOpPart OVER " << ok << std::endl;
-        return followPart->Check(table, ok)->CalcType(secondFactor->Check(table, ok), ok);
+        std::string errMsg;
+        auto ret = followPart->Check(table, ok)->CalcType(secondFactor->Check(table, ok), followPart->mulOp, ok, errMsg);
+        if (errMsg.length())
+            logErrMsg(followPart->stLine, followPart->stColumn, "Error: " + errMsg);
+
+        return ret;
     }
 
     std::unique_ptr<TypeInfo> Term::Check(SymbolTable &table, bool &ok)
@@ -340,7 +362,11 @@ namespace PascalAST
             return firstFactor->Check(table, ok);
         }
         //std::cout << "Term OVER " << ok << std::endl;
-        return mulOpPart->Check(table, ok)->CalcType(firstFactor->Check(table, ok), ok);
+        std::string errMsg;
+        auto ret = mulOpPart->Check(table, ok)->CalcType(firstFactor->Check(table, ok), mulOpPart->mulOp, ok, errMsg);
+        if (errMsg.length())
+            logErrMsg(mulOpPart->stLine, mulOpPart->stColumn, "Error: " + errMsg);
+        return ret;
     }
 
     std::unique_ptr<TypeInfo> AddOpPart::Check(SymbolTable &table, bool &ok)
@@ -353,7 +379,11 @@ namespace PascalAST
         }
 
         //std::cout << "AddOpPart OVER " << ok << std::endl;
-        return followPart->Check(table, ok)->CalcType(secondTerm->Check(table, ok), ok);
+        std::string errMsg;
+        auto ret = followPart->Check(table, ok)->CalcType(secondTerm->Check(table, ok), followPart->addOp, ok, errMsg);
+        if (errMsg.length())
+            logErrMsg(followPart->stLine, followPart->stColumn, "Error: " + errMsg);
+        return ret;
     }
 
     std::unique_ptr<TypeInfo> SimpleExpression::Check(SymbolTable &table, bool &ok)
@@ -365,7 +395,11 @@ namespace PascalAST
             return firstTerm->Check(table, ok);
         }
         //std::cout << "SimpleExpression OVER " << ok << std::endl;
-        return addOpPart->Check(table, ok)->CalcType(firstTerm->Check(table, ok), ok);
+        std::string errMsg;
+        auto ret = addOpPart->Check(table, ok)->CalcType(firstTerm->Check(table, ok), addOpPart->addOp, ok, errMsg);
+        if (errMsg.length())
+            logErrMsg(addOpPart->stLine, addOpPart->stColumn, "Error: " + errMsg);
+        return ret;
     }
 
     std::unique_ptr<TypeInfo> RelPart::Check(SymbolTable &table, bool &ok)
@@ -426,16 +460,17 @@ namespace PascalAST
         bool has;
         const auto &item = table.FindSymbol(variable->name, has, layer);
         auto expressionType = expression->Check(table, ok);
+        std::string errMsg;
         if (has && item->second.isConstant)
         {
             ok = false;
             logErrMsg(variable->stLine, variable->stColumn, "Error: Variable identifier expected");
         }
-        else if (!varType->AssignCompatible(expressionType->Copy()))
+        else if (!varType->AssignCompatible(expressionType->Copy(), errMsg))
         {
             ok = false;
             logErrMsg(variable->stLine, variable->stColumn,
-                      std::string("Error: type ") + expressionType->ToString() + " cannot be assigned to type " + varType->ToString());
+                      std::string("Error: ") + errMsg);
         }
         //std::cout << "VariableAssignStatement OVER " << ok << std::endl;
         return GenType(VOID);
@@ -488,12 +523,13 @@ namespace PascalAST
             }
             auto &itemType = item->second.type;
             auto &valType = initExpression->Check(table, ok);
+            std::string errMsg;
             //std::cout << "FOR LOOP " << itemType->GetTypeId() << std::endl;
-            if (!itemType->AssignCompatible(valType->Copy()))
+            if (!itemType->AssignCompatible(valType->Copy(), errMsg))
             {
                 ok = false;
                 logErrMsg(stLine, stColumn,
-                          std::string("Error: type ") + valType->ToString() + " cannot be assigned to type " + itemType->ToString());
+                          std::string("Error: ") + errMsg);
             }
         }
         termiExpression->Check(table, ok);

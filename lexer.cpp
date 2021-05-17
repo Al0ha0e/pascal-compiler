@@ -44,7 +44,7 @@ namespace CompilerFront
             }
             return Token("letter", std::string(1, curChar), line, column++);
         }
-        if (curChar == '{')
+        if (curChar == '{') //TODO DEBUG
         {
             bool inComment = true;
             while (inComment)
@@ -55,7 +55,7 @@ namespace CompilerFront
                     column = 1;
                     line++;
                 }
-                else if (curChar = '}')
+                else if (curChar == '}')
                     inComment = false;
                 if (++pos >= contentLength)
                     return Token("$", "$", line, column);

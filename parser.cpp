@@ -126,7 +126,7 @@ namespace CompilerFront
                             {
                                 expression = topSymbol.subExpressions.find(sbitem)->second[0];
                                 expression.insert(expression.begin(), sbitem);
-                                ifCnt--;
+                                ifCnt--; //TODO DEBUG
                                 break;
                             }
                         }

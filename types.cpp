@@ -3,11 +3,10 @@
 
 namespace PascalAST
 {
-    //TODO: Error Handling
-    std::unique_ptr<TypeInfo> TypeInfo::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
+    std::unique_ptr<TypeInfo> TypeInfo::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
         ok = false;
-        std::cout << "$$$$$VOIDTYPE CNNOT CALC" << std::endl;
+        errMsg = std::string("operation ") + op + " is not compatiable with type " + ToString();
         if (anotherType->IsBasicType())
         {
             return std::move(anotherType);
@@ -15,17 +14,17 @@ namespace PascalAST
         return GenType(VOID);
     }
 
-    std::unique_ptr<TypeInfo> TypeInfo::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok)
+    std::unique_ptr<TypeInfo> TypeInfo::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok, std::string &errMsg)
     {
         ok = false;
-        std::cout << "$$$$$VOIDTYPE CNNOT CALL" << std::endl;
+        errMsg = std::string("type ") + ToString() + " is not callable";
         return GenType(VOID);
     }
 
-    std::unique_ptr<TypeInfo> TypeInfo::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
+    std::unique_ptr<TypeInfo> TypeInfo::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok, std::string &errMsg)
     {
         ok = false;
-        std::cout << "$$$$$VOIDTYPE CNNOT INDEX" << std::endl;
+        errMsg = std::string("type ") + ToString() + " is not subscriptable";
         return GenType(VOID);
     }
 
@@ -41,13 +40,15 @@ namespace PascalAST
         return "void";
     }
 
-    bool VOIDType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool VOIDType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
+        errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anotherType->ToString();
         return false;
     }
 
-    bool VOIDType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool VOIDType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
         return false;
     }
 
@@ -64,27 +65,44 @@ namespace PascalAST
         return "integer";
     }
 
-    bool IntegerType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool IntegerType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        return AssignCompatible(std::move(anotherType));
+        std::string anoTypeStr = anotherType->ToString();
+        if (!AssignCompatible(std::move(anotherType), errMsg))
+        {
+            errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
+            return false;
+        }
+        return true;
     }
-    bool IntegerType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool IntegerType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
         if (anotherType->IsBasicType())
             return true;
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
         return false;
     }
 
-    std::unique_ptr<TypeInfo> IntegerType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
+    std::unique_ptr<TypeInfo> IntegerType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
+        if (op == "/" && anotherType->IsBasicType())
+            return GenType(REAL);
+
         if (anotherType->GetTypeId() == REAL)
         {
+            if (op == "div")
+            {
+                ok = false;
+                errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
+                return GenType(VOID);
+            }
             return std::move(anotherType);
         }
         if (anotherType->IsBasicType())
-        {
             return GenType(INTEGER);
-        }
+
+        ok = false;
+        errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
         return GenType(VOID);
     }
 
@@ -101,21 +119,37 @@ namespace PascalAST
         return "real";
     }
 
-    bool RealType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RealType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        return AssignCompatible(std::move(anotherType));
+        std::string anoTypeStr = anotherType->ToString();
+        if (!AssignCompatible(std::move(anotherType), errMsg))
+        {
+            errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
+            return false;
+        }
+        return true;
     }
-    bool RealType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RealType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
         if (anotherType->IsBasicType())
             return true;
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
         return false;
     }
 
-    std::unique_ptr<TypeInfo> RealType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
+    std::unique_ptr<TypeInfo> RealType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
+        if (op == "div")
+        {
+            ok = false;
+            errMsg = std::string("operation ") + op + " is not compatiable with type " + ToString();
+            return GenType(VOID);
+        }
         if (anotherType->IsBasicType())
             return GenType(REAL);
+
+        ok = false;
+        errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
         return GenType(VOID);
     }
 
@@ -132,26 +166,45 @@ namespace PascalAST
         return "char";
     }
 
-    bool CharType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool CharType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        return AssignCompatible(std::move(anotherType));
+        std::string anoTypeStr = anotherType->ToString();
+        if (!AssignCompatible(std::move(anotherType), errMsg))
+        {
+            errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
+            return false;
+        }
+        return true;
     }
 
-    bool CharType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool CharType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
         if (anotherType->IsBasicType())
             return true;
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
         return false;
     }
 
-    std::unique_ptr<TypeInfo> CharType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
+    std::unique_ptr<TypeInfo> CharType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
+        if (op == "/" && anotherType->IsBasicType())
+            return GenType(REAL);
+
+        if (op == "div" && anotherType->GetTypeId() == REAL)
+        {
+            ok = false;
+            errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
+            return GenType(VOID);
+        }
+
         if (anotherType->GetTypeId() == BOOLEAN)
             return GenType(CHAR);
 
         if (anotherType->IsBasicType())
             return std::move(anotherType);
 
+        ok = false;
+        errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
         return GenType(VOID);
     }
 
@@ -168,22 +221,41 @@ namespace PascalAST
         return "boolean";
     }
 
-    bool BooleanType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool BooleanType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        return AssignCompatible(std::move(anotherType));
+        std::string anoTypeStr = anotherType->ToString();
+        if (!AssignCompatible(std::move(anotherType), errMsg))
+        {
+            errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
+            return false;
+        }
+        return true;
     }
 
-    bool BooleanType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool BooleanType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
         if (anotherType->IsBasicType())
             return true;
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
         return false;
     }
 
-    std::unique_ptr<TypeInfo> BooleanType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
+    std::unique_ptr<TypeInfo> BooleanType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
+        if (op == "/" && anotherType->IsBasicType())
+            return GenType(REAL);
+
+        if (op == "div" && anotherType->GetTypeId() == REAL)
+        {
+            ok = false;
+            errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
+            return GenType(VOID);
+        }
         if (anotherType->IsBasicType())
             return std::move(anotherType);
+
+        ok = false;
+        errMsg = std::string("operation ") + op + " is not compatiable with type " + anotherType->ToString();
         return GenType(VOID);
     }
 
@@ -206,40 +278,59 @@ namespace PascalAST
         return ret;
     }
 
-    bool TupleType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool TupleType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
         if (anotherType->GetTypeId() != TUPLE)
         {
-            std::cout << "$$$$$ANOTHER NOT TUPLE " << anotherType->GetTypeId() << std::endl;
+            errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anotherType->ToString();
             return false;
         }
-
+        std::string anoTypeStr = anotherType->ToString();
         auto ano(UniquePtrCast<TupleType>(anotherType));
         if (ano->subTypes.size() != subTypes.size())
         {
-            std::cout << "$$$$$ARG SIZE NOT EQUAL" << subTypes.size() << " " << ano->subTypes.size() << std::endl;
+            errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
             return false;
         }
 
         bool compatible = true;
         for (int i = 0; i < subTypes.size(); i++)
         {
-            //std::cout << "TEST INIT " << subTypes[i]->GetTypeId() << " " << ano->subTypes[i]->GetTypeId() << std::endl;
-            compatible &= subTypes[i]->InitCompatible(std::move(ano->subTypes[i]));
+            if (!subTypes[i]->InitCompatible(std::move(ano->subTypes[i]), errMsg))
+            {
+                compatible = false;
+                errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
+                break;
+            }
         }
         return compatible;
     }
 
-    bool TupleType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool TupleType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
         if (anotherType->GetTypeId() != TUPLE)
+        {
+            errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
             return false;
+        }
+        std::string anoTypeStr = anotherType->ToString();
         auto ano(UniquePtrCast<TupleType>(anotherType));
         if (ano->subTypes.size() != subTypes.size())
+        {
+            errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anoTypeStr;
             return false;
+        }
+
         bool compatible = true;
         for (int i = 0; i < subTypes.size(); i++)
-            compatible &= subTypes[i]->AssignCompatible(std::move(ano->subTypes[i]));
+        {
+            if (!subTypes[i]->AssignCompatible(std::move(ano->subTypes[i]), errMsg))
+            {
+                compatible = false;
+                errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
+                break;
+            }
+        }
         return compatible;
     }
 
@@ -257,23 +348,24 @@ namespace PascalAST
         return ret;
     }
 
-    bool FuncType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool FuncType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
+        errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anotherType->ToString();
         return false;
     }
 
-    bool FuncType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool FuncType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        //TEMP FALSE
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
         return false;
     }
 
-    std::unique_ptr<TypeInfo> FuncType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok)
+    std::unique_ptr<TypeInfo> FuncType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok, std::string &errMsg)
     {
-        if (!this->argTypes->InitCompatible(std::move(argTypes)))
+        if (!this->argTypes->InitCompatible(std::move(argTypes), errMsg))
         {
-            std::cout << "$$$$$FUNCTYPE NOT COMPATIBLE" << std::endl;
             ok = false;
+            errMsg = std::string("Function args not compatible: ") + errMsg;
         }
 
         return retType->Copy();
@@ -295,52 +387,61 @@ namespace PascalAST
         return ret + "]";
     }
 
-    bool ArrayType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool ArrayType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
+        errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anotherType->ToString();
         return false;
     }
 
-    bool ArrayType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool ArrayType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        //TEMP FALSE
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
         return false;
     }
 
-    std::unique_ptr<TypeInfo> ArrayType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
+    std::unique_ptr<TypeInfo> ArrayType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok, std::string &errMsg)
     {
         auto subTypes(idTypes->GetSubTypes());
         if (subTypes.size() != dimensions.size())
         {
-            std::cout << "$$$$$ARRAY DIMENSION ERROR" << std::endl;
             ok = false;
+            errMsg = std::string("Subscript dimension mismatch, met: ") + std::to_string(subTypes.size()) + " expecting: " + std::to_string(dimensions.size());
         }
-        for (auto &type : subTypes)
+        else
         {
-            auto targetType = ((WrapperType *)type.get())->DeWrap();
-            ok &= targetType->IsBasicType() && (targetType->GetTypeId() != REAL);
+            for (auto &type : subTypes)
+            {
+                auto targetType = ((WrapperType *)type.get())->DeWrap();
+                if ((!targetType->IsBasicType()) || (targetType->GetTypeId() == REAL))
+                {
+                    ok = false;
+                    errMsg = std::string("Subscript type must be integer");
+                    break;
+                }
+            }
         }
 
         return contentType->Copy();
     }
 
     //WrapperType
-    std::unique_ptr<TypeInfo> WrapperType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok)
+    std::unique_ptr<TypeInfo> WrapperType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
         if (anotherType->IsWrapperType())
             anotherType = UniquePtrCast<WrapperType>(anotherType)->DeWrap();
-        TypeInfo *ret = new RValueType(targetType->CalcType(std::move(anotherType), ok));
+        TypeInfo *ret = new RValueType(targetType->CalcType(std::move(anotherType), op, ok, errMsg));
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    std::unique_ptr<TypeInfo> WrapperType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok)
+    std::unique_ptr<TypeInfo> WrapperType::CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok, std::string &errMsg)
     {
-        TypeInfo *ret = new RValueType(targetType->CalcFuncType(std::move(argTypes), ok));
+        TypeInfo *ret = new RValueType(targetType->CalcFuncType(std::move(argTypes), ok, errMsg));
         return std::unique_ptr<TypeInfo>(ret);
     }
 
-    std::unique_ptr<TypeInfo> WrapperType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok)
+    std::unique_ptr<TypeInfo> WrapperType::CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok, std::string &errMsg)
     {
-        TypeInfo *ret = new LValueType(targetType->CalcArrayType(std::move(idTypes), ok));
+        TypeInfo *ret = new LValueType(targetType->CalcArrayType(std::move(idTypes), ok, errMsg));
         return std::unique_ptr<TypeInfo>(ret);
     }
 
@@ -358,20 +459,32 @@ namespace PascalAST
         return ret + ")";
     }
 
-    bool LValueType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool LValueType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        return AssignCompatible(std::move(anotherType));
+        std::string anoTypeStr = anotherType->ToString();
+        bool compatible = AssignCompatible(std::move(anotherType), errMsg);
+        if (!compatible)
+            errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
+        return compatible;
     }
 
-    bool LValueType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool LValueType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
+        bool compatible;
+        std::string anoTypeStr = anotherType->ToString();
+
         if (anotherType->IsWrapperType())
         {
-            // std::cout << "ASSIGN COMPATIBLE TEST " << targetType->GetTypeId() << std::endl;
             auto ano(UniquePtrCast<WrapperType>(anotherType)->DeWrap());
-            return targetType->AssignCompatible(std::move(ano));
+            compatible = targetType->AssignCompatible(std::move(ano), errMsg);
         }
-        return targetType->AssignCompatible(std::move(anotherType));
+        else
+        {
+            compatible = targetType->AssignCompatible(std::move(anotherType), errMsg);
+        }
+        if (!compatible)
+            errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anoTypeStr;
+        return compatible;
     }
 
     //RValueType
@@ -388,13 +501,15 @@ namespace PascalAST
         return ret + ")";
     }
 
-    bool RValueType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RValueType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
+        errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anotherType->ToString();
         return false;
     }
 
-    bool RValueType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RValueType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
         return false;
     }
 
@@ -412,26 +527,42 @@ namespace PascalAST
         return ret + ")";
     }
 
-    bool RefType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RefType::InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
         TypeID tid = anotherType->GetTypeId();
-        std::cout << "REF COMP " << tid << std::endl;
+        std::string anoTypeStr = anotherType->ToString();
+        bool compatible;
+
         if (tid == REF || tid == LVALUE)
         {
             auto ano(UniquePtrCast<WrapperType>(anotherType)->DeWrap());
-            std::cout << ano->GetTypeId() << std::endl;
-            return targetType->InitCompatible(std::move(ano));
+            compatible = targetType->InitCompatible(std::move(ano), errMsg);
         }
-        return false;
+        else
+        {
+            compatible = false;
+        }
+        if (!compatible)
+            errMsg = std::string("type ") + ToString() + " cannot be initialized by type " + anoTypeStr;
+        return compatible;
     }
 
-    bool RefType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType)
+    bool RefType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
+        std::string anoTypeStr = anotherType->ToString();
+        bool compatiable;
+
         if (anotherType->IsWrapperType())
         {
             auto ano(UniquePtrCast<WrapperType>(anotherType)->DeWrap());
-            return targetType->AssignCompatible(std::move(ano));
+            compatiable = targetType->AssignCompatible(std::move(ano), errMsg);
         }
-        return targetType->AssignCompatible(std::move(anotherType));
+        else
+        {
+            compatiable = targetType->AssignCompatible(std::move(anotherType), errMsg);
+        }
+        if (!compatiable)
+            errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anoTypeStr;
+        return compatiable;
     }
 }

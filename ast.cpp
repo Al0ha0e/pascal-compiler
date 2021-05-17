@@ -5,47 +5,47 @@
 
 namespace PascalAST
 {
-    void Term::Rotate()
-    {
-        if (mulOpPart == nullptr)
-            return;
+    // void Term::Rotate()
+    // {
+    //     if (mulOpPart == nullptr)
+    //         return;
 
-        MulOpPart *mulPartP = new MulOpPart(mulOpPart->mulOp, std::move(firstFactor), std::unique_ptr<MulOpPart>());
-        std::unique_ptr<MulOpPart> curMulPart(mulPartP);
-        while (mulOpPart->followPart != nullptr)
-        {
-            mulPartP = new MulOpPart(
-                mulOpPart->followPart->mulOp,
-                std::move(mulOpPart->secondFactor),
-                std::move(curMulPart));
-            curMulPart = std::unique_ptr<MulOpPart>(mulPartP);
-            mulOpPart = std::move(mulOpPart->followPart);
-        }
-        firstFactor = std::move(mulOpPart->secondFactor);
-        mulOpPart = std::move(curMulPart);
-    }
+    //     MulOpPart *mulPartP = new MulOpPart(mulOpPart->mulOp, std::move(firstFactor), std::unique_ptr<MulOpPart>());
+    //     std::unique_ptr<MulOpPart> curMulPart(mulPartP);
+    //     while (mulOpPart->followPart != nullptr)
+    //     {
+    //         mulPartP = new MulOpPart(
+    //             mulOpPart->followPart->mulOp,
+    //             std::move(mulOpPart->secondFactor),
+    //             std::move(curMulPart));
+    //         curMulPart = std::unique_ptr<MulOpPart>(mulPartP);
+    //         mulOpPart = std::move(mulOpPart->followPart);
+    //     }
+    //     firstFactor = std::move(mulOpPart->secondFactor);
+    //     mulOpPart = std::move(curMulPart);
+    // }
 
-    void SimpleExpression::Rotate()
-    {
-        if (addOpPart == nullptr)
-            return;
-        firstTerm->Rotate();
-        AddOpPart *addPartP = new AddOpPart(addOpPart->addOp, std::move(firstTerm), std::unique_ptr<AddOpPart>());
-        std::unique_ptr<AddOpPart> curAddPart(addPartP);
-        while (addOpPart->followPart != nullptr)
-        {
-            addOpPart->secondTerm->Rotate();
-            addPartP = new AddOpPart(
-                addOpPart->followPart->addOp,
-                std::move(addOpPart->secondTerm),
-                std::move(curAddPart));
-            curAddPart = std::unique_ptr<AddOpPart>(addPartP);
-            addOpPart = std::move(addOpPart->followPart);
-        }
-        addOpPart->secondTerm->Rotate();
-        firstTerm = std::move(addOpPart->secondTerm);
-        addOpPart = std::move(curAddPart);
-    }
+    // void SimpleExpression::Rotate()
+    // {
+    //     if (addOpPart == nullptr)
+    //         return;
+    //     firstTerm->Rotate();
+    //     AddOpPart *addPartP = new AddOpPart(addOpPart->addOp, std::move(firstTerm), std::unique_ptr<AddOpPart>());
+    //     std::unique_ptr<AddOpPart> curAddPart(addPartP);
+    //     while (addOpPart->followPart != nullptr)
+    //     {
+    //         addOpPart->secondTerm->Rotate();
+    //         addPartP = new AddOpPart(
+    //             addOpPart->followPart->addOp,
+    //             std::move(addOpPart->secondTerm),
+    //             std::move(curAddPart));
+    //         curAddPart = std::unique_ptr<AddOpPart>(addPartP);
+    //         addOpPart = std::move(addOpPart->followPart);
+    //     }
+    //     addOpPart->secondTerm->Rotate();
+    //     firstTerm = std::move(addOpPart->secondTerm);
+    //     addOpPart = std::move(curAddPart);
+    // }
 
     std::unique_ptr<ASTNode> GenOriAstNode(CompilerFront::Token &token)
     {
@@ -846,28 +846,37 @@ namespace PascalAST
             if (expressionFirst == "+")
             {
                 //simple_expression_87-->+ term simple_expression_87
+                auto addOP = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *addOpPart = new AddOpPart(
-                    Unpack<OriASTNode>(subNodes[0])->content,
+                    addOP->content,
                     Unpack<Term>(subNodes[1]),
-                    Unpack<AddOpPart>(subNodes[2]));
+                    Unpack<AddOpPart>(subNodes[2]),
+                    addOP->stLine,
+                    addOP->stColumn);
                 return std::unique_ptr<ASTNode>(addOpPart);
             }
             if (expressionFirst == "-")
             {
                 //simple_expression_87-->- term simple_expression_87
+                auto addOP = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *addOpPart = new AddOpPart(
-                    Unpack<OriASTNode>(subNodes[0])->content,
+                    addOP->content,
                     Unpack<Term>(subNodes[1]),
-                    Unpack<AddOpPart>(subNodes[2]));
+                    Unpack<AddOpPart>(subNodes[2]),
+                    addOP->stLine,
+                    addOP->stColumn);
                 return std::unique_ptr<ASTNode>(addOpPart);
             }
             if (expressionFirst == "or")
             {
                 //simple_expression_87-->or term simple_expression_87
+                auto addOP = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *addOpPart = new AddOpPart(
-                    Unpack<OriASTNode>(subNodes[0])->content,
+                    addOP->content,
                     Unpack<Term>(subNodes[1]),
-                    Unpack<AddOpPart>(subNodes[2]));
+                    Unpack<AddOpPart>(subNodes[2]),
+                    addOP->stLine,
+                    addOP->stColumn);
                 return std::unique_ptr<ASTNode>(addOpPart);
             }
         }
@@ -921,10 +930,13 @@ namespace PascalAST
             if (expressionFirst == "mulop")
             {
                 //term_88-->mulop factor term_88
+                auto mulop = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *mulOpPart = new MulOpPart(
-                    Unpack<OriASTNode>(subNodes[0])->info,
+                    mulop->info,
                     Unpack<Factor>(subNodes[1]),
-                    Unpack<MulOpPart>(subNodes[2]));
+                    Unpack<MulOpPart>(subNodes[2]),
+                    mulop->stLine,
+                    mulop->stColumn);
                 return std::unique_ptr<ASTNode>(mulOpPart);
             }
         }

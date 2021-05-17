@@ -48,12 +48,12 @@ namespace PascalAST
     class TypeInfo
     {
     public:
-        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok);
-        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok);
-        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok);
+        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg);
+        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok, std::string &errMsg);
+        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok, std::string &errMsg);
         virtual std::unique_ptr<TypeInfo> Copy() = 0;
-        virtual bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType) = 0;
-        virtual bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType) = 0;
+        virtual bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg) = 0;
+        virtual bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg) = 0;
         virtual std::string ToString() = 0;
 
         TypeInfo() {}
@@ -82,8 +82,6 @@ namespace PascalAST
 
     private:
         TypeID id;
-        int stLine;
-        int stColumn;
     };
 
     class WrapperType : public TypeInfo
@@ -97,9 +95,9 @@ namespace PascalAST
                 targetType = UniquePtrCast<WrapperType>(target)->DeWrap();
         }
 
-        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok) override;
-        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok) override;
-        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok) override;
+        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg) override;
+        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok, std::string &errMsg) override;
+        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok, std::string &errMsg) override;
 
         std::unique_ptr<TypeInfo> DeWrap()
         {
@@ -121,8 +119,8 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
     };
 
     class RValueType : public WrapperType
@@ -133,8 +131,8 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
     };
 
     class RefType : public WrapperType
@@ -145,59 +143,59 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
     };
 
     class VOIDType : public TypeInfo
     {
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
     };
 
     class BooleanType : public TypeInfo
     {
-        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok) override;
+        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg) override;
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
         BooleanType() : TypeInfo(BOOLEAN) {}
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
     };
 
     class IntegerType : public TypeInfo
     {
     public:
-        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok) override;
+        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg) override;
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
         IntegerType() : TypeInfo(INTEGER) {}
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
     };
 
     class RealType : public TypeInfo
     {
     public:
-        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok) override;
+        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg) override;
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
         RealType() : TypeInfo(REAL) {}
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
     };
 
     class CharType : public TypeInfo
     {
     public:
-        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, bool &ok) override;
+        virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg) override;
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
         CharType() : TypeInfo(CHAR) {}
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
     };
 
     class TupleType : public TypeInfo
@@ -221,8 +219,8 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
 
         std::vector<std::unique_ptr<TypeInfo>> GetSubTypes()
         {
@@ -239,7 +237,7 @@ namespace PascalAST
     class FuncType : public TypeInfo
     {
     public:
-        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok) override;
+        virtual std::unique_ptr<TypeInfo> CalcFuncType(std::unique_ptr<TupleType> &&argTypes, bool &ok, std::string &errMsg) override;
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
         FuncType() : TypeInfo(FUNC) {}
@@ -247,8 +245,8 @@ namespace PascalAST
         FuncType(std::unique_ptr<TupleType> &&argTypes, std::unique_ptr<TypeInfo> &&retType)
             : argTypes(std::move(argTypes)), retType(std::move(retType)), TypeInfo(FUNC) {}
 
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
 
         std::vector<std::unique_ptr<TypeInfo>> GetArgTypes()
         {
@@ -269,15 +267,15 @@ namespace PascalAST
     class ArrayType : public TypeInfo
     {
     public:
-        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok) override;
+        virtual std::unique_ptr<TypeInfo> CalcArrayType(std::unique_ptr<TupleType> &&idTypes, bool &ok, std::string &errMsg) override;
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
         ArrayType() : TypeInfo(ARRAY) {}
         ArrayType(std::vector<std::pair<int, int>> &dimensions, std::unique_ptr<TypeInfo> &&contentType)
             : dimensions(dimensions), contentType(std::move(contentType)), TypeInfo(ARRAY) {}
 
-        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType);
-        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType);
+        bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
+        bool AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
         std::vector<int> GetOffset()
         {
             std::vector<int> ret;

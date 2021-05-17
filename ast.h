@@ -319,10 +319,15 @@ namespace PascalAST
         std::string mulOp;
         std::unique_ptr<Factor> secondFactor;
         std::unique_ptr<MulOpPart> followPart; //MAY NULL
+        int stLine;
+        int stColumn;
+
         MulOpPart() {}
         MulOpPart(std::string mulOp,
                   std::unique_ptr<Factor> &&secondFactor,
-                  std::unique_ptr<MulOpPart> &&followPart) : mulOp(mulOp), secondFactor(std::move(secondFactor)), followPart(std::move(followPart)) {}
+                  std::unique_ptr<MulOpPart> &&followPart,
+                  int stLine,
+                  int stColumn) : mulOp(mulOp), secondFactor(std::move(secondFactor)), followPart(std::move(followPart)), stLine(stLine), stColumn(stColumn) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
@@ -353,11 +358,15 @@ namespace PascalAST
         std::string addOp;
         std::unique_ptr<Term> secondTerm;
         std::unique_ptr<AddOpPart> followPart; //MAY NULL
+        int stLine;
+        int stColumn;
 
         AddOpPart() {}
         AddOpPart(std::string addOp,
                   std::unique_ptr<Term> &&secondTerm,
-                  std::unique_ptr<AddOpPart> &&followPart) : addOp(addOp), secondTerm(std::move(secondTerm)), followPart(std::move(followPart)) {}
+                  std::unique_ptr<AddOpPart> &&followPart,
+                  int stLine,
+                  int stColumn) : addOp(addOp), secondTerm(std::move(secondTerm)), followPart(std::move(followPart)), stLine(stLine), stColumn(stColumn) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
@@ -372,7 +381,8 @@ namespace PascalAST
 
         SimpleExpression() {}
         SimpleExpression(std::unique_ptr<Term> &&firstTerm,
-                         std::unique_ptr<AddOpPart> &&addOpPart) : firstTerm(std::move(firstTerm)), addOpPart(std::move(addOpPart)) {}
+                         std::unique_ptr<AddOpPart> &&addOpPart)
+            : firstTerm(std::move(firstTerm)), addOpPart(std::move(addOpPart)) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Rotate();
