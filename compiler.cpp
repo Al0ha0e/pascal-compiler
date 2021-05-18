@@ -60,7 +60,9 @@ int main(int argc, char *argv[])
     {
         // output AST to file
         std::ofstream fout(args.get<std::string>("input") + ".tree.txt");
-        fout << "TODO...";
+        std::streambuf *oldcout = std::cout.rdbuf(fout.rdbuf());
+        ast.astRoot->FormatShow(0);
+        std::cout.rdbuf(oldcout);
         fout.close();
     }
     std::cout << "-----------PARSE EN-----------" << std::endl;

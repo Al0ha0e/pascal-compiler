@@ -14,6 +14,7 @@ namespace PascalAST
     {
         virtual std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok) = 0;
         virtual void Show() = 0;
+        virtual void FormatShow(int level) = 0;
         // virtual std::string ToString() = 0;
         virtual std::string GenCCode(SymbolTable &table, bool isRef);
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable);
@@ -71,6 +72,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
     };
 
     struct Identifiers : public ASTNode
@@ -81,6 +83,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -95,6 +98,7 @@ namespace PascalAST
         Range() {}
         Range(int l, int r, int stLine, int stColumn) : l(l), r(r), stLine(stLine), stColumn(stColumn) {}
         void Show();
+        void FormatShow(int level);
     };
 
     struct Ranges : public ASTNode
@@ -103,6 +107,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
 
         void Show();
+        void FormatShow(int level);
     };
 
     struct TypeDecl : ASTNode
@@ -110,6 +115,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
 
         void Show();
+        void FormatShow(int level);
     };
 
     struct BasicTypeDecl : public TypeDecl
@@ -118,6 +124,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
 
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -131,6 +138,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
 
         void Show();
+        void FormatShow(int level);
     };
 
     struct ConstantDeclaration : public ASTNode
@@ -150,6 +158,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -159,6 +168,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -172,6 +182,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -181,6 +192,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -196,6 +208,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -205,6 +218,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -225,6 +239,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -235,6 +250,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -244,6 +260,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
 
         void Show();
+        void FormatShow(int level);
     };
 
     struct Expression;
@@ -256,6 +273,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -267,6 +285,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -279,6 +298,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -291,6 +311,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -303,6 +324,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -326,6 +348,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -342,6 +365,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Rotate();
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -365,6 +389,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -382,6 +407,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Rotate();
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -397,6 +423,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -412,6 +439,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -422,6 +450,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -439,6 +468,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -449,6 +479,7 @@ namespace PascalAST
     {
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
     };
 
     struct VariableAssignStatement : public Statement
@@ -462,6 +493,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -474,6 +506,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -487,6 +520,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -505,6 +539,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -532,6 +567,7 @@ namespace PascalAST
                                          stColumn(stColumn) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -548,6 +584,7 @@ namespace PascalAST
               loopStatement(std::move(loopStatement)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
     };
 
@@ -559,6 +596,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -573,6 +611,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -583,6 +622,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -596,6 +636,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -618,6 +659,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -637,6 +679,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -652,6 +695,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -662,6 +706,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
 
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -675,6 +720,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
     };
 
     struct ProgramBody : ASTNode
@@ -694,6 +740,7 @@ namespace PascalAST
                                                                               compoundStatemnet(std::move(compoundStatemnet)) {}
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
@@ -707,6 +754,7 @@ namespace PascalAST
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
+        void FormatShow(int level);
         virtual std::string GenCCode(SymbolTable &table, bool isRef) override;
         // virtual std::shared_ptr<PascalBack::Register> GenIR(SymbolTable &table, PascalBack::IRTable &irTable) override;
     };
