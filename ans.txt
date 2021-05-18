@@ -1,0 +1,76 @@
+#include<stdio.h>
+int a[10];
+int k,m;
+int partition(int low,int high)
+{
+    int partition_ret;
+    int i,j,temp;
+    i = low - 1;
+    j = low;
+    while(j<high)
+    {
+        {
+            if(a[(j) - (1)]<=a[(high) - (1)])
+            {
+                {
+                    i = i + 1;
+                    temp = a[(i) - (1)];
+                    a[(i) - (1)] = a[(j) - (1)];
+                    a[(j) - (1)] = temp;
+                }
+            }
+            else
+            {
+                j = j + 0;
+            }
+            j = j + 1;
+        }
+    }
+    i = i + 1;
+    temp = a[(i) - (1)];
+    a[(i) - (1)] = a[(high) - (1)];
+    a[(high) - (1)] = temp;
+    partition_ret = i;
+    return partition_ret;
+}
+void qs(int low,int high)
+{
+    int pivot;
+    pivot = 0;
+    if(low<=high)
+    {
+        {
+            pivot = partition(low,high);
+            qs(low,pivot - 1);
+            qs(pivot + 1,high);
+        }
+    }
+    else
+    {
+        pivot = pivot + 0;
+    }
+}
+int main()
+{
+    a[(1) - (1)] = 4;
+    a[(2) - (1)] = 9;
+    a[(3) - (1)] = 10;
+    a[(4) - (1)] = 11;
+    a[(5) - (1)] = 16;
+    a[(6) - (1)] = 41;
+    a[(7) - (1)] = 13;
+    a[(8) - (1)] = 13;
+    a[(9) - (1)] = 21;
+    a[(10) - (1)] = 1;
+    qs(1,10);
+    k = 1;
+    while(k<=10)
+    {
+        {
+            m = a[(k) - (1)];
+            printf("%d",m);
+            k = k + 1;
+        }
+    }
+    return 0;
+}

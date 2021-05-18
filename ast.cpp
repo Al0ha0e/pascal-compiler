@@ -794,17 +794,23 @@ namespace PascalAST
             if (expressionFirst == "=")
             {
                 //expression_91-->= simple_expression
+                auto relop = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *relPart = new RelPart(
-                    Unpack<OriASTNode>(subNodes[0])->content,
-                    Unpack<SimpleExpression>(subNodes[1]));
+                    relop->content,
+                    Unpack<SimpleExpression>(subNodes[1]),
+                    relop->stLine,
+                    relop->stColumn);
                 return std::unique_ptr<ASTNode>(relPart);
             }
             if (expressionFirst == "relop")
             {
                 //expression_91-->relop simple_expression
+                auto relop = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *relPart = new RelPart(
-                    Unpack<OriASTNode>(subNodes[0])->content,
-                    Unpack<SimpleExpression>(subNodes[1]));
+                    relop->content,
+                    Unpack<SimpleExpression>(subNodes[1]),
+                    relop->stLine,
+                    relop->stColumn);
                 return std::unique_ptr<ASTNode>(relPart);
             }
         }
@@ -918,8 +924,9 @@ namespace PascalAST
             if (expressionFirst == "-")
             {
                 //factor-->- factor
+                auto invSymbol = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *invFactor = new InvFactor(
-                    Unpack<Factor>(subNodes[1]));
+                    Unpack<Factor>(subNodes[1]), invSymbol->stLine, invSymbol->stColumn);
                 return std::unique_ptr<ASTNode>(invFactor);
             }
             if (expressionFirst == "(")
@@ -939,8 +946,9 @@ namespace PascalAST
             if (expressionFirst == "not")
             {
                 //factor-->not factor
+                auto notSymbol = Unpack<OriASTNode>(subNodes[0]);
                 ASTNode *notFactor = new NotFactor(
-                    Unpack<Factor>(subNodes[1]));
+                    Unpack<Factor>(subNodes[1]), notSymbol->stLine, notSymbol->stColumn);
                 return std::unique_ptr<ASTNode>(notFactor);
             }
         }

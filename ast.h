@@ -293,8 +293,11 @@ namespace PascalAST
     struct InvFactor : public Factor
     {
         std::unique_ptr<Factor> subFactor;
+        int stLine;
+        int stColumn;
         InvFactor() {}
-        InvFactor(std::unique_ptr<Factor> &&subFactor) : subFactor(std::move(subFactor)) {}
+        InvFactor(std::unique_ptr<Factor> &&subFactor, int stLine, int stColumn)
+            : subFactor(std::move(subFactor)), stLine(stLine), stColumn(stColumn) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
@@ -319,8 +322,11 @@ namespace PascalAST
     struct NotFactor : public Factor
     {
         std::unique_ptr<Factor> subFactor;
+        int stLine;
+        int stColumn;
         NotFactor() {}
-        NotFactor(std::unique_ptr<Factor> &&subFactor) : subFactor(std::move(subFactor)) {}
+        NotFactor(std::unique_ptr<Factor> &&subFactor, int stLine, int stColumn)
+            : subFactor(std::move(subFactor)), stLine(stLine), stColumn(stColumn) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();
@@ -416,10 +422,15 @@ namespace PascalAST
     {
         std::string relop;
         std::unique_ptr<SimpleExpression> secondExpression;
+        int stLine;
+        int stColumn;
 
         RelPart() {}
         RelPart(std::string relop,
-                std::unique_ptr<SimpleExpression> &&secondExpression) : relop(relop), secondExpression(std::move(secondExpression)) {}
+                std::unique_ptr<SimpleExpression> &&secondExpression,
+                int stLine,
+                int stColumn)
+            : relop(relop), secondExpression(std::move(secondExpression)), stLine(stLine), stColumn(stColumn) {}
 
         std::unique_ptr<TypeInfo> Check(SymbolTable &table, bool &ok);
         void Show();

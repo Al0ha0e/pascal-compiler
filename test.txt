@@ -4,7 +4,7 @@ program example(input, output);
         begin 
             q[a,b] := gcd(a,b);
             w[b,a] := y + 123;
-            if b=0 then gcd:=a
+            if q<w then gcd:=a
             else gcd:=gcd(b, a)
         end;
     begin

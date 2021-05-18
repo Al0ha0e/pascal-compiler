@@ -149,6 +149,7 @@ namespace PascalAST
 
     class VOIDType : public TypeInfo
     {
+    public:
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
         bool InitCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg);
@@ -157,6 +158,7 @@ namespace PascalAST
 
     class BooleanType : public TypeInfo
     {
+    public:
         virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg) override;
         std::unique_ptr<TypeInfo> Copy();
         std::string ToString();
@@ -303,6 +305,10 @@ namespace PascalAST
         else if (id == CHAR)
         {
             ret = new CharType();
+        }
+        else if (id == BOOLEAN)
+        {
+            ret = new BooleanType();
         }
         return std::unique_ptr<TypeInfo>(ret);
     }

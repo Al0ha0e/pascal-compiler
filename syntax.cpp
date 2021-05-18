@@ -314,10 +314,14 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> InvFactor::Check(SymbolTable &table, bool &ok)
     {
         //std::cout << "InvFactor" << std::endl;
-        //TODO type check
-        TypeInfo *ret = new RValueType(subFactor->Check(table, ok));
+        TypeInfo *fac = new RValueType(subFactor->Check(table, ok));
+        std::string errMsg;
+        auto ret = fac->CalcType(GenType(INTEGER), "-", ok, errMsg);
+        if (errMsg.length())
+            logErrMsg(stLine, stColumn, errMsg);
+        return ret;
         //std::cout << "InvFactor OVER " << ok << std::endl;
-        return std::unique_ptr<TypeInfo>(ret);
+        //return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> VariableFactor::Check(SymbolTable &table, bool &ok)
@@ -330,10 +334,13 @@ namespace PascalAST
     std::unique_ptr<TypeInfo> NotFactor::Check(SymbolTable &table, bool &ok)
     {
         //std::cout << "NotFactor" << std::endl;
-        //TODO type check
-        TypeInfo *ret = new RValueType(subFactor->Check(table, ok));
+        TypeInfo *fac = new RValueType(subFactor->Check(table, ok));
+        std::string errMsg;
+        auto ret = fac->CalcType(GenType(INTEGER), "not", ok, errMsg);
+        if (errMsg.length())
+            logErrMsg(stLine, stColumn, errMsg);
+        return ret;
         //std::cout << "NotFactor OVER " << ok << std::endl;
-        return std::unique_ptr<TypeInfo>(ret);
     }
 
     std::unique_ptr<TypeInfo> MulOpPart::Check(SymbolTable &table, bool &ok)
@@ -417,12 +424,12 @@ namespace PascalAST
             //std::cout << "Expression OVER " << ok << std::endl;
             return firstExpression->Check(table, ok);
         }
-        firstExpression->Check(table, ok);
-        relPart->Check(table, ok);
-        //TODO
-        TypeInfo *ret = new RValueType(GenType(BOOLEAN));
+        std::string errMsg;
+        auto ret = firstExpression->Check(table, ok)->CalcType(relPart->Check(table, ok), relPart->relop, ok, errMsg);
+        if (errMsg.length())
+            logErrMsg(relPart->stLine, relPart->stColumn, "Error: " + errMsg);
         //std::cout << "Expression OVER " << ok << std::endl;
-        return std::unique_ptr<TypeInfo>(ret);
+        return ret;
     }
 
     std::unique_ptr<TypeInfo> ExpressionList::Check(SymbolTable &table, bool &ok)

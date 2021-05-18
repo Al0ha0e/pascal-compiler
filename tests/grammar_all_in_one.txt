@@ -1,0 +1,43 @@
+program allinone(input, output);
+const cona = 1; conb = -1; conc = +1; cond = 'a';
+var a, aa, aaa, y, i : integer; b : real; c : boolean; d : char;
+arrayint2D, q, w : array[1..22, 12..23] of integer;
+arrayint : array[1..22] of integer; arrayreal : array[2..3] of real; arrayboolean : array[3..5] of boolean; arraychar : array[4..100] of char;
+procedure testvoid(var a,b:integer;c,d:integer);{测试procedure}
+  const constinvoid = 1;
+  var varinvoid : integer;
+  begin
+    varinvoid := 1;
+  end;
+function gcd(var a, b: integer): integer;{测试function}
+  begin 
+    q[a,b+a] := gcd(a,b);
+    w[b,a] := y + 123;
+    if b=0 then gcd:=a
+    else gcd:=gcd(b, a)
+  end;
+begin
+  read(a, aa, aaa, b);
+  testvoid(a,a,a,a);
+  for i:=1 to 10 do
+  begin
+    while a > 0 do
+    begin
+      if a > 5 then
+      begin
+        b := 22.22;
+        if a > 7 then c := 1 else c := 0
+      end
+      else
+      begin
+        b := 33.33;
+        if a > 3 then c := 1 else c := 0
+      end;
+      a := a - 1
+    end
+  end;
+  write(a, b);
+  c := a < (aa + aaa * cona / b);
+  aaa := aa div a;
+  if not aa then a := aaa mod aa else a := aaa
+end.

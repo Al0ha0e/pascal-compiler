@@ -3,14 +3,24 @@
 
 namespace PascalAST
 {
+
+    inline bool isRelop(std::string op)
+    {
+        if (op == "=" || op == "<" || op == "<=" || op == ">" || op == ">=" || op == "<>")
+            return false;
+        return true;
+    }
+
     std::unique_ptr<TypeInfo> TypeInfo::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
         ok = false;
         errMsg = std::string("operation ") + op + " is not compatiable with type " + ToString();
+        if (isRelop(op))
+            return GenType(BOOLEAN);
+
         if (anotherType->IsBasicType())
-        {
             return std::move(anotherType);
-        }
+
         return GenType(VOID);
     }
 
@@ -88,6 +98,9 @@ namespace PascalAST
         if (op == "/" && anotherType->IsBasicType())
             return GenType(REAL);
 
+        if (isRelop(op) && anotherType->IsBasicType())
+            return GenType(BOOLEAN);
+
         if (anotherType->GetTypeId() == REAL)
         {
             if (op == "div" || op == "mod")
@@ -139,6 +152,9 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> RealType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
+        if (isRelop(op) && anotherType->IsBasicType())
+            return GenType(BOOLEAN);
+
         if (op == "div" || op == "mod")
         {
             ok = false;
@@ -187,6 +203,9 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> CharType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
+        if (isRelop(op) && anotherType->IsBasicType())
+            return GenType(BOOLEAN);
+
         if (op == "/" && anotherType->IsBasicType())
             return GenType(REAL);
 
@@ -242,6 +261,9 @@ namespace PascalAST
 
     std::unique_ptr<TypeInfo> BooleanType::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
     {
+        if (isRelop(op) && anotherType->IsBasicType())
+            return GenType(BOOLEAN);
+
         if (op == "/" && anotherType->IsBasicType())
             return GenType(REAL);
 
