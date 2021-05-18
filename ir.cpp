@@ -15,22 +15,20 @@ namespace PascalBack
     std::shared_ptr<Register> IRTable::InsertCallInstr(
         std::string funcName,
         std::vector<std::shared_ptr<Register>> &&args,
-        std::vector<std::string> &&refNames,
-        std::string retType)
+        std::vector<std::string> &&refNames)
     {
         std::vector<std::shared_ptr<Register>> refRegs;
         for (auto name : refNames)
         {
-            auto refReg = std::make_shared<Register>(); //TODO: TYPE
+            auto type = curBlock->GetNamedRegister(name)->type;
+            auto refReg = std::make_shared<Register>(type, false);
             curBlock->InsertNamedReg(name, refReg);
             refRegs.push_back(refReg);
         }
+        auto func = curProgram->GetFunction(funcName);
+        std::shared_ptr<Register> ret = func->GenRetReg();
 
-        std::shared_ptr<Register> ret;
-        if (retType != "void")
-            ret = std::make_shared<Register>(GenRegTypeByStr(retType), false);
-
-        auto instr = new CallInstruction(std::move(args), std::move(refRegs), ret, curProgram->GetFunction(funcName));
+        auto instr = new CallInstruction(std::move(args), std::move(refRegs), ret, func);
         curBlock->pushInstr(std::shared_ptr<TriInstruction>((TriInstruction *)instr));
     }
 

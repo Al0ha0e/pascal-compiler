@@ -19,11 +19,25 @@ namespace PascalAST
         auto targetType(((WrapperType *)type.get())->DeWrap());
         if (varPart != nullptr)
         {
+            if (varPart->isProcedureCall)
+            {
+            }
+            else
+            {
+                //TODO
+                if (isAssignLeft)
+                {
+                                }
+                else
+                {
+                }
+            }
         }
         else
         {
             if (targetType->GetTypeId() == FUNC)
             {
+                return irTable.InsertCallInstr(name, std::vector<std::shared_ptr<PascalBack::Register>>(), std::vector<std::string>());
             }
             else
             {

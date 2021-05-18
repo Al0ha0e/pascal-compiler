@@ -81,6 +81,11 @@ namespace PascalBack
             instrs.push_back(instr);
         }
 
+        bool HasNamedRegister(std::string name)
+        {
+            return localVarInfo.find(name) != localVarInfo.end();
+        }
+
         std::shared_ptr<Register> GetNamedRegister(std::string name)
         {
             auto varInfo = localVarInfo.find(name);
@@ -103,10 +108,19 @@ namespace PascalBack
 
     struct Function
     {
+        std::string name;
         std::map<std::string, std::shared_ptr<MemoryBlock>> namedMemory;
         std::set<std::pair<int, std::string>> prevBlocks;
         std::map<int, std::shared_ptr<BasicBlock>> blockMap;
         std::list<std::shared_ptr<BasicBlock>> basicBlocks;
+
+        std::shared_ptr<Register> GenRetReg()
+        {
+            if (!(*basicBlocks.begin())->HasNamedRegister(name + "_ret"))
+                return std::shared_ptr<Register>();
+            auto retReg = (*basicBlocks.begin())->GetNamedRegister(name + "_ret");
+            return std::make_shared<Register>(retReg->type, false);
+        }
     };
 
     struct Program
@@ -150,8 +164,6 @@ namespace PascalBack
             : refRegisters(refRegisters), ret(ret)
         {
             ret->from = std::shared_ptr<TriInstruction>((TriInstruction *)this);
-            for (auto &reg : refRegisters)
-                reg->from = ret->from;
         }
     };
 
@@ -186,6 +198,8 @@ namespace PascalBack
             : argRegs(argRegs), refNamedRegs(refNamedRegs), ret(ret), targetFunc(targetFunc)
         {
             ret->from = std::shared_ptr<TriInstruction>((TriInstruction *)this);
+            for (auto &refReg : refNamedRegs)
+                refReg->from = ret->from;
         }
     };
 
@@ -200,8 +214,7 @@ namespace PascalBack
         std::shared_ptr<Register> InsertCallInstr(
             std::string funcName,
             std::vector<std::shared_ptr<Register>> &&args,
-            std::vector<std::string> &&refNames,
-            std::string retType);
+            std::vector<std::string> &&refNames);
 
         std::shared_ptr<Register> GetNamedRegister(std::string name);
     };
