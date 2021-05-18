@@ -1,6 +1,8 @@
 #include "lexer.h"
 #include "parser.h"
+#include "libs/cmdline.h"
 #include <iostream>
+#include <fstream>
 
 std::string Fomatting(std::string code)
 {
@@ -34,13 +36,15 @@ std::string Fomatting(std::string code)
 
 int main(int argc, char *argv[])
 {
-
-    if (argc <= 1)
-        return 0;
-    std::string code(argv[1]);
+    // Create a command line parser
+    cmdline::parser args;
+    args.add<std::string>("input", 'i', "path of Pascal source code", true);
+    args.add<std::string>("output", 'o', "path of saving C object code", false, "out.c");
+    args.add("tree", 't', "outputting AST to file");
+    args.parse_check(argc, argv);
 
     CompilerFront::Parser parser(
-        code,
+        args.get<std::string>("input"),
         "./tools/reduced.txt",
         "./tools/ll1_table.txt",
         "./tools/sync.txt",
@@ -52,10 +56,20 @@ int main(int argc, char *argv[])
     if (!ok)
         return 0;
     // ast.astRoot->Show();
+    if (args.exist("tree"))
+    {
+        // output AST to file
+        std::ofstream fout(args.get<std::string>("input") + ".tree.txt");
+        fout << "TODO...";
+        fout.close();
+    }
     std::cout << "-----------PARSE EN-----------" << std::endl;
     if (ast.Check())
     {
-        std::cout << Fomatting(ast.GenCCode());
+        // output C code to file
+        std::ofstream fout(args.get<std::string>("output"));
+        fout << Fomatting(ast.GenCCode());
+        fout.close();
     }
 
     return 0;

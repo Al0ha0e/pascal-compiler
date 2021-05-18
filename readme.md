@@ -1,3 +1,14 @@
+# pascal-compiler
+## Build
+```
+g++ compiler.cpp parser.cpp lexer.cpp ./tools/left_recur.cpp ./tools/ll1_construct.cpp ast.cpp syntax.cpp genc.cpp types.cpp log.cpp -o compiler.exe
+```
+
+## Usage
+```
+./compiler -i <INPUT_FILE> -o <OUTPUT_FILE> [-t]
+```
+
 ref: [https://www.freepascal.org/docs-html/ref/ref.html#refch13.html](https://www.freepascal.org/docs-html/ref/ref.html#refch13.html)
 ##### Token类型
 - id

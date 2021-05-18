@@ -4,3 +4,6 @@
 *.o
 test2.cpp
 *.pas
+make.sh
+*.tree.txt
+*.c
