@@ -2,6 +2,36 @@
 #include "parser.h"
 #include <iostream>
 
+std::string Fomatting(std::string code)
+{
+    std::string ret;
+    int lBracketCnt = 0;
+    std::string line = "";
+    std::istringstream codeStream(code);
+    while (std::getline(codeStream, line))
+    {
+        int newLBracketCnt = lBracketCnt;
+        for (char c : line)
+        {
+            if (c == '{')
+            {
+                newLBracketCnt++;
+            }
+            else if (c == '}')
+            {
+                newLBracketCnt--;
+            }
+        }
+        ret += newLBracketCnt > lBracketCnt
+                   ? std::string(lBracketCnt * 4, ' ')
+                   : std::string(newLBracketCnt * 4, ' ');
+        ret += line + "\n";
+
+        lBracketCnt = newLBracketCnt;
+    }
+    return ret;
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -25,7 +55,7 @@ int main(int argc, char *argv[])
     std::cout << "-----------PARSE EN-----------" << std::endl;
     if (ast.Check())
     {
-        std::cout << ast.GenCCode();
+        std::cout << Fomatting(ast.GenCCode());
     }
 
     return 0;

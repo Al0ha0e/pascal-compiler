@@ -2,7 +2,6 @@
 
 namespace PascalAST
 {
-    //TODO indentation
 
     inline std::string ConvCRelop(std::string s)
     {
@@ -381,13 +380,13 @@ namespace PascalAST
     {
         //std::cout << "IfElseStatement" << std::endl;
         std::string ret = "if(";
-        ret += ifExpression->GenCCode(table, false) + "){\n";
+        ret += ifExpression->GenCCode(table, false) + ")\n{\n";
         if (thenStatement != nullptr)
             ret += thenStatement->GenCCode(table, false);
         ret += "}\n";
         if (elseStatement != nullptr)
         {
-            ret += "else{\n";
+            ret += "else\n{\n";
             ret += elseStatement->GenCCode(table, false) + "}\n";
         }
         return ret;
@@ -405,7 +404,7 @@ namespace PascalAST
                                      : counter;
         ret += counterStr + "=" + initExpression->GenCCode(table, false) + ";";
         ret += counterStr + "<=" + termiExpression->GenCCode(table, false) + ";";
-        ret += counterStr + "++){\n";
+        ret += counterStr + "++)\n{\n";
         if (loopStatement != nullptr)
             ret += loopStatement->GenCCode(table, false);
         ret += "}\n";
@@ -415,7 +414,7 @@ namespace PascalAST
     std::string WhileStatement::GenCCode(SymbolTable &table, bool isRef)
     {
         std::string ret = "while(";
-        ret += termiExpression->GenCCode(table, false) + "){";
+        ret += termiExpression->GenCCode(table, false) + ")\n{\n";
         if (loopStatement != nullptr)
             ret += loopStatement->GenCCode(table, false);
         ret += "}\n";
@@ -515,7 +514,7 @@ namespace PascalAST
         std::string ret = constantDeclarations->GenCCode(table, isRef);
         ret += variableDeclarations->GenCCode(table, isRef);
         ret += subProgramDeclarations->GenCCode(table, isRef);
-        ret += "int main(){\n";
+        ret += "int main()\n{\n";
         ret += compoundStatemnet->GenCCode(table, isRef);
         ret += "return 0;\n}";
         return ret;
