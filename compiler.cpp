@@ -49,30 +49,47 @@ int main(int argc, char *argv[])
         "./tools/ll1_table.txt",
         "./tools/sync.txt",
         "programstruct");
-    // Tools::ShowLL1Table();
-    std::cout << "-----------PARSE ST-----------" << std::endl;
+
+    std::cout << "Parsing..." << std::endl;
     bool ok;
     PascalAST::AbstractSyntaxTree ast(parser.Parse(ok));
     if (!ok)
+    {
+        std::cout << "Fatal error encountered, exiting..." << std::endl;
         return 0;
-    // ast.astRoot->Show();
+    }
+    std::cout << "Done!" << std::endl;
+
+    // 保存 AST 到文件
     if (args.exist("tree"))
     {
-        // output AST to file
+        std::cout << "Saving AST to \"" + args.get<std::string>("input") + ".tree.txt\"..." << std::endl;
+        // 将 cout 重定向至文件输出流
         std::ofstream fout(args.get<std::string>("input") + ".tree.txt");
         std::streambuf *oldcout = std::cout.rdbuf(fout.rdbuf());
         ast.astRoot->FormatShow(0);
+        // 将 cout 重定向至标准输出流
         std::cout.rdbuf(oldcout);
         fout.close();
-    }
-    std::cout << "-----------PARSE EN-----------" << std::endl;
-    if (ast.Check())
-    {
-        // output C code to file
-        std::ofstream fout(args.get<std::string>("output"));
-        fout << Fomatting(ast.GenCCode());
-        fout.close();
+        std::cout << "Done!" << std::endl;
     }
 
+    std::cout << "Checking..." << std::endl;
+    ok = ast.Check();
+    if (!ok)
+    {
+        std::cout << "Fatal error encountered, exiting..." << std::endl;
+        return 0;
+    }
+    std::cout << "Done!" << std::endl;
+
+    // output C code to file
+    std::cout << "Saving C code to \"" + args.get<std::string>("output") + "\"..." << std::endl;
+    std::ofstream fout(args.get<std::string>("output"));
+    fout << Fomatting(ast.GenCCode());
+    fout.close();
+    std::cout << "Done!" << std::endl;
+
+    std::cout << "Compilation complete, exiting..." << std::endl;
     return 0;
 }
