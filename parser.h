@@ -36,7 +36,7 @@ namespace CompilerFront
             Tools::AddConstantSymbols();
             Tools::LoadSymbols(symbolPath);
             Tools::LoadLL1Table(tablePath, syncPath);
-            std::cout << "----------------------------INIT " << st << std::endl;
+            //std::cout << "----------------------------INIT " << st << std::endl;
             symbolStack.push(Tools::SymbolNameMap.find(st)->second);
         }
 
