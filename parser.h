@@ -53,6 +53,15 @@ namespace CompilerFront
 
         void logErrMsg(int line, int column, int topSymbolId, int curSymbolId, bool isTermi)
         {
+            static int preLine = 0;
+            static int preColumn = 0;
+
+            if (line == preLine && column == preColumn)
+                return;
+
+            preLine = line;
+            preColumn = column;
+
             std::ostringstream errMsg;
             errMsg << "line: " << line << " column: " << column << " met token: ";
 

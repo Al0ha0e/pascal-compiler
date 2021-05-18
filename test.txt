@@ -2,12 +2,12 @@ program example(input, output);
     var q, w: array[1..2,27..40] of integer;x,y:integer;
     function gcd(var a, b: integer): integer;
         begin 
-            q[a,b] := gcd(a,b);
+            q[a,b] = gcd(a,b);
             w[b,a] := y + 123;
-            if q<w then gcd:=a
+            if q<w then gcd=a
             else gcd:=gcd(b, a)
         end;
     begin
-        read(x, y);
+        read(x, );
         write(gcd(x, y))
-    end.
+    end

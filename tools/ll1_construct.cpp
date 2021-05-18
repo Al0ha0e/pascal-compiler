@@ -290,7 +290,7 @@ namespace Tools
     std::map<int, std::map<int, LL1Item>> LL1Table;
     std::map<int, std::set<int>> SyncTable;
 
-    static std::vector<std::string> syncSymbol = {"$", "begin", "const", "var", "procedure", "function", "array", "(", "for", "if", "read", "write"};
+    static std::vector<std::string> syncSymbol = {"$", "begin", "const", "var", "procedure", "function", "array", "for", "if", "read", "write"};
 
     void GenLL1()
     {

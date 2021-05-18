@@ -9,11 +9,12 @@ namespace CompilerFront
         curToken = lexer.GetToken();
         nxtToken = lexer.GetToken();
         int ifCnt = 0;
+
         while (!symbolStack.empty())
         {
-            // std::cout << "--------CURTOKEN " << curToken.type << " " << curToken.content << " --------" << std::endl;
+            //std::cout << "--------CURTOKEN " << curToken.type << " " << curToken.content << " --------" << std::endl;
             int topSymbolId = symbolStack.top();
-            // std::cout << "STK TOP " << symbolStack.size() << " " << Tools::InvSymbolNameMap.find(topSymbolId)->second << std::endl;
+            //std::cout << "STK TOP " << symbolStack.size() << " " << Tools::InvSymbolNameMap.find(topSymbolId)->second << std::endl;
             const Tools::Symbol &topSymbol = Tools::Symbols.find(topSymbolId)->second;
 
             int oriSymbolId = Tools::SymbolNameMap.find(curToken.type)->second;
@@ -58,7 +59,7 @@ namespace CompilerFront
                     }
                     else
                     {
-                        while (items.find(oriSymbolId) == items.end() || syncSet.find(oriSymbolId) == syncSet.end())
+                        while ((items.find(oriSymbolId) == items.end()) && (syncSet.find(oriSymbolId) == syncSet.end()))
                         {
                             curToken = nxtToken;
                             nxtToken = lexer.GetToken();
@@ -126,7 +127,7 @@ namespace CompilerFront
                             {
                                 expression = topSymbol.subExpressions.find(sbitem)->second[0];
                                 expression.insert(expression.begin(), sbitem);
-                                ifCnt--; //TODO DEBUG
+                                ifCnt--;
                                 break;
                             }
                         }

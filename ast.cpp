@@ -606,9 +606,8 @@ namespace PascalAST
                 if (expression == nullptr)
                 {
                     if (variable->varPart != nullptr && !variable->varPart->isProcedureCall)
-                    {
-                        //TODO: Error
-                    }
+                        logErrMsg(variable->stLine, variable->stColumn, "Warning: there cannot be a single array without an assign expression");
+
                     ASTNode *procedureCallStatement = new ProcedureCallStatement(std::move(variable));
                     return std::unique_ptr<ASTNode>(procedureCallStatement);
                 }
