@@ -48,7 +48,7 @@ namespace PascalAST
 
     bool VOIDType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
         return false;
     }
 
@@ -79,7 +79,7 @@ namespace PascalAST
     {
         if (anotherType->IsBasicType())
             return true;
-        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
         return false;
     }
 
@@ -133,7 +133,7 @@ namespace PascalAST
     {
         if (anotherType->IsBasicType())
             return true;
-        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
         return false;
     }
 
@@ -181,7 +181,7 @@ namespace PascalAST
     {
         if (anotherType->IsBasicType())
             return true;
-        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
         return false;
     }
 
@@ -236,7 +236,7 @@ namespace PascalAST
     {
         if (anotherType->IsBasicType())
             return true;
-        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
         return false;
     }
 
@@ -310,14 +310,14 @@ namespace PascalAST
     {
         if (anotherType->GetTypeId() != TUPLE)
         {
-            errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+            errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
             return false;
         }
         std::string anoTypeStr = anotherType->ToString();
         auto ano(UniquePtrCast<TupleType>(anotherType));
         if (ano->subTypes.size() != subTypes.size())
         {
-            errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anoTypeStr;
+            errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anoTypeStr;
             return false;
         }
 
@@ -356,7 +356,7 @@ namespace PascalAST
 
     bool FuncType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
         return false;
     }
 
@@ -395,7 +395,7 @@ namespace PascalAST
 
     bool ArrayType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
         return false;
     }
 
@@ -483,7 +483,7 @@ namespace PascalAST
             compatible = targetType->AssignCompatible(std::move(anotherType), errMsg);
         }
         if (!compatible)
-            errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anoTypeStr;
+            errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anoTypeStr;
         return compatible;
     }
 
@@ -509,7 +509,7 @@ namespace PascalAST
 
     bool RValueType::AssignCompatible(std::unique_ptr<TypeInfo> &&anotherType, std::string &errMsg)
     {
-        errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anotherType->ToString();
+        errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anotherType->ToString();
         return false;
     }
 
@@ -562,7 +562,7 @@ namespace PascalAST
             compatiable = targetType->AssignCompatible(std::move(anotherType), errMsg);
         }
         if (!compatiable)
-            errMsg = std::string("type ") + ToString() + " cannot be assigned by type" + anoTypeStr;
+            errMsg = std::string("type ") + ToString() + " cannot be assigned by type " + anoTypeStr;
         return compatiable;
     }
 }

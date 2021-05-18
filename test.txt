@@ -5,10 +5,10 @@ program example(input, output);
         begin 
             while x < 10 do
             begin
-                x := x + 1;
+                x := 'a';
             end;
         end;
     begin
-        read(q[1,27], y);
-        write(gcd(x, y))
+        read(q[1,27],x,y);
+        write(gcd(x, y),x/y)
     end.

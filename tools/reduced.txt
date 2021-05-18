@@ -56,6 +56,7 @@ simple_expression term simple_expression_87
 term factor term_88
 factor ( expression )
 factor num
+factor ' letter '
 factor - factor
 factor variable
 factor not factor

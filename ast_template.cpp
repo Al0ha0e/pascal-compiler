@@ -353,6 +353,9 @@ if(expressionFirst=="num"){
 if(expressionFirst=="-"){
 //factor-->- factor
 }
+if(expressionFirst=="'"){
+//factor-->' letter '
+}
 if(expressionFirst=="("){
 //factor-->( expression )
 }

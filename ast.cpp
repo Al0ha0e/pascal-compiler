@@ -906,6 +906,15 @@ namespace PascalAST
                 numFactor->type = oriASTNode->info;
                 return std::unique_ptr<ASTNode>((ASTNode *)numFactor);
             }
+            if (expressionFirst == "'")
+            {
+                //factor-->' letter '
+                NumFactor *numFactor = new NumFactor();
+                auto oriASTNode(Unpack<OriASTNode>(subNodes[1]));
+                numFactor->val = oriASTNode->content;
+                numFactor->type = oriASTNode->info;
+                return std::unique_ptr<ASTNode>((ASTNode *)numFactor);
+            }
             if (expressionFirst == "-")
             {
                 //factor-->- factor
