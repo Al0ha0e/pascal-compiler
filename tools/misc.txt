@@ -1,64 +1,437 @@
-compound_statement---
-program_body subprogram_body statement 
-const_value---
-const_declaration const_declaration_82
-type---
-var_declaration var_declaration_83
-basic_type---
-type subprogram_head value_parameter
-subprogram_body---
-subprogram
-formal_parameter---
-subprogram_head
-parameter---
-parameter_list parameter_list_85
-var_parameter---
-parameter
-value_parameter---
-parameter var_parameter
-statement---
-statement_list else_part statement_list_86
-variable---
-variable_list factor variable_list_87
-expression---
-statement expression_list expression_list_88
-procedure_call---
-statement
-else_part---
-statement
-id_varpart---
-variable
-simple_expression---
-expression
-term---
-simple_expression simple_expression_89
-factor---
-term term_90
-idlist_80---
-idlist
-subprogram_declarations_81---
-subprogram_declarations
-const_declaration_82---
-const_declaration
-var_declaration_83---
-var_declaration
-period_84---
-period
-parameter_list_85---
-parameter_list
-statement_list_86---
-statement_list
-variable_list_87---
-variable_list
-expression_list_88---
-expression_list
-simple_expression_89---
-simple_expression
-term_90---
-term
-program_head_91---
-program_head
-expression_92---
-expression
-procedure_call_93---
-procedure_call
+Program
+ProgramHead quicksortIdentifiers input output
+ProgramBody
+ConstantDeclarations
+VariableDeclarations
+VariableDeclaration
+ArrayTypeDecl
+Ranges
+Range 1 10
+BasicTypeDecl integer
+Identifiers a
+VariableDeclaration
+BasicTypeDecl integer
+Identifiers k m
+SubProgram
+SubProgramHead partition
+ParameterList
+Parameter 0
+BasicTypeDecl integer
+Identifiers low
+Parameter 0
+BasicTypeDecl integer
+Identifiers high
+BasicTypeDecl integer
+SubProgramBody
+ConstantDeclarations
+VariableDeclarations
+VariableDeclaration
+BasicTypeDecl integer
+Identifiers i j temp
+CompoundStatement
+StatementList
+VariableAssignStatement
+Variable i
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable low
+AddOpPart -
+Term
+NumFactor 1 int
+VariableAssignStatement
+Variable j
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable low
+WhileStatement
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable j
+RelPart <
+SimpleExpression
+Term
+VariableFactor
+Variable high
+SubCompoundStatement
+CompoundStatement
+StatementList
+IfElseStatement
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable j
+RelPart <=
+SimpleExpression
+Term
+VariableFactor
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable high
+SubCompoundStatement
+CompoundStatement
+StatementList
+VariableAssignStatement
+Variable i
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable i
+AddOpPart +
+Term
+NumFactor 1 int
+VariableAssignStatement
+Variable temp
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable i
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable i
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable j
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable j
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable temp
+VariableAssignStatement
+Variable j
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable j
+AddOpPart +
+Term
+NumFactor 0 int
+VariableAssignStatement
+Variable j
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable j
+AddOpPart +
+Term
+NumFactor 1 int
+VariableAssignStatement
+Variable i
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable i
+AddOpPart +
+Term
+NumFactor 1 int
+VariableAssignStatement
+Variable temp
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable i
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable i
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable high
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable high
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable temp
+VariableAssignStatement
+Variable partition
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable i
+SubProgram
+SubProgramHead qs
+ParameterList
+Parameter 0
+BasicTypeDecl integer
+Identifiers low
+Parameter 0
+BasicTypeDecl integer
+Identifiers high
+SubProgramBody
+ConstantDeclarations
+VariableDeclarations
+VariableDeclaration
+BasicTypeDecl integer
+Identifiers pivot
+CompoundStatement
+StatementList
+CompoundStatement
+StatementList
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 1 int
+Expression
+SimpleExpression
+Term
+NumFactor 4 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 2 int
+Expression
+SimpleExpression
+Term
+NumFactor 9 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 3 int
+Expression
+SimpleExpression
+Term
+NumFactor 10 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 4 int
+Expression
+SimpleExpression
+Term
+NumFactor 11 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 5 int
+Expression
+SimpleExpression
+Term
+NumFactor 16 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 6 int
+Expression
+SimpleExpression
+Term
+NumFactor 41 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 7 int
+Expression
+SimpleExpression
+Term
+NumFactor 13 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 8 int
+Expression
+SimpleExpression
+Term
+NumFactor 13 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 9 int
+Expression
+SimpleExpression
+Term
+NumFactor 21 int
+VariableAssignStatement
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 10 int
+Expression
+SimpleExpression
+Term
+NumFactor 1 int
+ProcedureCallStatement
+Variable qs
+VarPart 1
+ExpressionList
+Expression
+SimpleExpression
+Term
+NumFactor 1 int
+Expression
+SimpleExpression
+Term
+NumFactor 10 int
+VariableAssignStatement
+Variable k
+Expression
+SimpleExpression
+Term
+NumFactor 1 int
+WhileStatement
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable k
+RelPart <=
+SimpleExpression
+Term
+NumFactor 10 int
+SubCompoundStatement
+CompoundStatement
+StatementList
+VariableAssignStatement
+Variable m
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable a
+VarPart 0
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable k
+WriteStatement
+ExpressionList
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable m
+VariableAssignStatement
+Variable k
+Expression
+SimpleExpression
+Term
+VariableFactor
+Variable k
+AddOpPart +
+Term
+NumFactor 1 int

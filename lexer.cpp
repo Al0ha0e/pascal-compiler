@@ -124,7 +124,7 @@ namespace CompilerFront
         }
         if (curChar == '<')
         {
-            if (++pos >= contentLength || content[pos] != '>' || content[pos] != '=')
+            if (++pos >= contentLength || (content[pos] != '>' && content[pos] != '='))
                 return Token("relop", "<", line, column++);
             std::string retStr = content[pos] == '>' ? "<>" : "<=";
             pos++;

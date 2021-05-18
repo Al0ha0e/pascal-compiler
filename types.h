@@ -92,7 +92,7 @@ namespace PascalAST
         WrapperType(std::unique_ptr<TypeInfo> &&target, TypeID id) : targetType(std::move(target)), TypeInfo(id)
         {
             if (targetType->IsWrapperType())
-                targetType = UniquePtrCast<WrapperType>(target)->DeWrap();
+                targetType = UniquePtrCast<WrapperType>(targetType)->DeWrap();
         }
 
         virtual std::unique_ptr<TypeInfo> CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg) override;

@@ -197,7 +197,7 @@ namespace PascalAST
         std::unique_ptr<TypeInfo> &type = symbolIt->second.type;
         //std::cout << "VTYPE " << type->GetTypeId() << std::endl;
         auto targetType(((WrapperType *)type.get())->DeWrap());
-        //std::cout << "TARGET TYPE " << targetType->GetTypeId() << std::endl;
+        // std::cout << "TARGET TYPE " << targetType->ToString() << std::endl;
 
         std::string errMsg;
 
@@ -607,7 +607,6 @@ namespace PascalAST
         auto retType(lVoid->Copy());
         if (returnType != nullptr)
         {
-            //std::cout << "SubProgramHead OVER " << ok << std::endl;
             retType = returnType->Check(table, ok);
         }
         std::unique_ptr<TypeInfo> funcType(

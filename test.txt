@@ -1,14 +1,13 @@
 program example(input, output);
-    var q, w: array[1..2,27..40] of integer;x,y:integer;m,n:real; ##${dsada
-    sda}
+    var q, w: array[1..2,27..40] of integer;x,y:integer;
     function gcd(var a, b: integer): integer;
         begin 
-            while x < 10 do
-            begin
-                x := 'a';
-            end;
+            q[a,b] := gcd(a,b);
+            w[b,a] := y + 123;
+            if b=0 then gcd:=a
+            else gcd:=gcd(b, a)
         end;
     begin
-        read(q[1,27],x,y);
-        write(gcd(x, y),x/y)
+        read(x, y);
+        write(gcd(x, y))
     end.
