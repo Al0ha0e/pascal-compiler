@@ -1,0 +1,4 @@
+program example(input, output);
+    var 1x,2y:integer;
+    begin
+    end.

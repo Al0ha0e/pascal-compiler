@@ -1,0 +1,5 @@
+program example(input, output);
+    var q, w: array[1..2,1..40] of integer;x,y:integer;
+    begin
+        q[w, 2]:= 1;
+    end.

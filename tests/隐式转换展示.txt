@@ -1,0 +1,12 @@
+program example(input, output);
+    const a = 'a'; b =  'b';
+    var q: integer; w: array[1..300] of integer; c: real;
+    begin
+        q := a + b;
+        q := a div b;
+        q := a mod b;
+        w[a] := 1;
+        w[b] := 2;
+        q := a div b * c;
+        q := a div c * b;
+    end.

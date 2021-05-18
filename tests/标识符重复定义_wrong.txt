@@ -1,0 +1,5 @@
+program example(input, output);
+    var q: integer; q: real;
+    begin
+        q := 1;
+    end.

@@ -1,0 +1,11 @@
+program example(input, output);
+    var x,y,z:integer;
+    function gcd(var a, b: integer): integer;
+        begin 
+            gcd := a * b;
+        end;
+    begin
+        read(x, y);
+        z := x + y;
+        write(gcd(z, y));
+    end.

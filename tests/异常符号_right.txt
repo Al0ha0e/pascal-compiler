@@ -1,0 +1,4 @@
+program example(input, output);
+    var zhang:integer;
+    begin
+    end.

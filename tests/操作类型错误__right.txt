@@ -1,0 +1,5 @@
+program example(input, output);
+    var x,y,z: integer;
+    begin
+        y := x + z;
+    end.

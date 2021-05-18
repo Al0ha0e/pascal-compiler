@@ -1,0 +1,6 @@
+program example(input, output);
+    var zhang,q:integer;
+    begin
+    read(zhang);
+    if zhang = 0 then q := 1 else q := 2;
+    end.

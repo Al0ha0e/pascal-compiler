@@ -1,0 +1,7 @@
+program example(input, output);
+    var q, w, e:real;
+    begin
+        q := 2;
+        w := 1;
+        e := q div w;
+    end.

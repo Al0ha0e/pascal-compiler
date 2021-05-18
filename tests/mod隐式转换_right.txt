@@ -1,0 +1,7 @@
+program example(input, output);
+    var q, w, e:integer;
+    begin
+        q := 2;
+        w := 1;
+        e := q mod w;
+    end.

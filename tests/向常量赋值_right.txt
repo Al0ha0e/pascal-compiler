@@ -1,0 +1,5 @@
+program example(input, output);
+    const q = 'a';
+    begin
+        write(q);
+    end.

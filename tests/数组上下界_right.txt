@@ -1,0 +1,4 @@
+program example(input, output);
+    var q: array[1..2,27..40] of integer;
+    begin
+    end.

@@ -1,0 +1,4 @@
+program example(input, output);
+    const q = 'w';
+    begin
+    end.
