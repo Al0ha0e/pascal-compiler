@@ -372,9 +372,8 @@ namespace PascalAST
     void ConstantDeclaration::FormatShow(int level)
     {
         std::cout << std::string(2 * level, ' ');
-        std::cout << "ConstantDeclaration " << name << " ";
+        std::cout << "ConstantDeclaration " << name << " " << content << std::endl;
         type->FormatShow(level + 1);
-        std::cout << content << std::endl;
     }
 
     void ConstantDeclarations::FormatShow(int level)
