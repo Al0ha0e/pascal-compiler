@@ -656,6 +656,7 @@ namespace PascalAST
     void SubProgramDeclarations::FormatShow(int level)
     {
         std::cout << std::string(2 * level, ' ');
+        std::cout << "SubProgramDeclarations " << std::endl;
         for (auto &program : subPrograms)
             program->FormatShow(level + 1);
     }
