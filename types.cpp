@@ -7,8 +7,8 @@ namespace PascalAST
     inline bool isRelop(std::string op)
     {
         if (op == "=" || op == "<" || op == "<=" || op == ">" || op == ">=" || op == "<>")
-            return false;
-        return true;
+            return true;
+        return false;
     }
 
     std::unique_ptr<TypeInfo> TypeInfo::CalcType(std::unique_ptr<TypeInfo> &&anotherType, std::string op, bool &ok, std::string &errMsg)
